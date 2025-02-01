@@ -4,17 +4,17 @@ import { galleryImages } from "./data";
 export default function Hero() {
     return (
         <div className="bg-[#f5f5f0]">
-            <div className="w-full h-[500px] flex">
-                {galleryImages.map((e) => (<img src={e} key={""} alt="Norway" className="w-1/3 h-full object-cover" />))}
+            <div className="w-full lg:h-[500px] flex lg:flex-row flex-col">
+                {galleryImages.map((e) => (<img src={e} key={""} alt="Norway" className="w-full lg:w-1/3 h-full object-cover" />))}
 
 
 
             </div>
             <div className="mt-12 mb-10 flex flex-col items-center justify-center">
-                <div className="text-center">
+                <div className="text-center md:max-w-5xl max-w-3xl">
                     <h1 className="text-4xl font-bold text-gray-800 mb-4">Craft Your Perfect Shirt</h1>
                     <p className="text-2xl text-gray-600 mb-8">Today</p>
-                    <p className="max-w-5xl text-gray-500 leading-relaxed mb-7">
+                    <p className="text-gray-500 leading-relaxed mb-7">
                         Welcome to Stitch My Clothes, the ultimate destination for custom shirt enthusiasts!
 
                         Our platform offers an extensive range of customization options, allowing you to create a shirt that truly represents your personal style and taste.

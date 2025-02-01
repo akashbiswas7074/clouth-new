@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 const Footer = () => {
@@ -20,9 +21,10 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[#f5f5f0] py-14 px-4 space-y-10">
+    <footer className="bg-[#f5f5f0] md:py-14 px-4 space-y-10">
  
-        <div className="flex flex-col items-center justify-between md:flex-row md:space-x-8 ">
+        <div className="flex flex-col items-center justify-between lg:flex-row ">
+          <div className="flex flex-row items-center space-x-20">
           <div>
             <h4 className="font-bold text-2xl mb-2">Shop</h4>
             <ul className="text-md text-gray-500">
@@ -61,7 +63,8 @@ const Footer = () => {
               ))}
             </ul>
           </div>
-          <div className="text-center md:text-left mb-4 md:mb-0">
+          </div>
+          <div className="text-center md:text-left mb-4 md:mb-0 mt-10 lg:mt-0">
           <h4 className="font-bold text-2xl mb-2">
             Subscribe to Our Newsletter
           </h4>
@@ -75,11 +78,14 @@ const Footer = () => {
               placeholder="Enter your email"
               className="border border-gray-300 rounded-md px-3 py-2 text-md w-full md:w-auto" 
             />
-            <button className="bg-black text-white py-2 px-4 rounded-md ml-2 hover:bg-gray-800 text-md">
+            <button className="bg-black text-white px-4 rounded-md ml-2 hover:bg-gray-800 text-md">
               {" "}
           
               Subscribe
             </button>
+            <div>
+            <Image src={'/logo 40.png'} alt="logo-footer" width={150} height={150} className="ml-4"/>
+            </div>
           </div>
         </div>
         </div>
@@ -90,7 +96,7 @@ const Footer = () => {
           <p className="text-md text-gray-500">
             © {currentYear} Stich My Clothes. All rights reserved.
           </p>
-          <div className="flex flex-col md:flex-row md:space-x-4 mt-2 text-md text-gray-500 justify-center">
+          <div className="flex flex-col sm:flex-row sm:space-x-4 mt-2 text-md text-gray-500 justify-center">
             <Link href="/terms">
               <p className="hover:underline">Terms and Conditions</p>
             </Link>

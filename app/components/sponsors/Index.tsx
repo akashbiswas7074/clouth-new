@@ -8,7 +8,7 @@ const Sponsers = () => {
     <div
       className='bg-[#f5f5f0] pb-10 text-black flex flex-col justify-center items-center min-s-screen'
     >
-      <p className='text-4xl p-4 mb-10 non-italic font-bold pt-10 '>SPONSORS</p>
+      <p className='text-4xl p-4 mb-10 non-italic font-bold pt-10 '></p>
 
       <div className='relative overflow-hidden w-[100%] flex flex-row justify-center items-center'>
         <div className='w-[90%]'>

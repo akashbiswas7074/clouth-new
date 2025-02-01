@@ -4,32 +4,32 @@ import Image from 'next/image'
 const DiverseShirt = () => {
   const fabrics = [
     { 
-      src: '/g1.jpg', 
+      src: '/fab1.webp', 
       alt: 'Fabric 1',
       
     },
     { 
-      src: '/g2.webp', 
+      src: '/fab3.webp', 
       alt: 'Fabric 2',
       
     },
     { 
-      src: '/g3.webp', 
+      src: '/fab2.jpg', 
       alt: 'Fabric 3',
       
     },
     { 
-      src: '/g1.jpg', 
+      src: '/fab4.webp', 
       alt: 'Fabric 4',
       
     },
     { 
-      src: '/g2.webp', 
+      src: '/fab5.webp', 
       alt: 'Fabric 5',
       
     },
     { 
-      src: '/g3.webp', 
+      src: '/fab6.jpg', 
       alt: 'Fabric 6',
       
     },
@@ -38,10 +38,10 @@ const DiverseShirt = () => {
   return (
     <div className="max-w-7xl mx-auto p-4"> 
       <h1 className="text-5xl font-bold mb-10 text-center"> 
-        Discover New Shirts
+        New Fabrics
       </h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 "> 
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-5 "> 
         {fabrics.map((fabric, index) => (
           <div key={index} className="relative shadow-md shadow-black/30">
             <Image
