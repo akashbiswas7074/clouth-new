@@ -83,11 +83,11 @@ const SearchModal = ({ setOpen }: { setOpen: any }) => {
                   className="space-y-2 min-w-[110px] flex-shrink-0 sm:min-w-0"
                 >
                   <div className="aspect-square relative">
-                    <img
+                    {/* <img
                       src={product.image}
                       alt={product.name}
                       className="absolute inset-0 w-[200px] h-full object-cover rounded-none"
-                    />
+                    /> */}
                     <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
                       {product.discount}% OFF
                     </span>

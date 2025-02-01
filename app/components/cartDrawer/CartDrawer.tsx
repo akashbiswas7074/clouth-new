@@ -87,11 +87,11 @@ const CartDrawer = () => {
                 className="flex items-center space-x-4 border-b-2 pb-3"
                 key={item.id}
               >
-                <img
+                {/* <img
                   src={item.image}
                   alt={item.name}
                   className="w-16 h-16 sm:w-20 sm:h-20 object-cover"
-                />
+                /> */}
                 <div className="flex-1">
                   <h3 className="font-semibold text-xs sm:text-sm tracking-wide">
                     {item.name}
