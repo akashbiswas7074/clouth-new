@@ -16,56 +16,56 @@ const products: Product[] = [
     name: "Lightweight Summer Jacket",
     description: "Light and comfortable.",
     price: 69.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g1.jpg",
   },
   {
     name: "Classic Blue Jeans",
     description: "Durable and stylish.",
     price: 49.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g2.webp",
   },
   {
     name: "White Linen Shirt",
     description: "Breathable and elegant.",
     price: 39.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g3.webp",
   },
   {
     name: "Hoodie",
     description: "Cozy and warm.",
     price: 79.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g2.webp",
   },
   {
     name: "Another Jacket",
     description: "Stylish and warm.",
     price: 89.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g3.webp",
   },
   {
     name: "Cargo Pants",
     description: "Practical and comfortable.",
     price: 59.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g2.webp",
   },
   {
     name: "Dress Shirt",
     description: "Formal and elegant.",
     price: 49.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g1.jpg",
   },
   {
     name: "Sweater",
     description: "Soft and warm.",
     price: 69.99,
-    imageSrc: "/collar.jpg",
+    imageSrc: "/g2.webp",
   },
 ];
 
 const Explore = () => {
   const settings = {
     dots: true,
-    infinite: false,
+    infinite: true,
     speed: 500,
     slidesToShow: 4,
     slidesToScroll: 4,
@@ -100,7 +100,7 @@ const Explore = () => {
   };
 
   return (
-    <div className="p-4 bg-gray-100">
+    <div className="p-4 bg-[#f5f5f0]">
       <h1 className="text-5xl font-bold my-10 text-center">
         Discover New Shirts
       </h1>

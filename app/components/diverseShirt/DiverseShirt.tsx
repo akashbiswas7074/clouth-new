@@ -4,32 +4,32 @@ import Image from 'next/image'
 const DiverseShirt = () => {
   const fabrics = [
     { 
-      src: '/collar.jpg', 
+      src: '/g1.jpg', 
       alt: 'Fabric 1',
       
     },
     { 
-      src: '/collar.jpg', 
+      src: '/g2.webp', 
       alt: 'Fabric 2',
       
     },
     { 
-      src: '/collar.jpg', 
+      src: '/g3.webp', 
       alt: 'Fabric 3',
       
     },
     { 
-      src: '/collar.jpg', 
+      src: '/g1.jpg', 
       alt: 'Fabric 4',
       
     },
     { 
-      src: '/collar.jpg', 
+      src: '/g2.webp', 
       alt: 'Fabric 5',
       
     },
     { 
-      src: '/collar.jpg', 
+      src: '/g3.webp', 
       alt: 'Fabric 6',
       
     },

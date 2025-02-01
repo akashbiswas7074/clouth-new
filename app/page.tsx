@@ -1,16 +1,20 @@
 import React from 'react'
-import Navbar from './components/Navbar/Navbar'
+
+import Hero from './components/hero'
 import DiverseShirt from './components/diverseShirt/DiverseShirt'
-import Explore from './components/explore/Explore'
-
-
+// import Explore from './components/explore/Explore'
+import Footer from './components/footer/Footer'
+import Sponsers from './components/sponsors/Index'
 
 const page = () => {
   return (
     <>
-      <Navbar/>
+      <Hero />
+      {/* <Explore/> */}
       <DiverseShirt/>
-      <Explore/>
+      {/* <Explore/> */}
+      <Sponsers/>
+      <Footer/>
     </>
   )
 }
