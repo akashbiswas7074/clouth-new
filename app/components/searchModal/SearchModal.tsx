@@ -6,6 +6,7 @@ import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { X } from "lucide-react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SearchModal = ({ setOpen }: { setOpen: any }) => {
   const trendingSearches = [
     "Perfume",

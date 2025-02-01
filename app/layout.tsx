@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Play } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar/Navbar";
+import Preloader from "./components/Preloader";
 
 
 const play = Play({
@@ -28,7 +29,7 @@ export default function RootLayout({
       
       <body
         className={` ${play.variable} antialiased`}
-      >
+      ><Preloader/>
         <Navbar/>
         {children}
       </body>
