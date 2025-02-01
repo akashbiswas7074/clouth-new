@@ -6,6 +6,7 @@ import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
 import { X } from "lucide-react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SearchModal = ({ setOpen }: { setOpen: any }) => {
   const trendingSearches = [
     "Perfume",
@@ -82,11 +83,11 @@ const SearchModal = ({ setOpen }: { setOpen: any }) => {
                   className="space-y-2 min-w-[110px] flex-shrink-0 sm:min-w-0"
                 >
                   <div className="aspect-square relative">
-                    <img
+                    {/* <img
                       src={product.image}
                       alt={product.name}
                       className="absolute inset-0 w-[200px] h-full object-cover rounded-none"
-                    />
+                    /> */}
                     <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded">
                       {product.discount}% OFF
                     </span>
