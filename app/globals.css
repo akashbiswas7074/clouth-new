@@ -73,3 +73,11 @@ body {
 
 .st0{fill:#A7120B;}
 	.st1{fill:#848383;}
+
+
+  @layer base {
+    /* Your custom global styles */
+    html {
+      font-family: 'Inter', sans-serif;
+    }
+  }
