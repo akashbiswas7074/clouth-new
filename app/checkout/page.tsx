@@ -60,20 +60,20 @@ type OrderItems = {
  */
 const orderItems: OrderItems[] = [
   {
-    name: "High-End Fragrance Collection for Males",
-    size: "300ml",
+    name: "Cotton shirt",
+    size: "M",
     quantity: 1,
     price: 999.0,
     image:
-      "https://res.cloudinary.com/dtxh3ew7s/image/upload/v1727352106/2_upscaled_g6ibby.png",
+      "/g1.jpg",
   },
   {
-    name: "High-End Fragrance Collection for Males",
-    size: "200ml",
+    name: "Black shirt",
+    size: "XL",
     quantity: 1,
     price: 799.0,
     image:
-      "https://res.cloudinary.com/dtxh3ew7s/image/upload/v1727352106/1_upscaled_pku7p3.png",
+      "/g2.webp",
   },
 ];
 
@@ -121,7 +121,7 @@ const CheckoutPage = () => {
 
   return (
     <div className="container mx-auto pt-36">
-      <h1 className="heading mb-6 text-center">CHECKOUT</h1>
+      <h1 className="text-4xl text-[#646464] font-bold mb-6 text-center">CHECKOUT</h1>
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left section for checkout steps */}
         <div className="lg:w-2/3 w-full px-4">
@@ -167,7 +167,7 @@ const CheckoutPage = () => {
           </div>
 
           {/* Render the current step's content */}
-          <Card>
+          <Card className="bg-[#f5f5f0]">
             <CardHeader>
               <CardTitle className="subHeading">
                 {steps[currentStep].title}
@@ -227,7 +227,7 @@ const CheckoutPage = () => {
                     <Label htmlFor="address2">Address 2</Label>
                     <Input id="address2" placeholder="Address 2" />
                   </div>
-                  <Button className="w-full" onClick={handleNext}>
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
                     Save Address
                   </Button>
                 </div>
@@ -245,7 +245,7 @@ const CheckoutPage = () => {
                       onChange={(e) => setCouponCode(e.target.value)}
                     />
                   </div>
-                  <Button className="w-full" onClick={handleNext}>
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
                     Apply Coupon
                   </Button>
                 </div>
@@ -274,10 +274,10 @@ const CheckoutPage = () => {
                       </div>
                     </div>
                   </RadioGroup>
-                  <Button className="w-full" onClick={handleNext}>
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
                     Confirm Payment Method
                   </Button>
-                  <Button className="w-full" asChild>
+                  <Button className="w-full bg-[#c40600] text-white" asChild>
                     <Link href="/order">Place Order</Link>
                   </Button>
                 </div>
@@ -288,12 +288,12 @@ const CheckoutPage = () => {
           {/* Navigation buttons for moving between steps */}
           <div className="mt-4 flex space-x-4 justify-center lg:justify-start">
             {currentStep > 0 && (
-              <Button variant={"outline"} onClick={handlePrevious}>
+              <Button variant={"outline"} className="bg-[#c40600] text-white" onClick={handlePrevious}>
                 Back
               </Button>
             )}
             {currentStep < steps.length - 1 && (
-              <Button variant={"outline"} onClick={handleNext}>
+              <Button variant={"outline"} className="bg-[#c40600] text-white" onClick={handleNext}>
                 Continue
               </Button>
             )}
@@ -302,7 +302,7 @@ const CheckoutPage = () => {
 
         {/* Right section for order summary */}
         <div className="lg:w-1/3 w-full px-4">
-          <Card>
+          <Card className="bg-[#f5f5f0]">
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>

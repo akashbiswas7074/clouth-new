@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import CartDrawer from '../cartDrawer/CartDrawer';
+import AccountPopUp from '../accountPopUp/AccountPopUp';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,7 +39,9 @@ export default function Navbar() {
             <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1">1</span>
           </div>
         </div>
-        <button className="bg-[#e8e6da] text-[#4a2b2b] px-4 py-1 rounded-sm shadow-lg">Login</button>
+        <button className="bg-[#e8e6da] text-[#4a2b2b] px-4 py-1 rounded-sm shadow-lg">
+          <AccountPopUp/>
+        </button>
         <div className="md:hidden">
         <button onClick={toggleMobileMenu}>
           <Menu className="text-[#4a2b2b] h-8 w-8" />

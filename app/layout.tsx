@@ -30,8 +30,8 @@ export default function RootLayout({
       <body
         className={`antialiased`} 
       >
-        {/* <Preloader /> */}
-        {/* <Navbar /> */}
+        <Preloader /> 
+        <Navbar />
         {children}
       </body>
     </html>
