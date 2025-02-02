@@ -14,13 +14,11 @@ export default function Navbar() {
   return (
     <nav className="w-full bg-[#f5f5f0] shadow-md px-4 py-2 flex justify-between items-center fixed top-0 z-10"> 
       <div className="flex items-center">
-        <Image src={'/logo.png'} alt='logo' width={50} height={50}  /> 
+        <Image src={'/logo.png'} alt='logo' width={80} height={80}  /> 
       </div>
 
      
       
-
-
      
       <div className="md:block hidden lg:flex items-center space-x-6 text-[#4a2b2b] font-medium"> 
         <Link href="/about">About</Link>

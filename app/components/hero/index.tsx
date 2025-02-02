@@ -7,10 +7,12 @@ export default function Hero() {
       <div className="w-full lg:h-[500px] flex lg:flex-row flex-col">
         {galleryImages.map((e) => (
           <Image
-            src={e}
-            key={""}
-            alt="Norway"
+          src={e.src}
+          key={e.id}
+          alt={e.alt}
             className="w-full lg:w-1/3 h-full object-cover"
+            width={300}
+            height={300}
           />
         ))}
       </div>
