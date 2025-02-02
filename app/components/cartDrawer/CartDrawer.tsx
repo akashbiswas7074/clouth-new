@@ -38,19 +38,19 @@ const CartDrawer = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([
     {
       id: "1",
-      name: "High-End Fragrance Collection for Males",
+      name: "Cotton shirts",
       price: 1615,
       quantity: 4,
       image:
-        "https://res.cloudinary.com/dtxh3ew7s/image/upload/v1727352106/2_upscaled_g6ibby.png",
+        "/g1.jpg",
     },
     {
       id: "2",
-      name: "High-End Fragrance Collection for Males",
+      name: "Black Shirts",
       price: 2300,
       quantity: 4,
       image:
-        "https://res.cloudinary.com/dtxh3ew7s/image/upload/v1727352106/1_upscaled_pku7p3.png",
+        "/g2.webp",
     },
   ]);
   const removeItem = (id: string) => {
@@ -68,19 +68,16 @@ const CartDrawer = () => {
     0
   );
   return (
-    <div className="relative">
+    <div className="relative flex items-center">
       <Sheet open={cartMenuOpen} onOpenChange={setCartMenuOpen}>
         <SheetTrigger asChild>
-          <Button
+          <button
             onClick={() => 
               handleOnClickCartMenu }
-            variant={"ghost"}
-            size={"icon"}
-            className="relative"
           >
             <ShoppingCart className="text-[#4a2b2b]"/>
             
-          </Button>
+          </button>
         </SheetTrigger>
         <SheetContent className="w-[90%] max-w-[450px] sm:max-w-[540px]">
           <SheetHeader>
@@ -145,8 +142,8 @@ const CartDrawer = () => {
               Tax included. Shipping calculated at checkout.
             </p>
             <Link href={"/checkout"}>
-              <Button className="w-full mt-4 bg-black text-white hover:bg-gray-800">
-                CHECKOUT - ₹{total.toFixed(2)}
+              <Button className="w-full mt-4 bg-[#c40600]">
+                CHECKOUT - ${total.toFixed(2)}
               </Button>
             </Link>
           </div>

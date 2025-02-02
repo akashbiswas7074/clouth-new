@@ -31,7 +31,7 @@ const ShirtCustomizer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
+    <div className="flex flex-col lg:flex-row min-h-screen pt-24">
       <div className="lg:w-1/2 bg-gray-100 flex items-center justify-center">
         <Image src={'/collar.jpg'} alt="collar" width={500} height={1000}/>
       </div>
