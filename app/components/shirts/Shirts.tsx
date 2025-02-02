@@ -46,7 +46,7 @@ const Shirts = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-4">
-      <h1 className="text-5xl font-bold mb-10 text-center">
+      <h1 className="text-4xl text-[#646464] font-bold font-play mb-10 text-center">
         Discover New Shirts
       </h1>
 
@@ -65,10 +65,10 @@ const Shirts = () => {
         
       </div>
       <div className="mt-12 mb-10 flex flex-col items-center justify-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
+          <h1 className="text-4xl font-bold text-[#646464] mb-4">
             New Shirts available
           </h1>
-          <p className="max-w-3xl text-gray-500 leading-relaxed mb-7">
+          <p className="max-w-5xl text-[#505050] text-lg leading-relaxed text-center mb-7">
             From selecting the perfect fabric to choosing unique patterns and colors, we provide a seamless
             experience for crafting your ideal shirt. Our commitment to quality
             and attention to detail ensures that each piece is tailored to
@@ -77,7 +77,7 @@ const Shirts = () => {
             garment that is uniquely yours.{" "} 
 
           </p>
-          <button className="bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
+          <button className="bg-[#c40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
             Buy
           </button>
         </div>

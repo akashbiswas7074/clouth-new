@@ -16,13 +16,13 @@ export default function Hero() {
           />
         ))}
       </div>
-      <div className="mt-12 mb-10 flex flex-col items-center justify-center">
-        <div className="text-center md:max-w-5xl max-w-3xl">
-          <h1 className="text-4xl font-bold text-gray-800 mb-4">
-            Craft Your Perfect Shirt
+      <div className="mt-10 mb-10 flex flex-col items-center justify-center">
+        <div className="text-center md:max-w-5xl max-w-3xl space-y-8">
+          <h1 className="text-4xl font-bold text-[#646464]">
+            Craft Your Perfect shirt
           </h1>
-          <p className="text-2xl text-gray-600 mb-8">Today</p>
-          <p className="text-gray-500 leading-relaxed mb-7">
+          <p className="text-3xl text-[#505050] mb-8">Today</p>
+          <p className="text-[#505050] text-lg leading-relaxed mb-7">
             Welcome to Stitch My Clothes, the ultimate destination for custom
             shirt enthusiasts! Our platform offers an extensive range of
             customization options, allowing you to create a shirt that truly
@@ -34,7 +34,7 @@ export default function Hero() {
             your custom shirt today. Experience the satisfaction of wearing a
             garment that is uniquely yours.{" "}
           </p>
-          <button className="bg-black text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
+          <button className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
             Start Designing
           </button>
         </div>

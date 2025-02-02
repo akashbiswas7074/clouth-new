@@ -14,19 +14,20 @@ export default function Navbar() {
   return (
     <nav className="w-full bg-[#f5f5f0] shadow-md px-4 py-2 flex justify-between items-center fixed top-0 z-10"> 
       <div className="flex items-center">
-        <Image src={'/logo.png'} alt='logo' width={80} height={80}  /> 
+        <Image src={'/logo.png'} alt='logo' width={100} height={80}  /> 
       </div>
 
      
       
      
-      <div className="md:block hidden lg:flex items-center space-x-6 text-[#4a2b2b] font-medium"> 
+      
+
+      <div className="flex items-center space-x-4">
+      <div className="md:block hidden lg:flex items-center justify-end space-x-6 text-[#4a2b2b] font-medium"> 
         <Link href="/about">About</Link>
         <Link href="/history">History</Link>
         <Link href="/customise">Customise</Link>
       </div>
-
-      <div className="flex items-center space-x-4">
         <div className="relative">
           <div className="h-10 w-10 rounded-full bg-[#e8e6da] shadow-lg flex items-center justify-center">
             <ShoppingCart className="text-[#4a2b2b]" />

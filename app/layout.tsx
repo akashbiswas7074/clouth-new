@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
-import { Play } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar/Navbar";
 import Preloader from "./components/Preloader";
+import localFont from 'next/font/local'
 
-
-const play = Play({
-  subsets: ['latin'],
-  weight: ['400', '700'], 
-  display: 'swap',
-  variable: '--play',
-});
-
+const play = localFont({
+  src: [
+    {
+      path: './fonts/Play-Bold.ttf',
+    },
+    {
+      path: './fonts/Play-Regular.ttf',
+    },
+  ],
+})
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -24,13 +26,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    
-    <html lang="en">
-      
+    <html lang="en" className={play.className}>
       <body
-        className={` ${play.variable} antialiased`}
-      ><Preloader/>
-        <Navbar/>
+        className={`antialiased`} 
+      >
+        <Preloader />
+        <Navbar />
         {children}
       </body>
     </html>
