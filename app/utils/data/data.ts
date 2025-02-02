@@ -121,6 +121,18 @@ export interface DD_Option {
   export const fitStyles: DD_Option[] = [
     // ... your fit styles with imageAlt1 and imageAlt2
   ];
+  export const BodyStyles: DD_Option[] = [
+    // ... your fit styles with imageAlt1 and imageAlt2
+    { 
+        name: "Spread Collar", 
+        id: 1, 
+        price: 20, 
+        imageUrl1: "/images/blue/body.png", 
+        imageUrl2: "/images/blue/body.png", 
+        imageAlt1: "Spread Collar - Front View", 
+        imageAlt2: "Spread Collar - Side View" 
+      },
+  ];
   export const ButtonStyles: DD_Option[] = [
     { 
         name: "Spread Collar", 
@@ -144,11 +156,13 @@ export interface DD_Option {
   ];
   
   export const categories = [
-    { name: "Collar", id: 1 },
-    { name: "Sleeves", id: 2 },
-    { name: "Cuff", id: 3 },
-    { name: "Pocket", id: 4 },
-    { name: "Fit", id: 5 },
-    { name: "Button", id: 6 },
+    { name: "Body", id: 1},
+    { name: "Collar", id: 2 },
+    { name: "Sleeves", id: 3 },
+    { name: "Cuff", id: 4 },
+    { name: "Pocket", id: 5 },
+    { name: "Fit", id: 6 },
+    { name: "Button", id: 7 },
+    
   ];
   

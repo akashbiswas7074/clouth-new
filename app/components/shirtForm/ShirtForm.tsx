@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { collarStyles, sleeveStyles, cuffStyles, pocketStyles, fitStyles, DD_Option, categories, ButtonStyles } from "@/app/utils/data/data"; // Update import path
+import { collarStyles, sleeveStyles, cuffStyles, pocketStyles, fitStyles, DD_Option, categories, ButtonStyles, BodyStyles } from "@/app/utils/data/data"; // Update import path
 import Image from "next/image";
 import { jsPDF } from "jspdf"; // Import jsPDF
 
@@ -57,6 +57,8 @@ const ShirtCustomizer: React.FC = () => {
         return fitStyles;
       case "Button":
         return ButtonStyles;
+        case "Body":
+          return BodyStyles;
       default:
         return [];
     }
@@ -108,7 +110,7 @@ const ShirtCustomizer: React.FC = () => {
                 <Image
                   src={imageUrl2}
                   alt={`${category.name} - Default Option`}
-                  width={300}
+                  width={600}
                   height={100}
                   style={{ objectFit: "cover", opacity: 1 }} // Full opacity for the overlapping image
                 />
