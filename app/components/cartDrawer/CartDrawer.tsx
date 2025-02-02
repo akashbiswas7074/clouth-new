@@ -22,6 +22,12 @@ const CartDrawer = () => {
     setCartMenuOpen(true);
     console.log("cart", cartMenuOpen);
   };
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const closeCartMenu = () => {
+    setCartMenuOpen(false);
+  };
+
   interface CartItem {
     id: string;
     name: string;
@@ -63,18 +69,17 @@ const CartDrawer = () => {
   );
   return (
     <div className="relative">
-      <Sheet open={cartMenuOpen}>
+      <Sheet open={cartMenuOpen} onOpenChange={setCartMenuOpen}>
         <SheetTrigger asChild>
           <Button
-            onClick={() => handleOnClickCartMenu()}
+            onClick={() => 
+              handleOnClickCartMenu }
             variant={"ghost"}
             size={"icon"}
             className="relative"
           >
-            <ShoppingCart size={24} />
-            <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-black rounded-full">
-              {cartItems.length}
-            </span>
+            <ShoppingCart className="text-[#4a2b2b]"/>
+            
           </Button>
         </SheetTrigger>
         <SheetContent className="w-[90%] max-w-[450px] sm:max-w-[540px]">
@@ -87,11 +92,11 @@ const CartDrawer = () => {
                 className="flex items-center space-x-4 border-b-2 pb-3"
                 key={item.id}
               >
-                {/* <img
+                <img
                   src={item.image}
                   alt={item.name}
                   className="w-16 h-16 sm:w-20 sm:h-20 object-cover"
-                /> */}
+                />
                 <div className="flex-1">
                   <h3 className="font-semibold text-xs sm:text-sm tracking-wide">
                     {item.name}

@@ -1,8 +1,9 @@
 'use client'
-import Link from 'next/link';
-import { ShoppingCart, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useState } from 'react';
+import CartDrawer from '../cartDrawer/CartDrawer';
 
 export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -30,7 +31,10 @@ export default function Navbar() {
       </div>
         <div className="relative">
           <div className="h-10 w-10 rounded-full bg-[#e8e6da] shadow-lg flex items-center justify-center">
-            <ShoppingCart className="text-[#4a2b2b]" />
+            
+            <CartDrawer/>
+           
+            
             <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1">1</span>
           </div>
         </div>
