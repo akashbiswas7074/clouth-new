@@ -1,6 +1,7 @@
 import React from "react";
 import { galleryImages } from "./data";
 import Image from "next/image";
+import Link from "next/link";
 export default function Hero() {
   return (
     <div className="bg-[#f5f5f0]">
@@ -34,9 +35,13 @@ export default function Hero() {
             your custom shirt today. Experience the satisfaction of wearing a
             garment that is uniquely yours.{" "}
           </p>
-          <button className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
+          <Link href={'/fabric'}>
+          <button className="bg-[#C40600] mt-6 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
+            
             Start Designing
+           
           </button>
+          </Link>
         </div>
       </div>
     </div>

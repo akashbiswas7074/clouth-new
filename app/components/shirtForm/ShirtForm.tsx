@@ -95,7 +95,7 @@ const ShirtCustomizer: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen pt-7">
+    <div className="flex flex-col lg:flex-row pt-28">
       {/* Left section: All category imageUrl2 images overlapping */}
       <div className="lg:w-1/2 bg-gray-100 flex items-center justify-center relative">
         {/* All category imageUrl2 images overlap in the box */}
@@ -104,7 +104,7 @@ const ShirtCustomizer: React.FC = () => {
           return (
             <div
               key={category.name}
-              className="absolute inset-0 w-full h-full flex items-center justify-center"
+              className="absolute w-full h-full flex items-center justify-center"
             >
               {imageUrl2 && (
                 <Image
@@ -157,6 +157,7 @@ const ShirtCustomizer: React.FC = () => {
         )}
 
         {/* Total Price Display */}
+        <div className="fixed bottom-0 flex flex-col items-start">
         <div className="mt-4 text-xl font-semibold">
           <p>Total Price: ${totalPrice}</p>
         </div>
@@ -165,10 +166,11 @@ const ShirtCustomizer: React.FC = () => {
         <div className="mt-4">
           <button
             onClick={handleSubmit}
-            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+            className="w-full bg-[#c40600] text-white py-2 px-4 rounded-lg hover:bg-blue-600"
           >
-            Submit & Download PDF Receipt
+            Submit & Download the PDF
           </button>
+        </div>
         </div>
       </div>
     </div>
