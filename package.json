@@ -38,6 +38,7 @@
     "@radix-ui/react-toast": "^1.2.5",
     "awesome": "^0.0.7",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "font": "^0.0.4",
     "framer-motion": "^12.0.6",
