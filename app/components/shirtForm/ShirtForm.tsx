@@ -57,8 +57,8 @@ const ShirtCustomizer: React.FC = () => {
         return fitStyles;
       case "Button":
         return ButtonStyles;
-        case "Body":
-          return BodyStyles;
+      case "Body":
+        return BodyStyles;
       default:
         return [];
     }
@@ -97,7 +97,7 @@ const ShirtCustomizer: React.FC = () => {
   return (
     <div className="flex flex-col lg:flex-row pt-28">
       {/* Left section: All category imageUrl2 images overlapping */}
-      <div className="lg:w-1/2 bg-gray-100 flex items-center justify-center relative">
+      <div className="lg:w-1/2 bg-gray-100 flex h-screen items-center justify-center relative mb-4 lg:mb-0">
         {/* All category imageUrl2 images overlap in the box */}
         {categories.map((category) => {
           const imageUrl2 = selectedImages[category.name]; // Get the image for this category
@@ -121,7 +121,7 @@ const ShirtCustomizer: React.FC = () => {
       </div>
 
       {/* Right section: Customize options */}
-      <div className="lg:w-1/2 bg-white p-6 relative">
+      <div className="lg:w-1/2 bg-white p-6  relative">
         <h1 className="text-2xl font-bold mb-4">Customize Your Shirt</h1>
         <div className="space-y-4">
           {categories.map((category) => (
@@ -157,20 +157,20 @@ const ShirtCustomizer: React.FC = () => {
         )}
 
         {/* Total Price Display */}
-        <div className="fixed bottom-0 flex flex-col items-start">
-        <div className="mt-4 text-xl font-semibold">
-          <p>Total Price: ${totalPrice}</p>
-        </div>
+        <div className="fixed bottom-0 flex flex-col items-start p-8">
+          <div className="mt-4 text-xl font-semibold">
+            <p>Total Price: ${totalPrice}</p>
+          </div>
 
-        {/* Submit Button */}
-        <div className="mt-4">
-          <button
-            onClick={handleSubmit}
-            className="w-full bg-[#c40600] text-white py-2 px-4 rounded-lg hover:bg-blue-600"
-          >
-            Submit & Download the PDF
-          </button>
-        </div>
+          {/* Submit Button */}
+          <div className="mt-4">
+            <button
+              onClick={handleSubmit}
+              className="w-full bg-[#c40600] text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+            >
+              Submit & Download the PDF
+            </button>
+          </div>
         </div>
       </div>
     </div>
