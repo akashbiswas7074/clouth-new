@@ -25,6 +25,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.10.6",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@material-tailwind/react": "^2.1.10",
@@ -34,6 +35,7 @@
     "@radix-ui/react-radio-group": "^1.2.2",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tabs": "^1.1.2",
+    "@radix-ui/react-toast": "^1.2.5",
     "awesome": "^0.0.7",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -42,7 +44,9 @@
     "gsap": "^3.12.7",
     "jotai": "^2.11.3",
     "jspdf": "^2.5.2",
+    "localtunnel": "^2.0.2",
     "lucide-react": "^0.474.0",
+    "mongoose": "^8.9.6",
     "next": "15.1.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -53,6 +57,8 @@
     "sass": "^1.83.4",
     "scss": "^0.2.4",
     "slick-carousel": "^1.8.1",
+    "sonner": "^1.7.4",
+    "svix": "^1.45.1",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7"
   },
