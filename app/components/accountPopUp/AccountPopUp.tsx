@@ -97,7 +97,7 @@ const AccountPopUp = () => {
     if (!isSignUpLoaded) return;
 
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
       const result = await signUp.create({
         emailAddress: formData.email,
         password: formData.password,
@@ -117,7 +117,7 @@ const AccountPopUp = () => {
       setPendingVerification(true);
       setShowVerificationDialog(true);
       setAccountMenuOpen(false);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     } catch (err: any) {
       toast.error("Error during sign up: " + err.message);
     }
@@ -224,6 +224,7 @@ const AccountPopUp = () => {
           <Card className="space-y-3">
             <Tabs defaultValue="signup">
               <TabsList className="grid w-full grid-cols-2">
+
                 <TabsTrigger value="signup" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(true)}>
                   Discount-Sign Up
                 </TabsTrigger>

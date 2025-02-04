@@ -66,7 +66,7 @@ interface MeasurementImage {
     shirt: {
       collar: {
         image: { src: '/images/collar.jpg', alt: 'Collar Measurement' },
-        value: { value: 15.5, unit: 'inch' },
+        value: { value: 15.5 , unit: 'inch' },
         description: 'Measured around the base of the neck where the collar sits.'
       },
       halfChest: {
