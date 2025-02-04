@@ -23,6 +23,18 @@ import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
 import Image from "next/image";
 
+// Define type for form data to improve type safety
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  password: string;
+  country: string;
+  zipCode: string;
+}
+
 const AccountPopUp = () => {
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useAtom(accountMenuState, {
@@ -35,13 +47,13 @@ const AccountPopUp = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
-    password: "",
     email: "",
     phone: "",
     whatsapp: "",
+    password: "",
     country: "",
     zipCode: "",
   });
@@ -61,10 +73,9 @@ const AccountPopUp = () => {
       setHasShownPopup(true);
     }, 5000);
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [setAccountMenuOpen]);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -72,28 +83,35 @@ const AccountPopUp = () => {
     }));
   };
 
-  const handleSignupSubmit = async () => {
-    if (!isSignUpLoaded) return;
+const handleSignupSubmit = async () => {
+  if (!isSignUpLoaded) return;
 
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const result = await signUp.create({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        emailAddress: formData.email,
-        phoneNumber: formData.phone,
-      });
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const result = await signUp.create({
+      emailAddress: formData.email,
+      password: formData.password,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      unsafeMetadata : {
+        phone: formData.phone,
+        whatsapp: formData.whatsapp,
+        country: formData.country,
+        zipCode: formData.zipCode
+      }
+    });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      
-      setPendingVerification(true);
-      setShowVerificationDialog(true);
-      setAccountMenuOpen(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err:any) {
-      toast.error("Error during sign up: " + err.message);
-    }
-  };
+    // Prepare email verification
+    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+    
+    setPendingVerification(true);
+    setShowVerificationDialog(true);
+    setAccountMenuOpen(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    toast.error("Error during sign up: " + err.message);
+  }
+};
 
   const handleLoginSubmit = async () => {
     if (!isSignInLoaded) return;
@@ -110,7 +128,7 @@ const AccountPopUp = () => {
         toast.success("Successfully signed in!");
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err:any) {
+    } catch (err: any) {
       toast.error("Error during sign in: " + err.message);
     }
   };
@@ -126,10 +144,12 @@ const AccountPopUp = () => {
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
         setShowVerificationDialog(false);
+        
+        // Additional user metadata can be added via your backend webhook
         toast.success("Email verified successfully!");
       }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err:any) {
+    } catch (err: any) {
       toast.error("Error during verification: " + err.message);
     }
   };
@@ -146,21 +166,21 @@ const AccountPopUp = () => {
             Login
           </button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[825px] flex">
-        
+        <DialogContent className="sm:max-w-[725px] flex">
           <Card className="space-y-3">
-            <Tabs defaultValue="sign up">
+            <Tabs defaultValue="signup">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signup" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(true)}>
                   Discount-Sign Up
                 </TabsTrigger>
                 <TabsTrigger value="login" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(false)}>sign in</TabsTrigger>
+
               </TabsList>
               <TabsContent value="login">
                 <CardHeader>
-                  <CardTitle className="font-bold">Sign in</CardTitle>
+                  <CardTitle className="font-bold">Sign In</CardTitle>
                   <CardDescription>
-                    Enter your credentials to access your account.
+                    Enter your credentials to access your account
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -187,8 +207,12 @@ const AccountPopUp = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full bg-[#c40600]" onClick={handleLoginSubmit}>
-                    Sign in
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#c40600]" 
+                    onClick={handleLoginSubmit}
+                  >
+                    Sign In
                   </Button>
                 </CardFooter>
               </TabsContent>
@@ -196,7 +220,7 @@ const AccountPopUp = () => {
                 <CardHeader>
                   <CardTitle>Sign Up</CardTitle>
                   <CardDescription>
-                    Create a new account to get started.
+                    Create a new account to get started
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -234,6 +258,16 @@ const AccountPopUp = () => {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="password-signup" className="font-bold">Password</Label>
+                    <Input
+                      id="password-signup"
+                      name="password"
+                      type="password"
+                      required
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="phone" className="font-bold">Phone</Label>
                     <Input
                       id="phone"
@@ -241,6 +275,16 @@ const AccountPopUp = () => {
                       type="tel"
                       placeholder="+1234567890"
                       required
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp" className="font-bold">WhatsApp</Label>
+                    <Input
+                      id="whatsapp"
+                      name="whatsapp"
+                      type="tel"
+                      placeholder="+1234567890"
                       onChange={handleInputChange}
                     />
                   </div>
@@ -268,7 +312,11 @@ const AccountPopUp = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full bg-[#c40600]" onClick={handleSignupSubmit}>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#c40600]" 
+                    onClick={handleSignupSubmit}
+                  >
                     Sign Up
                   </Button>
                 </CardFooter>
@@ -276,8 +324,8 @@ const AccountPopUp = () => {
             </Tabs>
           </Card>
           <div className="space-y-10 flex flex-col items-center justify-center">
-          <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2 max-w-lg">
-              <h1 className="text-4xl font-bold text-[#646464]">GET 25% OFF</h1>
+          <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2">
+              <h1 className="sm:text-4xl text-2xl font-bold text-[#646464]">GET 25% OFF</h1>
               <p className="text-md font-semibold text-center">shop at stich my clothes and get discounts.</p>
             </div>
           <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100}/>
@@ -291,7 +339,7 @@ const AccountPopUp = () => {
             <CardHeader>
               <CardTitle>Email Verification</CardTitle>
               <CardDescription>
-                Enter the verification code sent to your email.
+                Enter the verification code sent to your email
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -310,7 +358,11 @@ const AccountPopUp = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-[#c40600]" onClick={handleVerification}>
+              <Button 
+                type="submit" 
+                className="w-full bg-[#c40600]" 
+                onClick={handleVerification}
+              >
                 Verify Email
               </Button>
             </CardFooter>
