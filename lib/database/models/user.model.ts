@@ -6,18 +6,18 @@ const UserSchema = new Schema(
       required: true,
       unique: true,
     },
+    firstName : {
+      type : String, 
+      required : true,
+    },
+    lastName : {
+      type : String,
+      required : true
+    },
     email: {
       type: String,
       required: true,
       unique: true,
-    },
-    image: {
-      type: String,
-      required: true,
-    },
-    username: {
-      type: String,
-      required: true,
     },
     role: {
       type: String,
@@ -26,6 +26,26 @@ const UserSchema = new Schema(
     defaultPaymentMethod: {
       type: String,
       default: "",
+    },
+    phoneNumber : {
+      type : String,
+      default : ""
+    },
+    image : {
+      type : String,
+      default : "",
+    },
+    whatsapp : {
+      type : String,
+      default : ""
+    },
+    zipCode : {
+      type : String,
+      default : ""
+    },
+    country : {
+      type : String,
+      default : ""
     },
     address: {
       firstName: {

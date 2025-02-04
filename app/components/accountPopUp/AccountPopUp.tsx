@@ -22,6 +22,18 @@ import { useEffect, useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
 
+// Define type for form data to improve type safety
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  whatsapp: string;
+  password: string;
+  country: string;
+  zipCode: string;
+}
+
 const AccountPopUp = () => {
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useAtom(accountMenuState, {
@@ -31,12 +43,13 @@ const AccountPopUp = () => {
   const [hasShownPopup, setHasShownPopup] = useState(false);
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
     email: "",
     phone: "",
     whatsapp: "",
+    password: "",
     country: "",
     zipCode: "",
   });
@@ -56,9 +69,9 @@ const AccountPopUp = () => {
       setHasShownPopup(true);
     }, 5000);
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [setAccountMenuOpen]);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -66,26 +79,33 @@ const AccountPopUp = () => {
     }));
   };
 
-  const handleSignupSubmit = async () => {
-    if (!isSignUpLoaded) return;
+const handleSignupSubmit = async () => {
+  if (!isSignUpLoaded) return;
 
-    try {
-      const result = await signUp.create({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        emailAddress: formData.email,
-        phoneNumber: formData.phone,
-      });
+  try {
+    const result = await signUp.create({
+      emailAddress: formData.email,
+      password: formData.password,
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      unsafeMetadata : {
+        phone: formData.phone,
+        whatsapp: formData.whatsapp,
+        country: formData.country,
+        zipCode: formData.zipCode
+      }
+    });
 
-      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-      
-      setPendingVerification(true);
-      setShowVerificationDialog(true);
-      setAccountMenuOpen(false);
-    } catch (err) {
-      toast.error("Error during sign up: " + err.message);
-    }
-  };
+    // Prepare email verification
+    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+    
+    setPendingVerification(true);
+    setShowVerificationDialog(true);
+    setAccountMenuOpen(false);
+  } catch (err: any) {
+    toast.error("Error during sign up: " + err.message);
+  }
+};
 
   const handleLoginSubmit = async () => {
     if (!isSignInLoaded) return;
@@ -101,7 +121,7 @@ const AccountPopUp = () => {
         setAccountMenuOpen(false);
         toast.success("Successfully signed in!");
       }
-    } catch (err) {
+    } catch (err: any) {
       toast.error("Error during sign in: " + err.message);
     }
   };
@@ -117,9 +137,11 @@ const AccountPopUp = () => {
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
         setShowVerificationDialog(false);
+        
+        // Additional user metadata can be added via your backend webhook
         toast.success("Email verified successfully!");
       }
-    } catch (err) {
+    } catch (err: any) {
       toast.error("Error during verification: " + err.message);
     }
   };
@@ -138,18 +160,28 @@ const AccountPopUp = () => {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <Card>
-            <Tabs defaultValue="sign up">
+            <Tabs defaultValue="signup">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signup" className="font-bold bg-[#c40600] text-white" onClick={() => setIsSignup(true)}>
+                <TabsTrigger 
+                  value="signup" 
+                  className="font-bold bg-[#c40600] text-white" 
+                  onClick={() => setIsSignup(true)}
+                >
                   Discount-Sign Up
                 </TabsTrigger>
-                <TabsTrigger value="login" className="font-bold bg-[#c40600] text-white" onClick={() => setIsSignup(false)}>sign in</TabsTrigger>
+                <TabsTrigger 
+                  value="login" 
+                  className="font-bold bg-[#c40600] text-white" 
+                  onClick={() => setIsSignup(false)}
+                >
+                  Sign In
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="login">
                 <CardHeader>
-                  <CardTitle className="font-bold">Sign in</CardTitle>
+                  <CardTitle className="font-bold">Sign In</CardTitle>
                   <CardDescription>
-                    Enter your credentials to access your account.
+                    Enter your credentials to access your account
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -176,8 +208,12 @@ const AccountPopUp = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full bg-[#c40600]" onClick={handleLoginSubmit}>
-                    Sign in
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#c40600]" 
+                    onClick={handleLoginSubmit}
+                  >
+                    Sign In
                   </Button>
                 </CardFooter>
               </TabsContent>
@@ -185,7 +221,7 @@ const AccountPopUp = () => {
                 <CardHeader>
                   <CardTitle>Sign Up</CardTitle>
                   <CardDescription>
-                    Create a new account to get started.
+                    Create a new account to get started
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -223,6 +259,16 @@ const AccountPopUp = () => {
                     />
                   </div>
                   <div className="space-y-2">
+                    <Label htmlFor="password-signup" className="font-bold">Password</Label>
+                    <Input
+                      id="password-signup"
+                      name="password"
+                      type="password"
+                      required
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="phone" className="font-bold">Phone</Label>
                     <Input
                       id="phone"
@@ -230,6 +276,16 @@ const AccountPopUp = () => {
                       type="tel"
                       placeholder="+1234567890"
                       required
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="whatsapp" className="font-bold">WhatsApp</Label>
+                    <Input
+                      id="whatsapp"
+                      name="whatsapp"
+                      type="tel"
+                      placeholder="+1234567890"
                       onChange={handleInputChange}
                     />
                   </div>
@@ -257,7 +313,11 @@ const AccountPopUp = () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" className="w-full bg-[#c40600]" onClick={handleSignupSubmit}>
+                  <Button 
+                    type="submit" 
+                    className="w-full bg-[#c40600]" 
+                    onClick={handleSignupSubmit}
+                  >
                     Sign Up
                   </Button>
                 </CardFooter>
@@ -273,7 +333,7 @@ const AccountPopUp = () => {
             <CardHeader>
               <CardTitle>Email Verification</CardTitle>
               <CardDescription>
-                Enter the verification code sent to your email.
+                Enter the verification code sent to your email
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -292,7 +352,11 @@ const AccountPopUp = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button type="submit" className="w-full bg-[#c40600]" onClick={handleVerification}>
+              <Button 
+                type="submit" 
+                className="w-full bg-[#c40600]" 
+                onClick={handleVerification}
+              >
                 Verify Email
               </Button>
             </CardFooter>

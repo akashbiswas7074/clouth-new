@@ -1,134 +1,57 @@
-import mongoose from "mongoose";
-const { ObjectId } = mongoose.Schema;
-const orderSchema = new mongoose.Schema(
-  {
-    user: {
-      type: ObjectId,
-      ref: "User",
-      required: true,
-    },
-    products: [
-      {
-        product: {
-          type: ObjectId,
-          ref: "Product",
-        },
-        name: {
-          type: String,
-        },
-        vendor: {
-          type: Object,
-        },
-        image: {
-          type: String,
-        },
-        size: {
-          type: String,
-        },
-        qty: {
-          type: Number,
-        },
-        color: {
-          color: String,
-          image: String,
-        },
-        price: {
-          type: Number,
-        },
-        status: {
-          type: String,
-          default: "Not Processed",
-        },
-        productCompletedAt: {
-          type: Date,
-          default: null,
-        },
-      },
-    ],
-    shippingAddress: {
-      firstName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
-      phoneNumber: {
-        type: String,
-      },
-      address1: {
-        type: String,
-      },
-      address2: {
-        type: String,
-      },
-      city: {
-        type: String,
-      },
-      state: {
-        type: String,
-      },
-      zipCode: {
-        type: String,
-      },
-      country: {
-        type: String,
-      },
-    },
-    paymentMethod: {
-      type: String,
-    },
-    paymentResult: {
-      id: String,
-      status: String,
-      email: String,
-    },
-    total: {
-      type: Number,
-      required: true,
-    },
-    totalBeforeDiscount: {
-      type: Number,
-    },
-    couponApplied: {
-      type: String,
-    },
-    shippingPrice: {
-      type: Number,
-      required: true,
-      default: 0,
-    },
-    taxPrice: {
-      type: Number,
-      default: 0,
-    },
-    isPaid: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
-    totalSaved: {
-      type: Number,
-    },
-    razorpay_order_id: {
-      type: String,
-    },
-    razorpay_payment_id: {
-      type: String,
-    },
-    paidAt: {
-      type: Date,
-    },
-    deliveredAt: {
-      type: Date,
-    },
-    isNew: {
-      type: Boolean,
-      default: true,
-    },
+import mongoose, { Schema, Document } from "mongoose";
+
+export interface Order extends Document {
+  shirt: mongoose.Types.ObjectId; // Reference to the Shirt _id
+  orderConfirmation: boolean;
+  deliveryStatus: "pending" | "shipped" | "delivered";
+  price: number;
+  deliveryCost: number;
+  paymentMethod: "credit_card" | "debit_card" | "paypal" | "cash_on_delivery";
+  paymentTime: Date;
+  receipt: string; // String to store the PDF document URL or receipt
+  orderAddress: {
+    name: string;
+    street: string;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+    phoneNumber: string;
+  };
+}
+
+// Define the Order schema
+export const OrderSchema = new Schema<Order>({
+  shirt: { 
+    type: mongoose.Schema.Types.ObjectId, // Correctly reference ObjectId
+    ref: "Shirt", // Reference the "Shirt" model
+    required: true 
   },
-  {
-    timestamps: true,
-  }
-);
-const Order = mongoose.models.Order || mongoose.model("Order", orderSchema);
-export default Order;
+  orderConfirmation: { type: Boolean, required: true },
+  deliveryStatus: {
+    type: String,
+    enum: ["pending", "shipped", "delivered"],
+    default: "pending",
+  },
+  price: { type: Number, required: true },
+  deliveryCost: { type: Number, required: true },
+  paymentMethod: {
+    type: String,
+    enum: ["credit_card", "debit_card", "paypal", "cash_on_delivery"],
+    required: true,
+  },
+  paymentTime: { type: Date, required: true },
+  receipt: { type: String, required: true }, // Link to the receipt PDF
+  orderAddress: {
+    name: { type: String, required: true },
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+    phoneNumber: { type: String, required: true },
+  },
+});
+const OrderModel = mongoose.model<Order>("Order", OrderSchema);
+
+export default OrderModel;
