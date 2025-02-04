@@ -1,55 +1,60 @@
 import connectToDatabase from "@/lib/database/connect";
-import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 
-// Create a new Shirt entry
+import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
+import mongoose from "mongoose";
+
 export const createShirt = async (
-  fit: object,
-  pocket: object,
-  placket: object,
-  bottom: object,
-  back: object,
-  sleeves: object,
-  collar: object,
-  cuff: object,
-  fabric: string, // MongoDB ObjectId as string
-  color: string,  // MongoDB ObjectId as string
-  monogram?: object
+  price: number,
+  bottom: object, // Now expecting object
+  back: object, // Now expecting object
+  sleeves: object, // Now expecting object
+  cuffstyle: object, // Now expecting object
+  cufflinks: object, // Now expecting object
+  collarstyle: object, // Now expecting object
+  collarheight: object, // Now expecting object
+  collarbutton: object, // Now expecting object
+  placket: object, // Now expecting object
+  pocket: object, // Now expecting object
+  fit: object, // Now expecting object
+  watchCompatible: boolean, // Boolean value
+  colorId: string, // Color ID (MongoDB Object ID)
+  fabricId: string, // Fabric ID (MongoDB Object ID)
 ) => {
   try {
-    await connectToDatabase();
+    // Convert the incoming string IDs into MongoDB ObjectIds
+    const fabricObjectId = new mongoose.Types.ObjectId(fabricId);
+    const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
-    if (
-      !fit || !pocket || !placket || !bottom || !back ||
-      !sleeves || !collar || !cuff || !fabric || !color
-    ) {
-      return {
-        message: "All required fields must be provided.",
-        success: false,
-      };
-    }
-
+    // Create the shirt document
     const newShirt = new ShirtModel({
-      fit,
-      pocket,
-      placket,
+      name,
+      price,
       bottom,
       back,
       sleeves,
-      collar,
-      cuff,
-      fabric,
-      color,
-      monogram,
+      cuffstyle,
+      cufflinks,
+      collarstyle,
+      collarheight,
+      collarbutton,
+      placket,
+      pocket,
+      fit,
+      watchCompatible, // Boolean field
+      colorId: colorObjectId,
+      fabricId: fabricObjectId,
     });
 
-    const savedShirt = await newShirt.save();
+    // Save the shirt to the database
+    await newShirt.save();
+
     return {
-      message: "Shirt successfully created!",
+      message: "Shirt created successfully.",
       success: true,
-      data: savedShirt,
+      shirt: newShirt,
     };
   } catch (error: any) {
-    console.error(error);
+    console.log(error);
     return {
       message: "Error creating shirt.",
       success: false,
@@ -57,97 +62,3 @@ export const createShirt = async (
   }
 };
 
-// Update Shirt by ID
-export const updateShirt = async (
-  shirtId: string,
-  updates: {
-    fit?: object,
-    pocket?: object,
-    placket?: object,
-    bottom?: object,
-    back?: object,
-    sleeves?: object,
-    collar?: object,
-    cuff?: object,
-    fabric?: string,
-    color?: string,
-    monogram?: object
-  }
-) => {
-  try {
-    await connectToDatabase();
-
-    const shirt = await ShirtModel.findById(shirtId);
-    if (!shirt) {
-      return {
-        message: "Shirt not found with this ID.",
-        success: false,
-      };
-    }
-
-    Object.assign(shirt, updates);
-    const updatedShirt = await shirt.save();
-
-    return {
-      message: "Shirt updated successfully!",
-      success: true,
-      data: updatedShirt,
-    };
-  } catch (error: any) {
-    console.error(error);
-    return {
-      message: "Error updating shirt.",
-      success: false,
-    };
-  }
-};
-
-// Delete Shirt by ID
-export const deleteShirt = async (shirtId: string) => {
-  try {
-    await connectToDatabase();
-
-    const deletedShirt = await ShirtModel.findByIdAndDelete(shirtId);
-    if (!deletedShirt) {
-      return {
-        message: "Shirt not found with this ID.",
-        success: false,
-      };
-    }
-
-    return {
-      message: "Shirt deleted successfully.",
-      success: true,
-    };
-  } catch (error: any) {
-    console.error(error);
-    return {
-      message: "Error deleting shirt.",
-      success: false,
-    };
-  }
-};
-
-// Get all Shirts
-export const getAllShirts = async () => {
-  try {
-    await connectToDatabase();
-
-    const shirts = await ShirtModel.find()
-      .sort({ updatedAt: -1 })
-      .lean();
-
-    return {
-      message: "Fetched all shirts successfully.",
-      success: true,
-      data: JSON.parse(JSON.stringify(shirts)),
-    };
-  } catch (error: any) {
-    console.error(error);
-    return {
-      message: "Error fetching shirts.",
-      success: false,
-      data: [],
-    };
-  }
-};
