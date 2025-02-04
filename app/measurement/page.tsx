@@ -9,6 +9,8 @@ import {
   ShirtMeasurements,
   BodyMeasurements,
 } from "@/app/utils/data/measurement"; // Import correct types
+import { createMeasurement} from "@/lib/database/actions/measurement.actions";
+import { toast } from "sonner";
 
 const Page = () => {
   const [shirtMeasurements, setShirtMeasurements] = useState<ShirtMeasurements | undefined>(undefined);
@@ -25,13 +27,23 @@ const Page = () => {
     console.log("Body Measurements:", measurements);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     const combinedMeasurements: Measurement = {
       shirt: shirtMeasurements,
       body: bodyMeasurements,
     };
     console.log("Combined Measurements:", combinedMeasurements);
+    try{
+      const response = await createMeasurement(combinedMeasurements);
+      if(response.success){
+        toast(response.message);
+      }
+    }catch(error:any){
+      throw new Error(error.message || "Failed to create measurement");
+    }
+    
+    
     // Here you would typically call your onSave function or API to save the data
     // onSave(combinedMeasurements);
   };
