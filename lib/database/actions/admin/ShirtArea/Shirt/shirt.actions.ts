@@ -1,4 +1,4 @@
-import { connectToDatabase } from "@/lib/database/connect";
+import connectToDatabase from "@/lib/database/connect";
 import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 
 // Create a new Shirt entry

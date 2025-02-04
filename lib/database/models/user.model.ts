@@ -1,4 +1,4 @@
-import { Schema, model, models } from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 const UserSchema = new Schema(
   {
     clerkId: {
@@ -48,12 +48,6 @@ const UserSchema = new Schema(
       default : ""
     },
     address: {
-      firstName: {
-        type: String,
-      },
-      lastName: {
-        type: String,
-      },
       phoneNumber: {
         type: String,
       },
@@ -80,6 +74,10 @@ const UserSchema = new Schema(
         default: true,
       },
     },
+    orders : [{
+      type : mongoose.Schema.Types.ObjectId,
+      ref : "Order"
+    }]
   },
   {
     timestamps: true,

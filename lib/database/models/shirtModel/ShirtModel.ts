@@ -6,7 +6,7 @@ import { CuffSchema } from "./CuffModel";
 import { PlacketSchema } from "./PlacketModel";
 import { BottomSchema } from "./BottomModel";
 import { BackSchema } from "./BackModel";
-import { SleevesSchema } from "./SleeveModel";
+import { SleeveSchema } from "./SleeveModel";
 import { MonogramSchema } from "./MonogramModel";
 import { FabricSchema } from "./FabricModel";
 import { ColorSchema } from "./ColorModel";
@@ -45,7 +45,7 @@ export const ShirtSchema = new Schema(
     ],
     sleeves: [
       {
-        type: SleevesSchema,
+        type: SleeveSchema,
         required: true,
       },
     ],
