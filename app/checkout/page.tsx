@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 // Importing UI components from custom UI library and icons from Lucide
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
@@ -15,6 +15,10 @@ import {
   CreditCardIcon,
 } from "lucide-react";
 import Link from "next/link";
+import DeliveryAddressForm from './../../../vibecart/components/shared/checkout/delivery.address.form';
+import { useUser } from "@clerk/nextjs";
+import { saveAddress } from "@/lib/database/actions/user.actions";
+import { toast } from "sonner"
 
 /**
  * Type for the steps in the checkout process, including title and icon.
@@ -82,6 +86,19 @@ const orderItems: OrderItems[] = [
  * It includes multi-step navigation (delivery address, coupon, payment) and an order summary.
  */
 const CheckoutPage = () => {
+
+  const { isSignedIn, user, isLoaded } = useUser();
+
+  const[deliveryAddress, setDeliveryAddress] = useState({
+    phoneNumber : "",
+    address1 : "",
+    address2 : "",
+    city : "",
+    state : "",
+    country : "",
+    zipCode : ""
+  })
+
   // State to track the current step of the checkout process
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -104,7 +121,15 @@ const CheckoutPage = () => {
    * Handle the "Next" button click to proceed to the next step in the checkout process.
    * Ensures that the current step is not beyond the last step.
    */
+
+  if(!isSignedIn){
+    return <div>Sign in to view this page</div>
+  }else{
+    
+  }
+
   const handleNext = () => {
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(currentStep + 1);
     }
@@ -118,6 +143,21 @@ const CheckoutPage = () => {
       setCurrentStep(currentStep - 1);
     }
   };
+
+  const handleSaveAddress = async()=>{
+    try {
+      const response = await saveAddress(deliveryAddress, user.id);
+      console.log(response)
+    if(response.success){
+      toast(response.message)
+    }
+    } catch (error:any) {
+      throw new Error(error);
+    }
+    finally{
+      handleNext();
+    }
+  }
 
   return (
     <div className="container mx-auto pt-36">
@@ -178,7 +218,7 @@ const CheckoutPage = () => {
               {currentStep === 0 && (
                 <div className="space-y-4">
                   {/* Form for inputting the delivery address */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="firstName">First Name</Label>
                       <Input id="firstName" placeholder="First Name" />
@@ -187,28 +227,30 @@ const CheckoutPage = () => {
                       <Label htmlFor="lastName">Last Name</Label>
                       <Input id="lastName" placeholder="Last Name" />
                     </div>
-                  </div>
+                  </div> */}
                   <div>
                     <Label htmlFor="phoneNumber">Phone Number</Label>
-                    <Input id="phoneNumber" placeholder="Phone Number" />
+                    <Input id="phoneNumber" placeholder="Phone Number" value={deliveryAddress.phoneNumber} onChange={(e)=>setDeliveryAddress({...deliveryAddress, phoneNumber : e.target.value})}/>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="zipCode">Zip Code / Postal Code</Label>
                       <Input
                         id="zipCode"
-                        placeholder="Zip Code / Postal Code"
+                        placeholder="Zip Code / Postal Code" value={deliveryAddress.zipCode}
+                        onChange={(e)=>setDeliveryAddress({...deliveryAddress, zipCode:e.target.value})
+                        }
                       />
                     </div>
                     <div>
                       <Label htmlFor="city">City</Label>
-                      <Input id="city" placeholder="City" />
+                      <Input id="city" placeholder="City" value={deliveryAddress.city} onChange={(e)=>setDeliveryAddress({...deliveryAddress, city : e.target.value })} />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="state">State</Label>
-                      <Input id="state" placeholder="State" />
+                      <Input id="state" placeholder="State" value={deliveryAddress.state} onChange={(e)=>setDeliveryAddress({...deliveryAddress, state : e.target.value})}/>
                     </div>
                     <div>
                       <Label htmlFor="country">Country</Label>
@@ -216,19 +258,20 @@ const CheckoutPage = () => {
                         id="country"
                         placeholder="Country"
                         defaultValue="India"
+                        value={deliveryAddress.country} onChange={(e)=>setDeliveryAddress({...deliveryAddress, country : e.target.value})}
                       />
                     </div>
                   </div>
                   <div>
                     <Label htmlFor="address1">Address 1</Label>
-                    <Input id="address1" placeholder="Address 1" />
+                    <Input id="address1" placeholder="Address 1" value={deliveryAddress.address1} onChange={(e)=>setDeliveryAddress({...deliveryAddress, address1 : e.target.value})} />
                   </div>
                   <div>
                     <Label htmlFor="address2">Address 2</Label>
-                    <Input id="address2" placeholder="Address 2" />
+                    <Input id="address2" placeholder="Address 2" value={deliveryAddress.address2} onChange={(e)=>setDeliveryAddress({...deliveryAddress, address2 : e.target.value})}  />
                   </div>
-                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
-                    Save Address
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleSaveAddress}>
+                    Save Address And Continue
                   </Button>
                 </div>
               )}
