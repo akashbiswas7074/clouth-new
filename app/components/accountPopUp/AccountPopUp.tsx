@@ -79,33 +79,33 @@ const AccountPopUp = () => {
     }));
   };
 
-const handleSignupSubmit = async () => {
-  if (!isSignUpLoaded) return;
+  const handleSignupSubmit = async () => {
+    if (!isSignUpLoaded) return;
 
-  try {
-    const result = await signUp.create({
-      emailAddress: formData.email,
-      password: formData.password,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      unsafeMetadata : {
-        phone: formData.phone,
-        whatsapp: formData.whatsapp,
-        country: formData.country,
-        zipCode: formData.zipCode
-      }
-    });
+    try {
+      const result = await signUp.create({
+        emailAddress: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        unsafeMetadata: {
+          phone: formData.phone,
+          whatsapp: formData.whatsapp,
+          country: formData.country,
+          zipCode: formData.zipCode
+        }
+      });
 
-    // Prepare email verification
-    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-    
-    setPendingVerification(true);
-    setShowVerificationDialog(true);
-    setAccountMenuOpen(false);
-  } catch (err: any) {
-    toast.error("Error during sign up: " + err.message);
-  }
-};
+      // Prepare email verification
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
+      setPendingVerification(true);
+      setShowVerificationDialog(true);
+      setAccountMenuOpen(false);
+    } catch (err: any) {
+      toast.error("Error during sign up: " + err.message);
+    }
+  };
 
   const handleLoginSubmit = async () => {
     if (!isSignInLoaded) return;
@@ -137,7 +137,7 @@ const handleSignupSubmit = async () => {
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
         setShowVerificationDialog(false);
-        
+
         // Additional user metadata can be added via your backend webhook
         toast.success("Email verified successfully!");
       }
@@ -162,16 +162,16 @@ const handleSignupSubmit = async () => {
           <Card>
             <Tabs defaultValue="signup">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger 
-                  value="signup" 
-                  className="font-bold bg-[#c40600] text-white" 
+                <TabsTrigger
+                  value="signup"
+                  className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white bg-muted text-muted-foreground"
                   onClick={() => setIsSignup(true)}
                 >
                   Discount-Sign Up
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="login" 
-                  className="font-bold bg-[#c40600] text-white" 
+                <TabsTrigger
+                  value="login"
+                  className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white bg-muted text-muted-foreground"
                   onClick={() => setIsSignup(false)}
                 >
                   Sign In
@@ -208,9 +208,9 @@ const handleSignupSubmit = async () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-[#c40600]" 
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#c40600]"
                     onClick={handleLoginSubmit}
                   >
                     Sign In
@@ -313,9 +313,9 @@ const handleSignupSubmit = async () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-[#c40600]" 
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#c40600]"
                     onClick={handleSignupSubmit}
                   >
                     Sign Up
@@ -341,20 +341,20 @@ const handleSignupSubmit = async () => {
                 <Label htmlFor="verification-code" className="font-bold">
                   Verification Code
                 </Label>
-                <Input 
-                  id="verification-code" 
-                  name="verification-code" 
-                  type="text" 
-                  required 
+                <Input
+                  id="verification-code"
+                  name="verification-code"
+                  type="text"
+                  required
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                type="submit" 
-                className="w-full bg-[#c40600]" 
+              <Button
+                type="submit"
+                className="w-full bg-[#c40600]"
                 onClick={handleVerification}
               >
                 Verify Email
