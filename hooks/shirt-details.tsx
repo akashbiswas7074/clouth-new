@@ -8,11 +8,88 @@ import { getPocketsByColorAndFabric } from "@/lib/database/actions/admin/ShirtAr
 import { getSleevesByColorAndFabric } from "@/lib/database/actions/admin/ShirtArea/Sleeve/sleeve.action";
 import { useEffect, useState } from "react";
 
+// Define types for Collar and Cuff
+interface Collar {
+  _id?: string;
+  style?: {
+    name: string;
+    image: {
+      url: string;
+      public_id: string;
+    };
+    icon: {
+      url: string;
+      public_id: string;
+    };
+    price: number;
+  };
+  height?: {
+    name: string;
+    icon: {
+      url: string;
+      public_id: string;
+    };
+    price: number;
+  };
+  collar_button?: {
+    name: string;
+    image: {
+      url: string;
+      public_id: string;
+    };
+    icon: {
+      url: string;
+      public_id: string;
+    };
+    price: number;
+  };
+}
+
+interface Cuff {
+  style?: {
+    name: string;
+    image: {
+      url: string;
+      public_id: string;
+    };
+    icon: {
+      url: string;
+      public_id: string;
+    };
+    price: number;
+  };
+  cufflinks?: {
+    name: string;
+    image: {
+      url: string;
+      public_id: string;
+    };
+    icon: {
+      url: string;
+      public_id: string;
+    };
+    price: number;
+  };
+}
+
+// Define the main ProductData interface
 interface ProductData {
   backs: any[];
   bottoms: any[];
-  collars: any[];
-  cuffs: any[];
+  // collars: {
+  //   collarStyle: any[];
+  //   collarHeight: any[];
+  //   collarButton: any[];
+  // };
+  collarStyle: any[];
+  collarHeight: any[];
+  collarButton: any[];
+  // cuffs: {
+  //   cuffStyle: any[];
+  //   cuffLinks: any[];
+  // };
+  cuffStyle: any[];
+  cuffLinks: any[];
   fits: any[];
   plackets: any[];
   pockets: any[];
@@ -23,8 +100,20 @@ const useProductData = () => {
   const [data, setData] = useState<ProductData>({
     backs: [],
     bottoms: [],
-    collars: [],
-    cuffs: [],
+    // collars: {
+    //   collarStyle: [],
+    //   collarHeight: [],
+    //   collarButton: [],
+    // },
+    collarStyle: [],
+    collarHeight: [],
+    collarButton: [],
+    // cuffs: {
+    //   cuffStyle: [],
+    //   cuffLinks: [],
+    // },
+    cuffStyle: [],
+    cuffLinks: [],
     fits: [],
     plackets: [],
     pockets: [],
@@ -61,11 +150,30 @@ const useProductData = () => {
             getSleevesByColorAndFabric(fabricId, colorId),
           ]);
 
+          // Extracting different categories for Collar and Cuff
+          const collarStyle = collars?.map((collar: Collar) => collar.style);
+          const collarHeight = collars?.map((collar: Collar) => ({
+            ...collar.height,
+            _id: collar._id,
+          }));
+          const collarButton = collars?.map((collar: Collar) => ({
+            ...collar.collar_button,
+            _id: collar._id, // Assigning collar's id to collarButton
+          }));
+
+          const cuffStyle = cuffs?.map((cuff: Cuff) => cuff.style);
+          const cuffLinks = cuffs?.map((cuff: Cuff) => cuff.cufflinks);
+
           setData({
             backs,
             bottoms,
-            collars,
-            cuffs,
+            // collars: { collarStyle, collarHeight, collarButton },
+            collarStyle,
+            collarHeight,
+            collarButton,
+            // cuffs: { cuffStyle, cuffLinks },
+            cuffStyle,
+            cuffLinks,
             fits,
             plackets,
             pockets,
