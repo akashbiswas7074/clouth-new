@@ -21,6 +21,7 @@ import { accountMenuState } from "@/app/utils/data/store";
 import { useEffect, useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
+import Image from "next/image";
 
 // Define type for form data to improve type safety
 interface FormData {
@@ -39,8 +40,11 @@ const AccountPopUp = () => {
   const [accountMenuOpen, setAccountMenuOpen] = useAtom(accountMenuState, {
     store: useStore(),
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSignup, setIsSignup] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hasShownPopup, setHasShownPopup] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [formData, setFormData] = useState<FormData>({
@@ -83,6 +87,7 @@ const handleSignupSubmit = async () => {
   if (!isSignUpLoaded) return;
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const result = await signUp.create({
       emailAddress: formData.email,
       password: formData.password,
@@ -102,6 +107,7 @@ const handleSignupSubmit = async () => {
     setPendingVerification(true);
     setShowVerificationDialog(true);
     setAccountMenuOpen(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     toast.error("Error during sign up: " + err.message);
   }
@@ -121,6 +127,7 @@ const handleSignupSubmit = async () => {
         setAccountMenuOpen(false);
         toast.success("Successfully signed in!");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error("Error during sign in: " + err.message);
     }
@@ -141,6 +148,7 @@ const handleSignupSubmit = async () => {
         // Additional user metadata can be added via your backend webhook
         toast.success("Email verified successfully!");
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error("Error during verification: " + err.message);
     }
@@ -158,8 +166,8 @@ const handleSignupSubmit = async () => {
             Login
           </button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <Card>
+        <DialogContent className="sm:max-w-[725px] flex">
+          <Card className="space-y-3">
             <Tabs defaultValue="signup">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger 
@@ -324,6 +332,13 @@ const handleSignupSubmit = async () => {
               </TabsContent>
             </Tabs>
           </Card>
+          <div className="space-y-10 flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2">
+              <h1 className="sm:text-4xl text-2xl font-bold text-[#646464]">GET 25% OFF</h1>
+              <p className="text-md font-semibold text-center">shop at stich my clothes and get discounts.</p>
+            </div>
+          <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100}/>
+          </div>
         </DialogContent>
       </Dialog>
 
