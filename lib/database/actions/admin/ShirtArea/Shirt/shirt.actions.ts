@@ -1,4 +1,6 @@
-import connectToDatabase from "@/lib/database/connect";
+"use server"
+
+import {connectToDatabase} from "@/lib/database/connect";
 
 import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
@@ -21,13 +23,13 @@ export const createShirt = async (
   fabricId: string, // Fabric ID (MongoDB Object ID)
 ) => {
   try {
+    connectToDatabase();
     // Convert the incoming string IDs into MongoDB ObjectIds
     const fabricObjectId = new mongoose.Types.ObjectId(fabricId);
     const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
     // Create the shirt document
     const newShirt = new ShirtModel({
-      name,
       price,
       bottom,
       back,
