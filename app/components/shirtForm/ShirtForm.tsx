@@ -1,12 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { collarStyles, sleeveStyles, cuffStyles, pocketStyles, fitStyles, DD_Option, categories, ButtonStyles, BodyStyles } from "@/app/utils/data/data"; // Update import path
+import {
+  collarStyles,
+  sleeveStyles,
+  cuffStyles,
+  pocketStyles,
+  fitStyles,
+  DD_Option,
+  categories,
+  ButtonStyles,
+  BodyStyles,
+} from "@/app/utils/data/data"; // Update import path
 import Image from "next/image";
 import { jsPDF } from "jspdf"; // Import jsPDF
 
 const ShirtCustomizer: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedOption, setSelectedOption] = useState<number | null>(1); // Default to id: 1
-  const [selectedImages, setSelectedImages] = useState<{ [key: string]: string }>({});
+  const [selectedImages, setSelectedImages] = useState<{
+    [key: string]: string;
+  }>({});
   const [totalPrice, setTotalPrice] = useState<number>(0); // State to track the total price
 
   useEffect(() => {
@@ -15,7 +27,7 @@ const ShirtCustomizer: React.FC = () => {
     let initialTotal = 0;
     categories.forEach((category) => {
       const categoryOptions = getCategoryOptions(category.name);
-      const defaultOption = categoryOptions.find(option => option.id === 1); // Default to option with id: 1
+      const defaultOption = categoryOptions.find((option) => option.id === 1); // Default to option with id: 1
       if (defaultOption) {
         images[category.name] = defaultOption.imageUrl2; // Store imageUrl2 for each category
         initialTotal += defaultOption.price; // Add price for default option
@@ -29,7 +41,12 @@ const ShirtCustomizer: React.FC = () => {
     setSelectedCategory(category);
   };
 
-  const handleOptionSelect = (id: number, imageUrl2: string, categoryName: string, price: number) => {
+  const handleOptionSelect = (
+    id: number,
+    imageUrl2: string,
+    categoryName: string,
+    price: number
+  ) => {
     setSelectedOption(id);
     setSelectedImages((prevState) => ({
       ...prevState,
@@ -76,12 +93,18 @@ const ShirtCustomizer: React.FC = () => {
     // Add categories and selected options
     let yPosition = 40;
     categories.forEach((category) => {
-      const selectedCategoryOption = getCategoryOptions(category.name).find(option => option.id === selectedOption);
+      const selectedCategoryOption = getCategoryOptions(category.name).find(
+        (option) => option.id === selectedOption
+      );
       if (selectedCategoryOption) {
         doc.setFontSize(12);
         doc.text(`${category.name}:`, 20, yPosition);
         doc.text(`  ${selectedCategoryOption.name}`, 30, yPosition + 10);
-        doc.text(`  Price: $${selectedCategoryOption.price}`, 30, yPosition + 20);
+        doc.text(
+          `  Price: $${selectedCategoryOption.price}`,
+          30,
+          yPosition + 20
+        );
         yPosition += 40;
       }
     });
@@ -138,21 +161,42 @@ const ShirtCustomizer: React.FC = () => {
         {/* Popover for options */}
         {selectedCategory && (
           <div className="absolute top-0 right-0 w-full bg-white p-6 shadow-md z-10">
-            <h2 className="text-xl font-semibold mb-4">{selectedCategory} Options</h2>
+            <h2 className="text-xl font-semibold mb-4">
+              {selectedCategory} Options
+            </h2>
             <div className="grid grid-cols-3 gap-2">
               {getCategoryOptions(selectedCategory).map((style: DD_Option) => (
                 <div
                   key={style.id}
-                  className={`border rounded py-8 cursor-pointer flex flex-col items-center justify-center gap-y-4 ${selectedOption === style.id ? 'border-black' : ''}`}
-                  onClick={() => handleOptionSelect(style.id, style.imageUrl2, selectedCategory, style.price)} // Passing price to the function
+                  className={`border rounded py-8 cursor-pointer flex flex-col items-center justify-center gap-y-4 ${
+                    selectedOption === style.id ? "border-black" : ""
+                  }`}
+                  onClick={() =>
+                    handleOptionSelect(
+                      style.id,
+                      style.imageUrl2,
+                      selectedCategory,
+                      style.price
+                    )
+                  } // Passing price to the function
                 >
-                  <Image src={style.imageUrl1} alt={style.imageAlt1} width={100} height={100} />
+                  <Image
+                    src={style.imageUrl1}
+                    alt={style.imageAlt1}
+                    width={100}
+                    height={100}
+                  />
                   <p>{style.name}</p>
                   <p>${style.price}</p> {/* Display price */}
                 </div>
               ))}
             </div>
-            <button className="mt-4 bg-black text-white px-4 py-2 rounded" onClick={handleClosePopover}>Close</button>
+            <button
+              className="mt-4 bg-black text-white px-4 py-2 rounded"
+              onClick={handleClosePopover}
+            >
+              Close
+            </button>
           </div>
         )}
 
