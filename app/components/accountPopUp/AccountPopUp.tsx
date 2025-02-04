@@ -22,30 +22,22 @@ import { useEffect, useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
 
-// Define type for form data to improve type safety
-interface FormData {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  whatsapp: string;
-  password: string;
-  country: string;
-  zipCode: string;
-}
-
 const AccountPopUp = () => {
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useAtom(accountMenuState, {
     store: useStore(),
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSignup, setIsSignup] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hasShownPopup, setHasShownPopup] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
+    password: "",
     email: "",
     phone: "",
     whatsapp: "",
@@ -71,7 +63,7 @@ const AccountPopUp = () => {
     return () => clearTimeout(timeoutId);
   }, [setAccountMenuOpen]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -82,30 +74,23 @@ const AccountPopUp = () => {
 const handleSignupSubmit = async () => {
   if (!isSignUpLoaded) return;
 
-  try {
-    const result = await signUp.create({
-      emailAddress: formData.email,
-      password: formData.password,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      unsafeMetadata : {
-        phone: formData.phone,
-        whatsapp: formData.whatsapp,
-        country: formData.country,
-        zipCode: formData.zipCode
-      }
-    });
+    try {
+      const result = await signUp.create({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        emailAddress: formData.email,
+        phoneNumber: formData.phone,
+      });
 
-    // Prepare email verification
-    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-    
-    setPendingVerification(true);
-    setShowVerificationDialog(true);
-    setAccountMenuOpen(false);
-  } catch (err: any) {
-    toast.error("Error during sign up: " + err.message);
-  }
-};
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+      
+      setPendingVerification(true);
+      setShowVerificationDialog(true);
+      setAccountMenuOpen(false);
+    } catch (err) {
+      toast.error("Error during sign up: " + err.message);
+    }
+  };
 
   const handleLoginSubmit = async () => {
     if (!isSignInLoaded) return;
@@ -121,7 +106,7 @@ const handleSignupSubmit = async () => {
         setAccountMenuOpen(false);
         toast.success("Successfully signed in!");
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.error("Error during sign in: " + err.message);
     }
   };
@@ -141,7 +126,7 @@ const handleSignupSubmit = async () => {
         // Additional user metadata can be added via your backend webhook
         toast.success("Email verified successfully!");
       }
-    } catch (err: any) {
+    } catch (err) {
       toast.error("Error during verification: " + err.message);
     }
   };
@@ -160,7 +145,7 @@ const handleSignupSubmit = async () => {
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <Card>
-            <Tabs defaultValue="signup">
+            <Tabs defaultValue="sign up">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger 
                   value="signup" 
@@ -324,6 +309,13 @@ const handleSignupSubmit = async () => {
               </TabsContent>
             </Tabs>
           </Card>
+          <div className="space-y-10 flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2 max-w-lg">
+              <h1 className="text-4xl font-bold text-[#646464]">GET 25% OFF</h1>
+              <p className="text-md font-semibold text-center">shop at stich my clothes and get discounts.</p>
+            </div>
+          <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100}/>
+          </div>
         </DialogContent>
       </Dialog>
 
