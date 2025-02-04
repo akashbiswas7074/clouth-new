@@ -21,19 +21,24 @@ import { accountMenuState } from "@/app/utils/data/store";
 import { useEffect, useState } from "react";
 import { useSignIn, useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
+import Image from "next/image";
 
 const AccountPopUp = () => {
   const [showVerificationDialog, setShowVerificationDialog] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useAtom(accountMenuState, {
     store: useStore(),
   });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isSignup, setIsSignup] = useState(true);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hasShownPopup, setHasShownPopup] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    password: "",
     email: "",
     phone: "",
     whatsapp: "",
@@ -58,7 +63,8 @@ const AccountPopUp = () => {
     return () => clearTimeout(timeoutId);
   }, []);
 
-  const handleInputChange = (e) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleInputChange = (e: { target: { name: any; value: any; }; }) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -70,6 +76,7 @@ const AccountPopUp = () => {
     if (!isSignUpLoaded) return;
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const result = await signUp.create({
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -82,7 +89,8 @@ const AccountPopUp = () => {
       setPendingVerification(true);
       setShowVerificationDialog(true);
       setAccountMenuOpen(false);
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err:any) {
       toast.error("Error during sign up: " + err.message);
     }
   };
@@ -101,7 +109,8 @@ const AccountPopUp = () => {
         setAccountMenuOpen(false);
         toast.success("Successfully signed in!");
       }
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err:any) {
       toast.error("Error during sign in: " + err.message);
     }
   };
@@ -119,7 +128,8 @@ const AccountPopUp = () => {
         setShowVerificationDialog(false);
         toast.success("Email verified successfully!");
       }
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err:any) {
       toast.error("Error during verification: " + err.message);
     }
   };
@@ -136,8 +146,9 @@ const AccountPopUp = () => {
             Login
           </button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-          <Card>
+        <DialogContent className="sm:max-w-[825px] flex">
+        
+          <Card className="space-y-3">
             <Tabs defaultValue="sign up">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signup" className="font-bold bg-[#c40600] text-white" onClick={() => setIsSignup(true)}>
@@ -264,6 +275,13 @@ const AccountPopUp = () => {
               </TabsContent>
             </Tabs>
           </Card>
+          <div className="space-y-10 flex flex-col items-center justify-center">
+          <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2 max-w-lg">
+              <h1 className="text-4xl font-bold text-[#646464]">GET 25% OFF</h1>
+              <p className="text-md font-semibold text-center">shop at stich my clothes and get discounts.</p>
+            </div>
+          <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100}/>
+          </div>
         </DialogContent>
       </Dialog>
 
