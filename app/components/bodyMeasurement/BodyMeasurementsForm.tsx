@@ -109,7 +109,6 @@ const BodyMeasurementsForm: React.FC<BodyMeasurementsFormProps> = ({ initialMeas
                   onChange={(e) => handleChange(typedField, "unit", e.target.value)}  // Update 'unit'
                 >
                   <option value="inch" className="outline-none">inches</option>
-                  <option value="cm" className="outline-none">cm</option>
                 </select>
               </div>
             </div>
