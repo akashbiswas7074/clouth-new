@@ -14,14 +14,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/ta
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
   DialogTrigger,
 } from "@/app/components/ui/dialog";
 import { useAtom, useStore } from "jotai";
 import { accountMenuState } from "@/app/utils/data/store";
 import { useEffect, useState } from "react";
-import { useSignIn, useSignUp } from "@clerk/nextjs";
+import { useClerk, useSignIn, useSignUp } from "@clerk/nextjs";
 import { toast } from "sonner";
 import Image from "next/image";
+import { useUser } from "@clerk/nextjs";
 
 // Define type for form data to improve type safety
 interface FormData {
@@ -47,6 +49,7 @@ const AccountPopUp = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [pendingVerification, setPendingVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -61,19 +64,26 @@ const AccountPopUp = () => {
   const { isLoaded: isSignUpLoaded, signUp, setActive } = useSignUp();
   const { isLoaded: isSignInLoaded, signIn, setActive: setSignInActive } = useSignIn();
 
+  const { isLoaded, isSignedIn } = useUser();
+  const { signOut } = useClerk();
+  const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
+
   useEffect(() => {
     const popupShown = localStorage.getItem('popupShown');
     if (popupShown) {
       setHasShownPopup(true);
+      return;
     }
 
-    const timeoutId = setTimeout(() => {
-      setAccountMenuOpen(true);
-      localStorage.setItem('popupShown', 'true');
-      setHasShownPopup(true);
-    }, 5000);
-    return () => clearTimeout(timeoutId);
-  }, [setAccountMenuOpen]);
+    if (!isSignedIn) {
+      const timeoutId = setTimeout(() => {
+        setAccountMenuOpen(true);
+        localStorage.setItem("popupShown", "true");
+        setHasShownPopup(true);
+      }, 5000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [setAccountMenuOpen, isSignedIn]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -83,35 +93,35 @@ const AccountPopUp = () => {
     }));
   };
 
-const handleSignupSubmit = async () => {
-  if (!isSignUpLoaded) return;
+  const handleSignupSubmit = async () => {
+    if (!isSignUpLoaded) return;
 
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const result = await signUp.create({
-      emailAddress: formData.email,
-      password: formData.password,
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      unsafeMetadata : {
-        phone: formData.phone,
-        whatsapp: formData.whatsapp,
-        country: formData.country,
-        zipCode: formData.zipCode
-      }
-    });
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const result = await signUp.create({
+        emailAddress: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        unsafeMetadata: {
+          phone: formData.phone,
+          whatsapp: formData.whatsapp,
+          country: formData.country,
+          zipCode: formData.zipCode
+        }
+      });
 
-    // Prepare email verification
-    await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-    
-    setPendingVerification(true);
-    setShowVerificationDialog(true);
-    setAccountMenuOpen(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (err: any) {
-    toast.error("Error during sign up: " + err.message);
-  }
-};
+      // Prepare email verification
+      await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
+      setPendingVerification(true);
+      setShowVerificationDialog(true);
+      setAccountMenuOpen(false);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      toast.error("Error during sign up: " + err.message);
+    }
+  };
 
   const handleLoginSubmit = async () => {
     if (!isSignInLoaded) return;
@@ -127,7 +137,7 @@ const handleSignupSubmit = async () => {
         setAccountMenuOpen(false);
         toast.success("Successfully signed in!");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error("Error during sign in: " + err.message);
     }
@@ -144,28 +154,72 @@ const handleSignupSubmit = async () => {
       if (completeSignUp.status === "complete") {
         await setActive({ session: completeSignUp.createdSessionId });
         setShowVerificationDialog(false);
-        
+
         // Additional user metadata can be added via your backend webhook
         toast.success("Email verified successfully!");
       }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error("Error during verification: " + err.message);
     }
   };
 
   const handleOnClickAccountMenu = () => {
-    setAccountMenuOpen(true);
+    if (isLoaded && isSignedIn) {
+      setLogoutDialogOpen(true);
+    } else {
+      setAccountMenuOpen(true);
+    }
   };
+
+
 
   return (
     <div>
-      <Dialog open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
+      {/* <Dialog open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
         <DialogTrigger asChild>
-          <button onClick={handleOnClickAccountMenu} className="lg:flex">
-            Login
-          </button>
+          <div className="relative"> */}
+            <button
+              onClick={handleOnClickAccountMenu}
+              className="lg:flex relative"
+            >
+              {isSignedIn ? "Account" : "Login"}
+            </button>
+          {/* </div>
         </DialogTrigger>
+      </Dialog> */}
+
+      {/* Updated Logout Dialog */}
+      <Dialog open={logoutDialogOpen} onOpenChange={setLogoutDialogOpen}>
+        <DialogContent>
+          <DialogTitle>Log Out</DialogTitle>
+          <Card>
+            <CardHeader className="px-6 py-4">
+              <h3 className="text-lg font-medium">Log Out</h3>
+              <p className="text-sm text-muted-foreground">
+                Are you sure you want to log out?
+              </p>
+            </CardHeader>
+            <CardFooter className="flex justify-end gap-3 px-6 py-4">
+              <Button variant="default" className="w-24" onClick={() => setLogoutDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                className="w-24"
+                onClick={() => {
+                  setLogoutDialogOpen(false);
+                  signOut();
+                }}
+              >
+                Log Out
+              </Button>
+            </CardFooter>
+          </Card>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
         <DialogContent className="sm:max-w-[725px] flex">
           <Card className="space-y-3">
             <Tabs defaultValue="signup">
@@ -207,9 +261,9 @@ const handleSignupSubmit = async () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-[#c40600]" 
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#c40600]"
                     onClick={handleLoginSubmit}
                   >
                     Sign In
@@ -312,9 +366,9 @@ const handleSignupSubmit = async () => {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-[#c40600]" 
+                  <Button
+                    type="submit"
+                    className="w-full bg-[#c40600]"
                     onClick={handleSignupSubmit}
                   >
                     Sign Up
@@ -324,11 +378,11 @@ const handleSignupSubmit = async () => {
             </Tabs>
           </Card>
           <div className="space-y-10 flex flex-col items-center justify-center">
-          <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2">
+            <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2">
               <h1 className="sm:text-4xl text-2xl font-bold text-[#646464]">GET 25% OFF</h1>
               <p className="text-md font-semibold text-center">shop at stich my clothes and get discounts.</p>
             </div>
-          <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100}/>
+            <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100} />
           </div>
         </DialogContent>
       </Dialog>
@@ -347,20 +401,20 @@ const handleSignupSubmit = async () => {
                 <Label htmlFor="verification-code" className="font-bold">
                   Verification Code
                 </Label>
-                <Input 
-                  id="verification-code" 
-                  name="verification-code" 
-                  type="text" 
-                  required 
+                <Input
+                  id="verification-code"
+                  name="verification-code"
+                  type="text"
+                  required
                   value={verificationCode}
                   onChange={(e) => setVerificationCode(e.target.value)}
                 />
               </div>
             </CardContent>
             <CardFooter>
-              <Button 
-                type="submit" 
-                className="w-full bg-[#c40600]" 
+              <Button
+                type="submit"
+                className="w-full bg-[#c40600]"
                 onClick={handleVerification}
               >
                 Verify Email
@@ -369,7 +423,7 @@ const handleSignupSubmit = async () => {
           </Card>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 };
 
