@@ -151,10 +151,10 @@ const AccountPopUp = () => {
           <Card className="space-y-3">
             <Tabs defaultValue="sign up">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signup" className="font-bold bg-[#c40600] text-white" onClick={() => setIsSignup(true)}>
+                <TabsTrigger value="signup" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(true)}>
                   Discount-Sign Up
                 </TabsTrigger>
-                <TabsTrigger value="login" className="font-bold bg-[#c40600] text-white" onClick={() => setIsSignup(false)}>sign in</TabsTrigger>
+                <TabsTrigger value="login" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(false)}>sign in</TabsTrigger>
               </TabsList>
               <TabsContent value="login">
                 <CardHeader>
