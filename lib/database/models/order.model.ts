@@ -2,10 +2,20 @@ import mongoose, { Schema, Document } from "mongoose";
 import ShirtModel from "./shirtModel/ShirtModel";
 
 export interface Order extends Document {
-  shirt:[{
-    type : mongoose.Types.ObjectId;
-    ref: "ShirtModel";
-  }]// Reference to the Shirt _id
+  products: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "ShirtModel",
+        },
+        qty: {
+          type: String,
+        },
+        price: Number,
+      },
+    ],
+    cartTotal: Number,
+    totalAfterDiscount: Number,
   orderConfirmation: boolean;
   deliveryStatus: "pending" | "shipped" | "delivered";
   price: number;
@@ -27,11 +37,20 @@ export interface Order extends Document {
 
 // Define the Order schema
 export const OrderSchema = new Schema<Order>({
-  shirt: [{ 
-    type: mongoose.Schema.Types.ObjectId, // Correctly reference ObjectId
-    ref: "ShirtModel", // Reference the "Shirt" model
-    required: true 
-  }],
+  products: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "ShirtModel",
+        },
+        qty: {
+          type: String,
+        },
+        price: Number,
+      },
+    ],
+  cartTotal: Number,
+  totalAfterDiscount: Number,
   orderConfirmation: { type: Boolean, required: true },
   deliveryStatus: {
     type: String,
