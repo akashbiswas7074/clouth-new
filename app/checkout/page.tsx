@@ -321,37 +321,37 @@ const CheckoutPage = () => {
 };
 
 export default CheckoutPage;
-async function saveAddress(deliveryAddress: any, userId: string) {
-  try {
-    const response = await fetch('/api/address', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId,
-        ...deliveryAddress
-      })
-    });
+// async function saveAddress(deliveryAddress: any, userId: string) {
+//   try {
+//     const response = await fetch('/api/address', {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//       },
+//       body: JSON.stringify({
+//         userId,
+//         ...deliveryAddress
+//       })
+//     });
 
-    const data = await response.json();
+//     const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to save address');
-    }
+//     if (!response.ok) {
+//       throw new Error(data.message || 'Failed to save address');
+//     }
 
-    // Save to localStorage for persistence
-    localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
+//     // Save to localStorage for persistence
+//     localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
 
-    return {
-      success: true,
-      message: 'Address saved successfully'
-    };
+//     return {
+//       success: true,
+//       message: 'Address saved successfully'
+//     };
 
-  } catch (error: any) {
-    return {
-      success: false,
-      message: error.message || 'Error saving address'
-    };
-  }
-}
+//   } catch (error: any) {
+//     return {
+//       success: false,
+//       message: error.message || 'Error saving address'
+//     };
+//   }
+// }
