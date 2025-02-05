@@ -23,11 +23,19 @@ export const createShirt = async (
 ) => {
   try {
     await connectToDatabase();
+
+    // Convert price to a number if it's not already a number
+    const numericPrice = Number(price);
+
+    if (isNaN(numericPrice)) {
+      throw new Error("Invalid price value.");
+    }
+
     const fabricObjectId = new mongoose.Types.ObjectId(fabricId);
     const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
     const newShirt = new ShirtModel({
-      price,
+      price: numericPrice,
       bottom,
       back,
       sleeves,
@@ -46,13 +54,12 @@ export const createShirt = async (
 
     await newShirt.save();
 
-    // Convert the Mongoose document to a plain object
     const plainShirt = newShirt.toObject();
 
     return {
       message: "Shirt created successfully.",
       success: true,
-      shirt: plainShirt, // Now a plain JS object
+      shirt: plainShirt,
     };
   } catch (error: any) {
     console.log(error);
@@ -72,7 +79,10 @@ export const updateShirtIds = async (
     await connectToDatabase();
 
     // Prepare the update object dynamically
-    const updateFields: Partial<{ monogramId: mongoose.Types.ObjectId; measurementId: mongoose.Types.ObjectId }> = {};
+    const updateFields: Partial<{
+      monogramId: mongoose.Types.ObjectId;
+      measurementId: mongoose.Types.ObjectId;
+    }> = {};
 
     if (monogramId) {
       updateFields.monogramId = new mongoose.Types.ObjectId(monogramId);

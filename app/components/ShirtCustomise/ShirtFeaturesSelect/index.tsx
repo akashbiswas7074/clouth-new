@@ -4,6 +4,7 @@ import { createShirt } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const sections = [
   "bottom",
@@ -111,13 +112,13 @@ const ShirtCustomizer = () => {
     }
   };
 
-  const handleAddMonogram = () => {
-    router.push("/monogram");
-  };
+  // const handleAddMonogram = () => {
+  //   router.push("/monogram");
+  // };
 
-  const handleSkipMonogram = () => {
-    router.push("/measurement");
-  };
+  // const handleSkipMonogram = () => {
+  //   router.push("/measurement");
+  // };
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
@@ -134,7 +135,6 @@ const ShirtCustomizer = () => {
         return;
       }
 
-      // Provide default values for shirt properties
       const shirtData = {
         bottom: shirt.bottom || {},
         back: shirt.back || {},
@@ -168,6 +168,7 @@ const ShirtCustomizer = () => {
       );
 
       if (response.success) {
+        localStorage.setItem("shirtId", response.shirt._id); // Save shirtId
         toast.success("Shirt created successfully!");
         setIsSubmitted(true);
       } else {
@@ -189,7 +190,6 @@ const ShirtCustomizer = () => {
           price: item.price,
         },
       };
-      localStorage.setItem(section, JSON.stringify(item));
       return updatedShirt;
     });
   };
@@ -292,110 +292,115 @@ const ShirtCustomizer = () => {
   };
 
   return (
-    <div className="mt-[5rem] flex-row justify-between items-start flex w-full h-fit">
-      <div className="relative flex justify-center items-center w-full h-[89vh]">
+    <div className="mt-[5rem] flex-col md:flex-row justify-between items-start flex w-full h-fit">
+      <div className="relative flex justify-center items-center w-full h-[87vh]">
         {Object.entries(selectedItems).map(([section, item], index) =>
           item.image?.url ? (
             <img
               key={index}
               src={item.image.url}
               alt={item.name}
-              className="absolute top-0 left-0 w-[40vw] h-auto object-cover rounded-none"
+              className="absolute top-auto bottom-auto left-auto right-auto w-[80%] md:w-[40vw] h-auto object-cover rounded-none"
               style={{
-                transform: "translate(-50%, -50%)",
-                left: "50%",
-                top: "50%",
+                // transform: "translate(-50%, -50%)",
+                // left: "50%",
+                // top: "50%",
                 zIndex: getZIndex(section, index),
               }}
             />
           ) : null
         )}
-      </div>
-
-      <div>
-        <div className="fixed bottom-4 right-[20rem] bg-white p-4 shadow-lg rounded-lg flex items-center space-x-4">
-          <div className="text-xl font-bold">
-            Total: ${totalPrice.toFixed(2)}
-          </div>
-          <button
-            onClick={handleOpenModal}
-            className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
-          >
-            Next
-          </button>
-        </div>
-
-        {isModalOpen && (
-          <div className="z-[100] fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-            <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4">
-              <h2 className="text-2xl font-bold mb-4">Confirm Shirt Details</h2>
-
-              <div className="space-y-2">
-                {Object.entries(shirt).map(
-                  ([key, value]) =>
-                    value && (
-                      <div key={key} className="flex justify-between">
-                        <span className="font-medium capitalize">{key}:</span>
-                        <span>{value.name}</span>
-                      </div>
-                    )
-                )}
-                <div className="flex justify-between text-lg font-bold mt-4">
-                  <span>Total Price:</span>
-                  <span>${totalPrice.toFixed(2)}</span>
-                </div>
-              </div>
-
-              {!isSubmitted ? (
-                <button
-                  onClick={handleCreateShirt}
-                  className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
-                >
-                  Submit
-                </button>
-              ) : (
-                <div className="flex justify-between space-x-4">
-                  <button
-                    onClick={handleAddMonogram}
-                    className="w-1/2 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-                  >
-                    Add Monogram
-                  </button>
-                  <button
-                    onClick={handleSkipMonogram}
-                    className="w-1/2 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
-                  >
-                    Don't Add
-                  </button>
-                </div>
-              )}
+        {isBackPopupOpen && selectedBackImage && (
+          <div className="absolute w-fit h-fit top-auto left-auto right-auto bottom-auto bg-opacity-50 flex justify-center items-center z-[100]">
+            <div className="bg-white rounded-lg">
+              <h3 className="text-xl font-bold">Selected Back</h3>
+              <img
+                src={selectedBackImage}
+                alt="Selected Back"
+                className="w-[30rem] h-auto object-cover"
+              />
+              <button
+                onClick={closeBackPopup}
+                className="mt-4 py-2 px-4 bg-red-500 text-white rounded"
+              >
+                Close
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      {/* Button to close the back popup */}
-      {isBackPopupOpen && selectedBackImage && (
-        <div className="w-fit h-fit fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
-          <div className="bg-white p-4 rounded-lg">
-            <h3 className="text-xl font-bold">Selected Back</h3>
-            <img
-              src={selectedBackImage}
-              alt="Selected Back"
-              className="w-[30rem] h-auto object-cover"
-            />
-            <button
-              onClick={closeBackPopup}
-              className="mt-4 py-2 px-4 bg-red-500 text-white rounded"
-            >
-              Close
-            </button>
+      <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
+        <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
+        <button
+          onClick={handleOpenModal}
+          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+        >
+          Next
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <div className="z-[100] fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4">
+            <h2 className="text-2xl font-bold mb-4">Confirm Shirt Details</h2>
+
+            <div className="space-y-2">
+              {Object.entries(shirt).map(
+                ([key, value]) =>
+                  value && (
+                    <div key={key} className="flex justify-between">
+                      <span className="font-medium capitalize">{key}:</span>
+                      <span>{value.name}</span>
+                    </div>
+                  )
+              )}
+              <div className="flex justify-between text-lg font-bold mt-4">
+                <span>Total Price:</span>
+                <span>${totalPrice.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {!isSubmitted ? (
+              <div className="flex justify-between space-x-4">
+                <button
+                  onClick={handleCreateShirt}
+                  className="w-1/2 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+                >
+                  Submit
+                </button>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="w-1/2 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex justify-between space-x-4">
+                <Link
+                  href="/monogram"
+                  className="w-1/2 text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                >
+                  Add Monogram
+                </Link>
+                <Link
+                  href="/measurement"
+                  className="w-1/2 text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+                >
+                  Don't Add
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       )}
 
-      <div className="p-[.5rem] mt-[1.5rem] w-[20%] bg-white h-full flex flex-col justify-start items-center">
-        <h2 className="text-xl font-bold">Shirt Customizer</h2>
+      <div className="p-4 mt-6 w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          Shirt Customizer
+        </h2>
+
         <div className="flex flex-col justify-center w-full">
           {sections
             .filter(
@@ -411,7 +416,7 @@ const ShirtCustomizer = () => {
             .map((section) => (
               <div
                 key={section}
-                className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
+                className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${
                   activeSection === section ? "bg-gray-300" : ""
                 }`}
                 onClick={() => setActiveSection(section as keyof ProductData)}
@@ -420,24 +425,25 @@ const ShirtCustomizer = () => {
               </div>
             ))}
 
+          {/* Collar Section */}
           {["collarStyle", "collarHeight", "collarButton"].some((section) =>
             sections.includes(section)
           ) && (
-            <div>
+            <div className="mt-4 w-full">
               <h3
-                className="text-md text-center font-bold mb-[.2rem] cursor-pointer"
+                className="text-lg text-center font-semibold text-gray-700 py-2 cursor-pointer bg-gray-200 rounded-lg"
                 onClick={toggleCollarSection}
               >
                 Collar {isCollarOpen ? "▲" : "▼"}
               </h3>
               {isCollarOpen && (
-                <div>
+                <div className="mt-2">
                   {["collarStyle", "collarHeight", "collarButton"].map(
                     (section) =>
                       sections.includes(section) && (
                         <div
                           key={section}
-                          className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
+                          className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${
                             activeSection === section ? "bg-gray-300" : ""
                           }`}
                           onClick={() =>
@@ -453,24 +459,25 @@ const ShirtCustomizer = () => {
             </div>
           )}
 
+          {/* Cuff Section */}
           {["cuffStyle", "cuffLinks"].some((section) =>
             sections.includes(section)
           ) && (
-            <div className="mt-4">
+            <div className="mt-6 w-full">
               <h3
-                className="text-center text-md font-bold mb-2 cursor-pointer"
+                className="text-lg text-center font-semibold text-gray-700 py-2 cursor-pointer bg-gray-200 rounded-lg"
                 onClick={toggleCuffSection}
               >
                 Cuff {isCuffOpen ? "▲" : "▼"}
               </h3>
               {isCuffOpen && longSleeveSelected && (
-                <div>
+                <div className="mt-2">
                   {["cuffStyle", "cuffLinks"].map(
                     (section) =>
                       sections.includes(section) && (
                         <div
                           key={section}
-                          className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
+                          className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${
                             activeSection === section ? "bg-gray-300" : ""
                           }`}
                           onClick={() =>
@@ -481,13 +488,19 @@ const ShirtCustomizer = () => {
                         </div>
                       )
                   )}
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2 text-lg">Watch Compatible:</span>
+
+                  {/* Watch Compatible Button */}
+                  <div className="flex items-center justify-center mt-4">
+                    <span className="mr-3 text-lg font-medium text-gray-700">
+                      Watch Compatible:
+                    </span>
                     <button
                       onClick={handleToggle}
-                      className={`py-2 px-4 rounded-full ${
-                        watchCompatible ? "bg-green-500" : "bg-red-500"
-                      } text-white`}
+                      className={`py-2 px-6 rounded-full text-white font-semibold transition-all duration-200 ease-in-out ${
+                        watchCompatible
+                          ? "bg-green-500 hover:bg-green-600"
+                          : "bg-red-500 hover:bg-red-600"
+                      }`}
                     >
                       {watchCompatible ? "Yes" : "No"}
                     </button>
@@ -500,7 +513,7 @@ const ShirtCustomizer = () => {
       </div>
 
       {activeSection && (
-        <div className="fixed right-0 top-0 h-full w-1/3 bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
+        <div className="mt-[6.5rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
           {/* Header */}
           <div className="p-4 border-b flex justify-between items-center bg-gray-50">
             <h3 className="text-xl font-bold capitalize text-gray-800">
