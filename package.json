@@ -41,6 +41,7 @@
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "font": "^0.0.4",
     "framer-motion": "^12.0.6",
     "gsap": "^3.12.7",
