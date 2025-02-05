@@ -5,6 +5,9 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true, // Disables ESLint checks during builds (e.g., on Vercel)
   }, // Remove unrecognized keys
+  images: {
+    domains: ["example.com", "res.cloudinary.com"],
+  },
 };
 
 export default nextConfig;

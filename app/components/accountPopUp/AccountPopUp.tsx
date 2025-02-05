@@ -10,7 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/app/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/app/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/app/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
@@ -62,14 +67,18 @@ const AccountPopUp = () => {
   });
 
   const { isLoaded: isSignUpLoaded, signUp, setActive } = useSignUp();
-  const { isLoaded: isSignInLoaded, signIn, setActive: setSignInActive } = useSignIn();
+  const {
+    isLoaded: isSignInLoaded,
+    signIn,
+    setActive: setSignInActive,
+  } = useSignIn();
 
   const { isLoaded, isSignedIn } = useUser();
   const { signOut } = useClerk();
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
-    const popupShown = localStorage.getItem('popupShown');
+    const popupShown = localStorage.getItem("popupShown");
     if (popupShown) {
       setHasShownPopup(true);
       return;
@@ -87,9 +96,9 @@ const AccountPopUp = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -97,7 +106,6 @@ const AccountPopUp = () => {
     if (!isSignUpLoaded) return;
 
     try {
-
       const result = await signUp.create({
         emailAddress: formData.email,
         password: formData.password,
@@ -107,8 +115,8 @@ const AccountPopUp = () => {
           phone: formData.phone,
           whatsapp: formData.whatsapp,
           country: formData.country,
-          zipCode: formData.zipCode
-        }
+          zipCode: formData.zipCode,
+        },
       });
 
       // Prepare email verification
@@ -117,7 +125,6 @@ const AccountPopUp = () => {
       setPendingVerification(true);
       setShowVerificationDialog(true);
       setAccountMenuOpen(false);
-
     } catch (err: any) {
       toast.error("Error during sign up: " + err.message);
     }
@@ -172,20 +179,15 @@ const AccountPopUp = () => {
     }
   };
 
-
-
   return (
     <div>
       {/* <Dialog open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
         <DialogTrigger asChild>
           <div className="relative"> */}
-            <button
-              onClick={handleOnClickAccountMenu}
-              className="lg:flex relative"
-            >
-              {isSignedIn ? "Account" : "Login"}
-            </button>
-          {/* </div>
+      <button onClick={handleOnClickAccountMenu} className="lg:flex relative">
+        {isSignedIn ? "Account" : "Login"}
+      </button>
+      {/* </div>
         </DialogTrigger>
       </Dialog> */}
 
@@ -201,7 +203,11 @@ const AccountPopUp = () => {
               </p>
             </CardHeader>
             <CardFooter className="flex justify-end gap-3 px-6 py-4">
-              <Button variant="default" className="w-24" onClick={() => setLogoutDialogOpen(false)}>
+              <Button
+                variant="default"
+                className="w-24"
+                onClick={() => setLogoutDialogOpen(false)}
+              >
                 Cancel
               </Button>
               <Button
@@ -224,12 +230,20 @@ const AccountPopUp = () => {
           <Card className="space-y-3">
             <Tabs defaultValue="signup">
               <TabsList className="grid w-full grid-cols-2">
-
-                <TabsTrigger value="signup" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(true)}>
+                <TabsTrigger
+                  value="signup"
+                  className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white"
+                  onClick={() => setIsSignup(true)}
+                >
                   Discount-Sign Up
                 </TabsTrigger>
-                <TabsTrigger value="login" className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white" onClick={() => setIsSignup(false)}>sign in</TabsTrigger>
-
+                <TabsTrigger
+                  value="login"
+                  className="font-bold data-[state=active]:bg-[#c40600] data-[state=active]:text-white"
+                  onClick={() => setIsSignup(false)}
+                >
+                  sign in
+                </TabsTrigger>
               </TabsList>
               <TabsContent value="login">
                 <CardHeader>
@@ -240,7 +254,9 @@ const AccountPopUp = () => {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="email-login" className="font-bold">Email</Label>
+                    <Label htmlFor="email-login" className="font-bold">
+                      Email
+                    </Label>
                     <Input
                       id="email-login"
                       name="email"
@@ -251,7 +267,9 @@ const AccountPopUp = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password-login" className="font-bold">Password</Label>
+                    <Label htmlFor="password-login" className="font-bold">
+                      Password
+                    </Label>
                     <Input
                       id="password-login"
                       name="password"
@@ -281,7 +299,9 @@ const AccountPopUp = () => {
                 <CardContent className="space-y-4">
                   <div className="flex gap-3">
                     <div className="space-y-2">
-                      <Label htmlFor="firstName" className="font-bold">First Name</Label>
+                      <Label htmlFor="firstName" className="font-bold">
+                        First Name
+                      </Label>
                       <Input
                         id="firstName"
                         name="firstName"
@@ -291,7 +311,9 @@ const AccountPopUp = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="lastName" className="font-bold">Last Name</Label>
+                      <Label htmlFor="lastName" className="font-bold">
+                        Last Name
+                      </Label>
                       <Input
                         id="lastName"
                         name="lastName"
@@ -302,7 +324,9 @@ const AccountPopUp = () => {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email-signup" className="font-bold">Email</Label>
+                    <Label htmlFor="email-signup" className="font-bold">
+                      Email
+                    </Label>
                     <Input
                       id="email-signup"
                       name="email"
@@ -313,7 +337,9 @@ const AccountPopUp = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="password-signup" className="font-bold">Password</Label>
+                    <Label htmlFor="password-signup" className="font-bold">
+                      Password
+                    </Label>
                     <Input
                       id="password-signup"
                       name="password"
@@ -323,7 +349,9 @@ const AccountPopUp = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="font-bold">Phone</Label>
+                    <Label htmlFor="phone" className="font-bold">
+                      Phone
+                    </Label>
                     <Input
                       id="phone"
                       name="phone"
@@ -334,7 +362,9 @@ const AccountPopUp = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="whatsapp" className="font-bold">WhatsApp</Label>
+                    <Label htmlFor="whatsapp" className="font-bold">
+                      WhatsApp
+                    </Label>
                     <Input
                       id="whatsapp"
                       name="whatsapp"
@@ -345,7 +375,9 @@ const AccountPopUp = () => {
                   </div>
                   <div className="flex gap-3">
                     <div className="space-y-2">
-                      <Label htmlFor="country" className="font-bold">Country</Label>
+                      <Label htmlFor="country" className="font-bold">
+                        Country
+                      </Label>
                       <Input
                         id="country"
                         name="country"
@@ -355,7 +387,9 @@ const AccountPopUp = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="zipCode" className="font-bold">Zip Code</Label>
+                      <Label htmlFor="zipCode" className="font-bold">
+                        Zip Code
+                      </Label>
                       <Input
                         id="zipCode"
                         name="zipCode"
@@ -378,17 +412,32 @@ const AccountPopUp = () => {
               </TabsContent>
             </Tabs>
           </Card>
-          <div className="space-y-10 flex flex-col items-center justify-center">
+          <div className="space-y-10 flex flex-col items-center justify-center md:block hidden">
             <div className="flex flex-col items-center justify-center space-y-2 pt-4 px-2">
-              <h1 className="sm:text-4xl text-2xl font-bold text-[#646464]">GET 25% OFF</h1>
-              <p className="text-md font-semibold text-center">shop at stich my clothes and get discounts.</p>
+              <h1 className="sm:text-4xl text-2xl font-bold text-[#646464]">
+                GET 25% OFF
+              </h1>
+              <p className="text-md font-semibold text-center">
+                shop at stich my clothes and get discounts.
+              </p>
             </div>
-            <Image src={'/archive/stylish-groom-getting-ready-in-morning-putting-on-2021-08-29-11-41-08-utc.JPG'} alt="login" className="object-cover" width={400} height={100} />
+            <Image
+              src={
+                "https://res.cloudinary.com/dlxpcyiin/image/upload/v1738748939/Screenshot_2025-02-05_151556_e5gu5z.png"
+              }
+              alt="login"
+              className="object-cover"
+              width={400}
+              height={100}
+            />
           </div>
         </DialogContent>
       </Dialog>
 
-      <Dialog open={showVerificationDialog} onOpenChange={setShowVerificationDialog}>
+      <Dialog
+        open={showVerificationDialog}
+        onOpenChange={setShowVerificationDialog}
+      >
         <DialogContent>
           <Card>
             <CardHeader>
@@ -424,7 +473,7 @@ const AccountPopUp = () => {
           </Card>
         </DialogContent>
       </Dialog>
-    </div >
+    </div>
   );
 };
 
