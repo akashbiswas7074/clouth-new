@@ -126,7 +126,7 @@ const MonogramCustomiser = () => {
   };
 
   return (
-    <div className="mt-[5rem] flex-row justify-between items-start flex w-full h-fit">
+    <div className="mt-[5rem] font-play pt-8 flex-row justify-between items-start flex w-full h-fit">
       <div className="relative flex justify-center items-center w-full h-[89vh]">
         {Object.entries(selectedItems).map(([section, item], index) =>
           item.image?.url ? (

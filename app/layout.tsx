@@ -2,23 +2,20 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "./components/Navbar/Navbar";
 import Preloader from "./components/Preloader";
-import localFont from 'next/font/local'
+import { Play } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner"
 
 // In your layout
 <Toaster />
 import { ClerkProvider } from '@clerk/nextjs'
 
-const play = localFont({
-  src: [
-    {
-      path: './fonts/Play-Bold.ttf',
-    },
-    {
-      path: './fonts/Play-Regular.ttf',
-    },
-  ],
-})
+const play = Play({
+ 
+  weight: "400",
+  variable: "--font-play",
+  subsets: ["latin"],
+});
+
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -32,9 +29,9 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en" className={play.className}>
+    <html lang="en">
       <body
-        className={`antialiased`} 
+        className={`${play.variable} antialiased`} 
       >
         <Preloader /> 
         <Navbar />
