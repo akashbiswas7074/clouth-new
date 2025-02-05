@@ -8,7 +8,7 @@ interface ProductItem {
 }
 
 interface Shirt {
-  price: number; // Add this field
+  price: number;
   collarStyle?: ProductItem;
   collarButton?: ProductItem;
   collarHeight?: ProductItem;
@@ -30,7 +30,7 @@ interface Shirt {
 const ShirtSchema = new Schema<Shirt>({
   price: {
     type: Number,
-    required: true,
+    required: true, // Make it required
   },
   collarStyle: {
     type: Object, // Could store an object for collarStyle details
@@ -115,6 +115,7 @@ const ShirtSchema = new Schema<Shirt>({
 );
 
 // Create the model using the schema
-const ShirtModel = mongoose.models.Shirt || mongoose.model<Shirt>("Shirt", ShirtSchema);
+const ShirtModel =
+  mongoose.models.Shirt || mongoose.model<Shirt>("Shirt", ShirtSchema);
 
 export default ShirtModel;

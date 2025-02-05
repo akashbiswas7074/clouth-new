@@ -23,13 +23,19 @@ export const createShirt = async (
 ) => {
   try {
     await connectToDatabase();
-    
-    // Create ObjectIds
+
+    // Convert price to a number if it's not already a number
+    const numericPrice = Number(price);
+
+    if (isNaN(numericPrice)) {
+      throw new Error("Invalid price value.");
+    }
+
     const fabricObjectId = new mongoose.Types.ObjectId(fabricId);
     const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
-    const newShirt = await ShirtModel.create({
-      price,
+    const newShirt = new ShirtModel({
+      price: numericPrice,
       bottom,
       back,
       sleeves,
@@ -46,30 +52,14 @@ export const createShirt = async (
       fabricId: fabricObjectId,
     });
 
-    // Convert to plain object and transform
-    const plainShirt = {
-      id: newShirt._id.toString(),
-      price: newShirt.price,
-      bottom: newShirt.bottom,
-      back: newShirt.back,
-      sleeves: newShirt.sleeves,
-      cuffstyle: newShirt.cuffstyle,
-      cufflinks: newShirt.cufflinks,
-      collarstyle: newShirt.collarstyle,
-      collarheight: newShirt.collarheight,
-      collarbutton: newShirt.collarbutton,
-      placket: newShirt.placket,
-      pocket: newShirt.pocket,
-      fit: newShirt.fit,
-      watchCompatible: newShirt.watchCompatible,
-      colorId: newShirt.colorId.toString(),
-      fabricId: newShirt.fabricId.toString(),
-    };
+    await newShirt.save();
+
+    const plainShirt = newShirt.toObject();
 
     return {
       message: "Shirt created successfully.",
       success: true,
-      shirt: plainShirt
+      shirt: plainShirt,
     };
   } catch (error: any) {
     console.log(error);
@@ -89,16 +79,22 @@ export const updateShirtIds = async (
     await connectToDatabase();
 
     // Prepare the update object dynamically
-    const updateFields: Partial<{ monogramId: mongoose.Types.ObjectId; measurementId: mongoose.Types.ObjectId }> = {};
+    const updateFields: Partial<{
+      monogramId: mongoose.Types.ObjectId;
+      measurementId: mongoose.Types.ObjectId;
+    }> = {};
 
+    // Only update the monogramId if it is provided
     if (monogramId) {
       updateFields.monogramId = new mongoose.Types.ObjectId(monogramId);
     }
+
+    // Only update the measurementId if it is provided (do not overwrite if not passed)
     if (measurementId) {
       updateFields.measurementId = new mongoose.Types.ObjectId(measurementId);
     }
 
-    // Update only the provided fields
+    // Update only the provided fields, leaving others unchanged
     const updatedShirt = await ShirtModel.findByIdAndUpdate(
       shirtId,
       { $set: updateFields },

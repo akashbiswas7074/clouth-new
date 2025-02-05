@@ -90,7 +90,7 @@ const CartDrawer = () => {
   const total = cartItems.reduce((sum, item) => sum + item.price * Number(item.qty), 0);
 
   return (
-    <div className="relative flex items-center">
+    <div className="z-[500] relative flex items-center">
       <Sheet open={cartMenuOpen} onOpenChange={setCartMenuOpen}>
         <SheetTrigger asChild>
           <button onClick={handleOnClickCartMenu}>
