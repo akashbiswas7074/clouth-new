@@ -58,7 +58,7 @@ interface Monogram {
   // sleeves?: ShirtItem;
 }
 
-const ShirtCustomizer = () => {
+const MonogramCustomizer = () => {
   const [totalPrice, setTotalPrice] = useState(0);
   const { data, loading } = useMonogramData() as {
     data: ProductData;
@@ -250,17 +250,17 @@ const ShirtCustomizer = () => {
     });
   };
 
-  const handleToggle = () => {
-    setWatchCompatible((prev) => !prev);
-  };
+  // const handleToggle = () => {
+  //   setWatchCompatible((prev) => !prev);
+  // };
 
-  const toggleCollarSection = () => {
-    setIsCollarOpen((prev) => !prev);
-  };
+  // const toggleCollarSection = () => {
+  //   setIsCollarOpen((prev) => !prev);
+  // };
 
-  const toggleCuffSection = () => {
-    setIsCuffOpen((prev) => !prev);
-  };
+  // const toggleCuffSection = () => {
+  //   setIsCuffOpen((prev) => !prev);
+  // };
 
   const getZIndex = (section: string, index: number) => {
     if (section === "collarStyle") return 50;
@@ -290,15 +290,12 @@ const ShirtCustomizer = () => {
               alt={item.name}
               className="absolute top-auto bottom-auto left-auto right-auto w-[80%] md:w-[40vw] h-auto object-cover rounded-none"
               style={{
-                // transform: "translate(-50%, -50%)",
-                // left: "50%",
-                // top: "50%",
                 zIndex: getZIndex(section, index),
               }}
             />
           ) : null
         )}
-        {isBackPopupOpen && selectedBackImage && (
+        {/* {isBackPopupOpen && selectedBackImage && (
           <div className="absolute w-fit h-fit top-auto left-auto right-auto bottom-auto bg-opacity-50 flex justify-center items-center z-[100]">
             <div className="bg-white rounded-lg">
               <h3 className="text-xl font-bold">Selected Back</h3>
@@ -315,7 +312,7 @@ const ShirtCustomizer = () => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
 
       <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
@@ -367,17 +364,17 @@ const ShirtCustomizer = () => {
             ) : (
               <div className="flex justify-between space-x-4">
                 <Link
-                  href="/monogram"
+                  href="/cartDrawer"
                   className="w-1/2 text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
                 >
-                  Add Monogram
+                  Add To Cart
                 </Link>
-                <Link
+                {/* <Link
                   href="/measurement"
                   className="w-1/2 text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
                 >
                   Don't Add
-                </Link>
+                </Link> */}
               </div>
             )}
           </div>
@@ -511,4 +508,4 @@ const ShirtCustomizer = () => {
   );
 };
 
-export default ShirtCustomizer;
+export default MonogramCustomizer;

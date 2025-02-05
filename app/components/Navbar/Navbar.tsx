@@ -43,7 +43,7 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="w-full bg-[#f5f5f0] shadow-md px-4 py-2 flex justify-between items-center fixed top-0 z-[300]">
+    <nav className="w-full bg-[#f5f5f0] shadow-md px-4 py-2 flex justify-between items-center fixed top-0 z-[200]">
       <div className="flex items-center">
         <Image src={"/logo.png"} alt="logo" width={100} height={80} />
       </div>
@@ -82,7 +82,7 @@ export default function Navbar() {
               About
             </a>
             <Link href="/history">History</Link>
-            <Link href="/form">Customise</Link>
+            <Link href="/form-new">Customise</Link>
           </div>
         </div>
       )}

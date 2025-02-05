@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 // Define the MonogramUser schema
 export interface MonogramUser extends Document {
+  price: number;
   style: {
     name: string;
     price: number;
@@ -15,6 +16,7 @@ export interface MonogramUser extends Document {
 }
 
 export const MonogramUserSchema = new Schema<MonogramUser>({
+  price: { type: Number, required: true },
   style: {
     name: { type: String, required: true },
     price: { type: Number, required: true },

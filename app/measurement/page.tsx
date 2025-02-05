@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/router"; // Import useRouter
 import ShirtMeasurementsForm from "../components/shirtMeasurement/ShirtMeasurementsForm";
 import BodyMeasurementsForm from "../components/bodyMeasurement/BodyMeasurementsForm";
 import {
@@ -13,6 +14,8 @@ import { toast } from "sonner";
 import { updateShirtIds } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
 
 const Page = () => {
+  const router = useRouter(); // Initialize useRouter hook
+
   const [shirtMeasurements, setShirtMeasurements] = useState<
     ShirtMeasurements | undefined
   >(undefined);
@@ -66,6 +69,9 @@ const Page = () => {
         }
 
         toast(response.message);
+
+        // Redirect to the /monogram page after successful form submission
+        router.push("/cart");
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to create measurement");
