@@ -31,10 +31,10 @@ const UserSchema = new Schema(
       type : String,
       default : ""
     },
-    image : {
-      type : String,
-      default : "",
-    },
+    // image : {
+    //   type : String,
+    //   default : "",
+    // },
     whatsapp : {
       type : String,
       default : ""

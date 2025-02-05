@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       email_addresses, 
       first_name,
       last_name,
-      image_url,
+      // image_url,
       unsafe_metadata,
     } = evt.data;
 
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       email: email_addresses[0]?.email_address || null,
       firstName:first_name || "",
       lastName:last_name || "",
-      image : image_url || null,
+      // image : image_url || null,
       phoneNumber:unsafe_metadata.phone || null, // Primary phone number
       whatsapp: unsafe_metadata.whatsapp || null, // Use second phone if available
       zipCode: unsafe_metadata.zipCode || null,
