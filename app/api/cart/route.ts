@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSavedCartForUser } from "@/lib/database/actions/cart.actions";
-import { updateCartItemQuantity } from "@/lib/database/actions/cart.actions";
+import { getSavedCartForUser, updateCartItemQuantity } from "@/lib/database/actions/cart.actions";
 
 export async function POST(request: Request) {
   try {
@@ -12,19 +11,20 @@ export async function POST(request: Request) {
     const result = await updateCartItemQuantity(clerkId, productId, Number(newQty));
     return NextResponse.json(result);
   } catch (error: any) {
-    return NextResponse.json({ success: false, message: error.message || "Error updating cart" });
+    return NextResponse.json({ success: false, message: error.message || "Internal server error" });
   }
 }
 
-
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const clerkId = searchParams.get("clerkId");
-
-  if (!clerkId) {
-    return NextResponse.json({ success: false, message: "Missing clerkId" });
+  try {
+    const { searchParams } = new URL(request.url);
+    const clerkId = searchParams.get("clerkId");
+    if (!clerkId) {
+      return NextResponse.json({ success: false, message: "Missing clerkId" });
+    }
+    const result = await getSavedCartForUser(clerkId);
+    return NextResponse.json(result);
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message || "Internal server error" });
   }
-
-  const result = await getSavedCartForUser(clerkId);
-  return NextResponse.json(result);
 }
