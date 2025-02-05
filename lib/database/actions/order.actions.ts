@@ -30,7 +30,7 @@ export async function createOrder(
     zipCode: string;
     country: string;
   },
-  paymentMethod: "paypal",
+  paymentMethod: "paypal" | "cash_on_delivery",
   total: number,
   totalBeforeDiscount: number,
   couponApplied: string,
@@ -39,7 +39,14 @@ export async function createOrder(
 ) {
   try {
     await connectToDatabase();
-    const user = await User.findById(userId);
+
+    // If userId is not a valid ObjectId, assume it's a clerkId.
+    let user;
+    if (ObjectId.isValid(userId)) {
+      user = await User.findById(userId);
+    } else {
+      user = await User.findOne({ clerkId: userId });
+    }
     
     if (!user) {
       return {
@@ -51,25 +58,33 @@ export async function createOrder(
 
     const newOrder = await new Order({
       user: user._id,
-      products: products.map(product => ({
+      products: products.map((product) => ({
         product: product._id,
         qty: product.qty.toString(),
-        price: product.price
+        price: product.price,
       })),
       orderAddress: {
         ...shippingAddress,
-        active: true
+        active: true,
       },
       paymentMethod,
       cartTotal: total,
       totalAfterDiscount: totalBeforeDiscount,
-      orderConfirmation: false,
+      // For cash on delivery orders, we confirm immediately and use pending status
+      orderConfirmation: paymentMethod === "cash_on_delivery" ? true : false,
       deliveryStatus: "pending",
       price: total,
       deliveryCost: 0,
+      // For cash on delivery, set paymentTime at order placement; others can update later
       paymentTime: new Date(),
-      receipt: "",
+      // If cash_on_delivery, receipt shows a default note
+      receipt: paymentMethod === "cash_on_delivery" ? "Cash payment pending" : "",
     }).save();
+
+    // Add the order to the user's orders array
+    user.orders = user.orders || [];
+    user.orders.push(newOrder._id);
+    await user.save();
 
     return {
       message: "Order created successfully",

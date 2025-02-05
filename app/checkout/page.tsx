@@ -15,6 +15,7 @@ import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
 import { clerkClient } from "@clerk/nextjs/server";
 import { json } from "stream/consumers";
+import { createOrder } from "@/lib/database/actions/order.actions";
 
 type Steps = {
   title: string;
@@ -123,11 +124,29 @@ const CheckoutPage = () => {
     }
   };
 
-  const handleConfirmPayment = () => {
+  const handleConfirmPayment = async () => {
     if (paymentMethod === "paypal") {
       router.push("/checkout/paypal");
-    } else {
-      handleNext();
+    } else if (paymentMethod === "cash-on-delivery") {
+      // Call the createOrder API and pass the required parameters for a cash-on-delivery order.
+      // Replace the placeholder values with actual data from your state.
+      const orderResponse = await createOrder(
+        cart?.products || [],
+        deliveryAddress,
+        "cash_on_delivery",
+        total,
+        total, // totalBeforeDiscount (update if needed)
+        couponCode,
+        user.id,
+        0 // totalSaved (update if needed)
+      );
+
+      if (orderResponse.success) {
+        router.push(`/order/${orderResponse.orderId}`);
+      } else {
+        console.error(orderResponse.message);
+        // Optionally implement error UI here
+      }
     }
   };
 
@@ -249,92 +268,89 @@ const CheckoutPage = () => {
               )}
             </CardContent>
           </Card>
-                {currentStep === 2 && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                  <Label className="text-lg font-semibold"></Label>
-                  <div className="grid grid-cols-1 gap-4">
-                    <Card 
-                    className={`p-4 cursor-pointer transition-all ${
-                      paymentMethod === "paypal" ? "border-primary border-2" : ""
-                    }`}
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-lg font-semibold"></Label>
+                <div className="grid grid-cols-1 gap-4">
+                  <Card
+                    className={`p-4 cursor-pointer transition-all ${paymentMethod === "paypal" ? "border-primary border-2" : ""
+                      }`}
                     onClick={() => setPaymentMethod("paypal")}
-                    >
-                    <CardContent className="flex items-center space-x-4 p-2">
-                      <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="paypal"
-                      checked={paymentMethod === "paypal"}
-                      onChange={() => setPaymentMethod("paypal")}
-                      className="h-4 w-4"
-                      />
-                      <div>
-                      <h3 className="font-semibold">PayPal</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Pay securely via PayPal
-                      </p>
-                      </div>
-                    </CardContent>
-                    </Card>
-
-                    <Card 
-                    className={`p-4 cursor-pointer transition-all ${
-                      paymentMethod === "card" ? "border-primary border-2" : ""
-                    }`}
-                    onClick={() => setPaymentMethod("card")}
-                    >
-                    <CardContent className="flex items-center space-x-4 p-2">
-                      <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="card"
-                      checked={paymentMethod === "card"}
-                      onChange={() => setPaymentMethod("card")}
-                      className="h-4 w-4"
-                      />
-                      <div>
-                      <h3 className="font-semibold">Credit/Debit Card</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Pay with your card
-                      </p>
-                      </div>
-                    </CardContent>
-                    </Card>
-                    <Card 
-                    className={`p-4 cursor-pointer transition-all ${
-                      paymentMethod === "cash-on-delivery" ? "border-primary border-2" : ""
-                    }`}
-                    onClick={() => setPaymentMethod("cash-on-delivery")}
-                    >
-                    <CardContent className="flex items-center space-x-4 p-2">
-                      <input
-                      type="radio"
-                      name="paymentMethod"
-                      value="cash-on-delivery"
-                      checked={paymentMethod === "cash-on-delivery"}
-                      onChange={() => setPaymentMethod("cash-on-delivery")}
-                      className="h-4 w-4"
-                      />
-                      <div>
-                      <h3 className="font-semibold">Cash on Delivery</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Pay at your door step
-                      </p>
-                      </div>
-                    </CardContent>
-                    </Card>
-                  </div>
-                  </div>
-                  <Button 
-                  className="w-full bg-[#c40600] text-white hover:bg-[#a80500] transition-colors"
-                  onClick={handleConfirmPayment}
-                  disabled={!paymentMethod}
                   >
-                  Confirm Payment
-                  </Button>
+                    <CardContent className="flex items-center space-x-4 p-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="paypal"
+                        checked={paymentMethod === "paypal"}
+                        onChange={() => setPaymentMethod("paypal")}
+                        className="h-4 w-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold">PayPal</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pay securely via PayPal
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card
+                    className={`p-4 cursor-pointer transition-all ${paymentMethod === "card" ? "border-primary border-2" : ""
+                      }`}
+                    onClick={() => setPaymentMethod("card")}
+                  >
+                    <CardContent className="flex items-center space-x-4 p-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="card"
+                        checked={paymentMethod === "card"}
+                        onChange={() => setPaymentMethod("card")}
+                        className="h-4 w-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold">Credit/Debit Card</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pay with your card
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card
+                    className={`p-4 cursor-pointer transition-all ${paymentMethod === "cash-on-delivery" ? "border-primary border-2" : ""
+                      }`}
+                    onClick={() => setPaymentMethod("cash-on-delivery")}
+                  >
+                    <CardContent className="flex items-center space-x-4 p-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cash-on-delivery"
+                        checked={paymentMethod === "cash-on-delivery"}
+                        onChange={() => setPaymentMethod("cash-on-delivery")}
+                        className="h-4 w-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold">Cash on Delivery</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pay at your door step
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                )}
+              </div>
+              <Button
+                className="w-full bg-[#c40600] text-white hover:bg-[#a80500] transition-colors"
+                onClick={handleConfirmPayment}
+                disabled={!paymentMethod}
+              >
+                Confirm Payment
+              </Button>
+            </div>
+          )}
 
           <div className="mt-4 flex space-x-4 justify-center lg:justify-start">
             {currentStep > 0 && (
@@ -420,19 +436,19 @@ async function saveAddress(deliveryAddress: any, userId: string) {
       })
     });
 
-//     const data = await response.json();
+    //     const data = await response.json();
 
-//     if (!response.ok) {
-//       throw new Error(data.message || 'Failed to save address');
-//     }
+    //     if (!response.ok) {
+    //       throw new Error(data.message || 'Failed to save address');
+    //     }
 
-//     // Save to localStorage for persistence
-//     localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
+    //     // Save to localStorage for persistence
+    //     localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
 
-//     return {
-//       success: true,
-//       message: 'Address saved successfully'
-//     };
+    //     return {
+    //       success: true,
+    //       message: 'Address saved successfully'
+    //     };
 
   } catch (error: any) {
     return {

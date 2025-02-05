@@ -1,12 +1,20 @@
 "use client";
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import useProductData from "@/hooks/shirt-details";
 import { createShirt } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
-import { useEffect, useState } from "react";
+import { addShirtToCart } from "@/lib/database/actions/cart.actions";
+// import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { addShirtToCart } from "@/lib/database/actions/cart.actions";
 import { useAuth } from "@clerk/nextjs";
+import { 
+  ChevronRight, 
+  ChevronLeft, 
+  ShoppingCart, 
+  Check, 
+  X 
+} from 'lucide-react';
 
 const sections = [
   "bottom",
