@@ -222,37 +222,82 @@ export async function fetchAllOrders() {
       .lean();
 
     // Format dates and ObjectIds for client
-    const formattedOrders = orders.map(order => ({
-      ...order,
-      _id: order._id.toString(),
-      user: {
-        ...order.user,
-        _id: order.user._id.toString()
-      },
-      products: order.products.map(product => ({
-        ...product,
-        product: {
-          ...product.product,
-          _id: product.product._id.toString(),
-          colorId: product.product.colorId?._id ? {
-            ...product.product.colorId,
-            _id: product.product.colorId._id.toString()
-          } : null,
-          fabricId: product.product.fabricId?._id ? {
-            ...product.product.fabricId,
-            _id: product.product.fabricId._id.toString()
-          } : null,
-          monogramId: product.product.monogramId?._id ? {
-            ...product.product.monogramId,
-            _id: product.product.monogramId._id.toString()
-          } : null,
-          measurementId: product.product.measurementId?._id ? {
-            ...product.product.measurementId,
-            _id: product.product.measurementId._id.toString()
-          } : null
-        }
-      }))
-    }));
+    interface IProductReference {
+      _id: string;
+      [key: string]: any; // For other properties that might exist
+    }
+
+    interface IPopulatedProduct {
+      colorId?: { _id: string; [key: string]: any } | null;
+      fabricId?: { _id: string; [key: string]: any } | null;
+      monogramId?: { _id: string; [key: string]: any } | null;
+      measurementId?: { _id: string; [key: string]: any } | null;
+      _id: string;
+      [key: string]: any;
+    }
+
+    interface IOrderProduct {
+      product: IPopulatedProduct;
+      [key: string]: any;
+    }
+
+    interface IOrderUser {
+      _id: string;
+      name?: string;
+      email?: string;
+      [key: string]: any;
+    }
+
+    interface IOrder {
+      _id: string;
+      user: IOrderUser;
+      products: IOrderProduct[];
+      [key: string]: any;
+    }
+
+    interface IProductMapping {
+      product: {
+        _id: string;
+        colorId?: { _id: string; [key: string]: any } | null;
+        fabricId?: { _id: string; [key: string]: any } | null;
+        monogramId?: { _id: string; [key: string]: any } | null;
+        measurementId?: { _id: string; [key: string]: any } | null;
+        [key: string]: any;
+      };
+      [key: string]: any;
+    }
+
+        const formattedOrders: IOrder[] = orders.map(order => ({
+          ...order,
+          _id: (order as any)._id.toString(),
+          user: {
+            ...order.user,
+            _id: order.user._id.toString()
+          },
+          products: order.products.map((product: IProductMapping) => ({
+            ...product,
+            product: {
+              ...product.product,
+              _id: product.product._id.toString(),
+              colorId: product.product.colorId?._id ? {
+                ...product.product.colorId,
+                _id: product.product.colorId._id.toString()
+              } : null,
+              fabricId: product.product.fabricId?._id ? {
+                ...product.product.fabricId,
+                _id: product.product.fabricId._id.toString()
+              } : null,
+              monogramId: product.product.monogramId?._id ? {
+                ...product.product.monogramId,
+                _id: product.product.monogramId._id.toString()
+              } : null,
+              measurementId: product.product.measurementId?._id ? {
+                ...product.product.measurementId,
+                _id: product.product.measurementId._id.toString()
+              } : null
+            }
+          }))
+        }));
 
     return {
       orders: formattedOrders,

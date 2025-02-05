@@ -114,11 +114,11 @@ const CheckoutPage = () => {
       // Assume saveAddress is defined and saves address in your backend
       const response = await saveAddress(deliveryAddress, user.id);
       console.log(response);
-      if (response.success) {
+      if (response && response.success) {
         toast(response.message);
       }
     } catch (error: any) {
-      throw new Error(error);
+      toast.error(error.message || 'Failed to save address');
     } finally {
       handleNext();
     }

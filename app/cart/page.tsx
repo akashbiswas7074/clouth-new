@@ -191,7 +191,7 @@ const CartItem = ({ item, onUpdateQuantity }: {
 
 export default function CartPage() {
   const { isLoaded, user } = useUser();
-  const [cart, setCart] = useState<CartData['cart']>(null);
+  const [cart, setCart] = useState<CartData['cart']>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
