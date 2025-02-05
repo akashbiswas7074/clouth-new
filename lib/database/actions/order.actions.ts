@@ -1,18 +1,13 @@
 "use server";
 
-import {connectToDatabase} from "../connect";
+import { connectToDatabase } from "../connect";
 import Order from "../models/order.model";
 import User from "../models/user.model";
-import nodemailer from "nodemailer";
-import { render } from "@react-email/components";
-import EmailTemplate from "@/lib/emails/index";
 import mongoose from "mongoose";
-import { redirect } from "next/navigation";
-import { stripe } from "@/lib/stripe";
 import { unstable_cache } from "next/cache";
+
 const { ObjectId } = mongoose.Types;
 
-// create an order
 export async function createOrder(
   products: {
     product: string;
@@ -26,8 +21,16 @@ export async function createOrder(
     productCompletedAt: Date | null;
     _id: string;
   }[],
-  shippingAddress: any,
-  paymentMethod: string,
+  shippingAddress: {
+    phoneNumber: string;
+    address1: string;
+    address2?: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  },
+  paymentMethod: "paypal" | "cash_on_delivery",
   total: number,
   totalBeforeDiscount: number,
   couponApplied: string,
@@ -36,7 +39,15 @@ export async function createOrder(
 ) {
   try {
     await connectToDatabase();
-    const user = await User.findById(userId);
+
+    // If userId is not a valid ObjectId, assume it's a clerkId.
+    let user;
+    if (ObjectId.isValid(userId)) {
+      user = await User.findById(userId);
+    } else {
+      user = await User.findOne({ clerkId: userId });
+    }
+    
     if (!user) {
       return {
         message: "User not found with provided ID!",
@@ -44,73 +55,85 @@ export async function createOrder(
         orderId: null,
       };
     }
-    const newOrder: any = await new Order({
+
+    const newOrder = await new Order({
       user: user._id,
-      products,
-      shippingAddress,
-      paymentMethod,
-      total,
-      totalBeforeDiscount,
-      couponApplied,
-      totalSaved,
-    }).save();
-    let config = {
-      service: "gmail",
-      auth: {
-        user: "raghunadhwinwin@gmail.com",
-        pass: process.env.GOOGLE_APP_PASSWORD as string,
+      products: products.map((product) => ({
+        product: product._id,
+        qty: product.qty.toString(),
+        price: product.price,
+      })),
+      orderAddress: {
+        ...shippingAddress,
+        active: true,
       },
-    };
-    let transporter = nodemailer.createTransport(config);
-    let dataConfig = {
-      from: config.auth.user,
-      to: user.email,
-      subject: "Order Confirmation - VibeCart",
-      html: await render(EmailTemplate(newOrder)),
-    };
-    await transporter.sendMail(dataConfig).then(() => {
-      return {
-        message: "You Should revieve an email",
-        orderId: JSON.parse(JSON.stringify(newOrder._id)),
-        success: true,
-      };
-    });
+      paymentMethod,
+      cartTotal: total,
+      totalAfterDiscount: totalBeforeDiscount,
+      // For cash on delivery orders, we confirm immediately and use pending status
+      orderConfirmation: paymentMethod === "cash_on_delivery" ? true : false,
+      deliveryStatus: "pending",
+      price: total,
+      deliveryCost: 0,
+      // For cash on delivery, set paymentTime at order placement; others can update later
+      paymentTime: new Date(),
+      // If cash_on_delivery, receipt shows a default note
+      receipt: paymentMethod === "cash_on_delivery" ? "Cash payment pending" : "",
+    }).save();
+
+    // Add the order to the user's orders array
+    user.orders = user.orders || [];
+    user.orders.push(newOrder._id);
+    await user.save();
+
     return {
-      message: "Successfully placed Order.",
+      message: "Order created successfully",
       orderId: JSON.parse(JSON.stringify(newOrder._id)),
       success: true,
     };
-  } catch (error:any) {
-    console.log(error);
+
+  } catch (error: any) {
+    console.error("Error creating order:", error);
+    return {
+      message: error.message || "Failed to create order",
+      success: false,
+      orderId: null,
+    };
   }
 }
 
-// get order details by its ID
 export const getOrderDetailsById = unstable_cache(
   async (orderId: string) => {
     try {
       if (!ObjectId.isValid(orderId)) {
-        redirect("/");
-      }
-      await connectToDatabase();
-      const orderData = await Order.findById(orderId)
-        .populate({ path: "user", model: User })
-        .lean();
-      if (!orderData) {
         return {
-          message: "Order not found with this ID!",
+          message: "Invalid order ID format",
           success: false,
-          orderData: [],
-        };
-      } else {
-        return {
-          message: "Successfully grabbed data.",
-          success: true,
-          orderData: JSON.parse(JSON.stringify(orderData)),
         };
       }
-    } catch (error:any) {
-    console.log(error);
+
+      await connectToDatabase();
+      
+      const order = await Order.findById(orderId)
+        .populate("products.product");
+
+      if (!order) {
+        return {
+          message: "Order not found",
+          success: false,
+        };
+      }
+
+      return {
+        order: JSON.parse(JSON.stringify(order)),
+        success: true,
+      };
+
+    } catch (error: any) {
+      return {
+        message: error.message || "Failed to fetch order details",
+        success: false,
+      };
     }
   },
   ["order_details"],
@@ -119,71 +142,62 @@ export const getOrderDetailsById = unstable_cache(
   }
 );
 
-// create a stripe order instance
-export async function createStripeOrder(
-  products: {
-    product: string;
-    name: string;
-    image: string;
-    size: string;
-    qty: number;
-    color: { color: string; image: string };
-    price: number;
-    status: string;
-    productCompletedAt: Date | null;
-    _id: string;
-  }[],
-  shippingAddress: any,
-  paymentMethod: string,
-  total: number,
-  totalBeforeDiscount: number,
-  couponApplied: string,
-  userId: string,
-  totalSaved: number
+export async function updateOrderPaymentStatus(
+  orderId: string,
+  paypalTransactionId: string
 ) {
-  await connectToDatabase();
-  const user = await User.findById(userId);
-  if (!user) {
-    return redirect("/sign-in");
-  }
-
-  const newOrder: any = await new Order({
-    user: user._id,
-    products,
-    shippingAddress,
-    paymentMethod,
-    total,
-    totalBeforeDiscount,
-    couponApplied,
-    totalSaved,
-  }).save();
-
-  const lineItems = products.map((item) => ({
-    price_data: {
-      currency: "inr",
-      unit_amount: item.price * 100,
-      product_data: {
-        name: item.name,
-        images: [item.image],
+  try {
+    await connectToDatabase();
+    
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        orderConfirmation: true,
+        receipt: paypalTransactionId,
+        paymentTime: new Date(),
       },
-    },
-    quantity: item.qty,
-  }));
+      { new: true }
+    );
 
-  const session = await stripe.checkout.sessions.create({
-    mode: "payment",
-    line_items: lineItems,
-    success_url:
-      process.env.NODE_ENV === "development"
-        ? `http://localhost:3000/order/${newOrder._id}`
-        : `https://vibecart-alpha.vercel.app/order/${newOrder._id}`,
-    cancel_url:
-      process.env.NODE_ENV === "development"
-        ? `http://localhost:3000/payment/cancel`
-        : `https://vibecart-alpha.vercel.app/payment/cancel`,
-    metadata: { orderId: newOrder._id.toString() },
-  });
+    if (!updatedOrder) {
+      return {
+        message: "Order not found",
+        success: false,
+      };
+    }
 
-  console.log("Stripe session URL:", session.url); // Verify URL in logs
-  return { sessionUrl: session.url };
+    return {
+      message: "Payment status updated successfully",
+      success: true,
+      order: JSON.parse(JSON.stringify(updatedOrder)),
+    };
+
+  } catch (error: any) {
+    return {
+      message: error.message || "Failed to update payment status",
+      success: false,
+    };
+  }
+}
+
+export async function getUserOrders(userId: string) {
+  try {
+    await connectToDatabase();
+    
+    const orders = await Order.find({ user: userId })
+      .populate("products.product")
+      .sort({ paymentTime: -1 });
+
+    return {
+      orders: JSON.parse(JSON.stringify(orders)),
+      success: true,
+    };
+
+  } catch (error: any) {
+    return {
+      message: error.message || "Failed to fetch user orders",
+      success: false,
+      orders: [],
+    };
+  }
 }

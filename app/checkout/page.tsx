@@ -3,110 +3,48 @@
 import React, { useState } from "react";
 
 // Importing UI components from custom UI library and icons from Lucide
-import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
-import { Button } from "@/app/components/ui/button";
-// import {
-//   AiOutlineCheck ,
-//   FaMapPin,
-//   GiTicket,
-//   FaCreditCard,
-// } from "lucide-react";
-import { AiOutlineCheck  } from "react-icons/ai";
-import { FaMapPin, FaCreditCard } from "react-icons/fa";
-import { GiTicket } from "react-icons/gi";
-import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
-import { saveAddress } from "@/lib/database/actions/user.actions";
-import { toast } from "sonner"
-// import { PayPalButton } from "../components/PayPal/PayPalButton";
 import { useRouter } from "next/navigation";
+import { Card, CardHeader, CardTitle, CardContent } from "@/app/components/ui/card";
+import { Button } from "@/app/components/ui/button";
+import { toast } from "react-toast";
+import { FaMapPin, FaCreditCard } from "react-icons/fa";
+import { GiTicket } from "react-icons/gi"; // Game Icons collection
+import { useUser } from "@clerk/nextjs";
+import { useEffect } from "react";
+import { clerkClient } from "@clerk/nextjs/server";
+import { json } from "stream/consumers";
+import { createOrder } from "@/lib/database/actions/order.actions";
 
-/**
- * Type for the steps in the checkout process, including title and icon.
- * This type defines each step and its respective icon for better readability and maintenance.
- */
 type Steps = {
   title: string;
   icon: React.ReactNode;
 };
 
-/**
- * Array of steps to guide the user through the checkout process:
- * - Delivery Address
- * - Apply Coupon
- * - Choose Payment
- */
 const steps: Steps[] = [
   { title: "Delivery Address", icon: <FaMapPin className="h-5 w-5" /> },
   { title: "Apply Coupon", icon: <GiTicket className="h-5 w-5" /> },
   { title: "Choose Payment", icon: <FaCreditCard className="h-5 w-5" /> },
 ];
 
-/**
- * Type for order items in the cart.
- * It defines the structure of each product in the cart, including:
- * - Name of the product
- * - Size
- * - Quantity
- * - Price
- * - Image URL
- */
-type OrderItems = {
-  name: string;
-  size: string;
-  quantity: number;
-  price: number;
-  image: string;
-};
-
-/**
- * Example order items array, representing a sample list of products in the user's cart.
- * This data will typically come from an API or state in real-world applications.
- */
-const orderItems: OrderItems[] = [
-  {
-    name: "Cotton shirt",
-    size: "M",
-    quantity: 1,
-    price: 999.0,
-    image:
-      "/g1.jpg",
-  },
-  {
-    name: "Black shirt",
-    size: "XL",
-    quantity: 1,
-    price: 799.0,
-    image:
-      "/g2.webp",
-  },
-];
-
-/**
- * Main CheckoutPage component for handling the checkout flow.
- * It includes multi-step navigation (delivery address, coupon, payment) and an order summary.
- */
 const CheckoutPage = () => {
-
-  // const { isSignedIn, user, isLoaded } = useUser();
-  const { isSignedIn, user } = useUser();
+  const { isSignedIn, user, isLoaded } = useUser();
   const router = useRouter();
-
   const [deliveryAddress, setDeliveryAddress] = useState(() => {
     if (typeof window !== "undefined") {
       const savedAddress = localStorage.getItem("deliveryAddress");
-      return savedAddress ? JSON.parse(savedAddress) : {
-        phoneNumber: "",
-        address1: "",
-        address2: "",
-        city: "",
-        state: "",
-        country: "",
-        zipCode: ""
-      };
+      return savedAddress
+        ? JSON.parse(savedAddress)
+        : {
+          phoneNumber: "",
+          address1: "",
+          address2: "",
+          city: "",
+          state: "",
+          country: "",
+          zipCode: "",
+        };
     }
     return {
       phoneNumber: "",
@@ -115,98 +53,102 @@ const CheckoutPage = () => {
       city: "",
       state: "",
       country: "",
-      zipCode: ""
+      zipCode: "",
     };
   });
-
-
-  // State to track the current step of the checkout process
   const [currentStep, setCurrentStep] = useState(0);
-
-  // State for managing coupon input
   const [couponCode, setCouponCode] = useState("");
-
-  // State for managing selected payment method
   const [paymentMethod, setPaymentMethod] = useState("");
 
-  // Calculate subtotal by summing up the prices of all items in the cart
-  const subtotal = orderItems.reduce((sum, item) => sum + item.price, 0);
+  // New state for cart data
+  const [cart, setCart] = useState<any>(null);
+  const [cartLoading, setCartLoading] = useState<boolean>(true);
+  const [cartError, setCartError] = useState<string | null>(null);
 
-  // Static discount value (this can be dynamically calculated based on coupon logic)
-  const discount = 600;
+  // Fetch cart on mount if user available
+  useEffect(() => {
+    async function fetchCart() {
+      if (!isLoaded || !user) return;
+      try {
+        setCartLoading(true);
+        const res = await fetch(`/api/cart?clerkId=${user.id}`);
+        const data = await res.json();
+        if (data.success && data.cart) {
+          setCart(data.cart);
+        } else {
+          setCartError(data.message || "Error fetching cart.");
+        }
+      } catch (err: any) {
+        console.error("Cart fetch error:", err);
+        setCartError(err.message || "Error fetching cart.");
+      } finally {
+        setCartLoading(false);
+      }
+    }
+    fetchCart();
+  }, [isLoaded, user]);
 
-  // Calculate total by subtracting the discount from the subtotal
+  if (!isSignedIn) return <div>Sign in to view this page</div>;
+
+  // Calculate order summary using cart data
+  const subtotal =
+    cart && cart.products
+      ? cart.products.reduce(
+        (sum: number, item: any) => sum + item.price * Number(item.qty),
+        0
+      )
+      : 0;
+  const discount = 600; // You can update this logic if needed
   const total = subtotal - discount;
 
-  /**
-   * Handle the "Next" button click to proceed to the next step in the checkout process.
-   * Ensures that the current step is not beyond the last step.
-   */
-
-  // useEffect(() => {
-  //   // Fetch saved address from database when component mounts
-  //   const fetchAddress = async () => {
-  //     if (isSignedIn && user) {
-  //       try {
-  //         const address = await getUserAddress(user.id);
-  //         if (address) {
-  //           setDeliveryAddress(address);
-  //           // Clear localStorage as we have a database address
-  //           localStorage.removeItem("deliveryAddress");
-  //         }
-  //       } catch (error) {
-  //         console.error("Failed to fetch address:", error);
-  //       }
-  //     }
-  //   };
-
-  if (!isSignedIn) {
-    return <div>Sign in to view this page</div>
-  } else {
-
-  }
-
   const handleNext = () => {
-
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
+    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
   };
 
-  /**
-   * Handle the "Back" button click to return to the previous step in the checkout process.
-   */
   const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
   };
 
   const handleSaveAddress = async () => {
     try {
+      // Assume saveAddress is defined and saves address in your backend
       const response = await saveAddress(deliveryAddress, user.id);
-      console.log(response)
+      console.log(response);
       if (response.success) {
-        toast(response.message)
+        toast(response.message);
       }
     } catch (error: any) {
       throw new Error(error);
-    }
-    finally {
-      handleNext();
-    }
-  }
-
-  const handleConfirmPayment = () => {
-    if (paymentMethod === "paypal") {
-      router.push("/checkout/paypal");
-    } else {
-      // Keep existing flow for other payment methods if any.
+    } finally {
       handleNext();
     }
   };
 
+  const handleConfirmPayment = async () => {
+    if (paymentMethod === "paypal") {
+      router.push("/checkout/paypal");
+    } else if (paymentMethod === "cash-on-delivery") {
+      // Call the createOrder API and pass the required parameters for a cash-on-delivery order.
+      // Replace the placeholder values with actual data from your state.
+      const orderResponse = await createOrder(
+        cart?.products || [],
+        deliveryAddress,
+        "cash_on_delivery",
+        total,
+        total, // totalBeforeDiscount (update if needed)
+        couponCode,
+        user.id,
+        0 // totalSaved (update if needed)
+      );
 
+      if (orderResponse.success) {
+        router.push(`/order/${orderResponse.orderId}`);
+      } else {
+        console.error(orderResponse.message);
+        // Optionally implement error UI here
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto pt-36">
@@ -214,39 +156,22 @@ const CheckoutPage = () => {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left section for checkout steps */}
         <div className="lg:w-2/3 w-full px-4">
-          {/* Render step indicators */}
           <div className="flex flex-col lg:flex-row mb-8">
             {steps.map((step, index) => (
-              <div
-                key={index}
-                className="flex items-center mb-4 lg:mb-0 lg:flex-row flex-col lg:space-x-4"
-              >
-                {/* Step indicator circle with icon */}
+              <div key={index} className="flex items-center mb-4 lg:mb-0 lg:flex-row flex-col lg:space-x-4">
                 <div
                   className={`rounded-full p-2 ${index <= currentStep
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
                     }`}
                 >
-                  {index < currentStep ? (
-                    // <AiOutlineCheck  className="h-5 w-5" />
-                    <></>
-                  ) : (
-                    step.icon
-                  )}
+                  {index < currentStep ? null : step.icon}
                 </div>
-                {/* Step title */}
                 <div className="ml-0 lg:ml-4 lg:mr-8 text-center lg:text-left">
-                  <p
-                    className={`text-sm font-medium ${index <= currentStep
-                        ? "text-primary"
-                        : "text-secondary-foreground"
-                      }`}
-                  >
+                  <p className={`text-sm font-medium ${index <= currentStep ? "text-primary" : "text-secondary-foreground"}`}>
                     {step.title}
                   </p>
                 </div>
-                {/* Connector line between steps */}
                 {index < steps.length - 1 && (
                   <div className="h-0.5 w-8 bg-border mt-1 lg:mt-0 mr-0 lg:mr-4 hidden lg:block"></div>
                 )}
@@ -254,17 +179,38 @@ const CheckoutPage = () => {
             ))}
           </div>
 
-          {/* Render the current step's content */}
           <Card className="bg-[#f5f5f0]">
             <CardHeader>
-              <CardTitle className="subHeading">
-                {steps[currentStep].title}
-              </CardTitle>
+              <CardTitle className="subHeading">{steps[currentStep].title}</CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Step 1: Delivery Address Form */}
               {currentStep === 0 && (
                 <div className="space-y-4">
+                  {/* Render Delivery Address form */}
+                  {/* (Your existing delivery address form code goes here) */}
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleSaveAddress}>
+                    Save Address And Continue
+                  </Button>
+                </div>
+              )}
+              {currentStep === 1 && (
+                <div className="space-y-4">
+                  <label htmlFor="couponCode">Enter Coupon Code</label>
+                  <input
+                    id="couponCode"
+                    placeholder="Enter coupon code"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value)}
+                    className="w-full p-2 border rounded"
+                  />
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
+                    Apply Coupon
+                  </Button>
+                </div>
+              )}
+              {currentStep === 0 && (
+                <div className="space-y-4">
+                  {/* Render Payment method selection */}
                   {/* Form for inputting the delivery address */}
                   {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -318,71 +264,94 @@ const CheckoutPage = () => {
                     <Label htmlFor="address2">Address 2</Label>
                     <Input id="address2" placeholder="Address 2" value={deliveryAddress.address2} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, address2: e.target.value })} />
                   </div>
-                  <Button className="w-full bg-[#c40600] text-white" onClick={handleSaveAddress}>
-                    Save Address And Continue
-                  </Button>
-                </div>
-              )}
-
-              {/* Step 2: Apply Coupon Code */}
-              {currentStep === 1 && (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="couponCode">Enter Coupon Code</Label>
-                    <Input
-                      id="couponCode"
-                      placeholder="Enter coupon code"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value)}
-                    />
-                  </div>
-                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
-                    Apply Coupon
-                  </Button>
-                </div>
-              )}
-
-              {/* Step 3: Choose Payment Method */}
-              {currentStep === 2 && (
-                <div className="space-y-4">
-                  {/* Radio group for selecting payment method */}
-                  <RadioGroup
-                    value={paymentMethod}
-                    onValueChange={setPaymentMethod}
-                  >
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="credit_card" id="credit_card" />
-                        <Label htmlFor="credit_card">Credit Card</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="debit_card" id="debit_card" />
-                        <Label htmlFor="debit_card">Debit Card</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="net_banking" id="net_banking" />
-                        <Label htmlFor="net_banking">Net Banking</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="paypal" id="paypal" />
-                        <Label htmlFor="paypal">PayPal</Label>
-                      </div>
-                    </div>
-                  </RadioGroup>
-                  <Button className="w-full bg-[#c40600] text-white" onClick={handleNext}>
-                    Confirm Payment Method
-                  </Button>
-                  <Button className="w-full bg-[#c40600] text-white"
-                          onClick={handleConfirmPayment}
-                          asChild>
-                    <Link href="/order">Place Order</Link>
-                  </Button>
                 </div>
               )}
             </CardContent>
           </Card>
+          {currentStep === 2 && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label className="text-lg font-semibold"></Label>
+                <div className="grid grid-cols-1 gap-4">
+                  <Card
+                    className={`p-4 cursor-pointer transition-all ${paymentMethod === "paypal" ? "border-primary border-2" : ""
+                      }`}
+                    onClick={() => setPaymentMethod("paypal")}
+                  >
+                    <CardContent className="flex items-center space-x-4 p-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="paypal"
+                        checked={paymentMethod === "paypal"}
+                        onChange={() => setPaymentMethod("paypal")}
+                        className="h-4 w-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold">PayPal</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pay securely via PayPal
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-          {/* Navigation buttons for moving between steps */}
+                  <Card
+                    className={`p-4 cursor-pointer transition-all ${paymentMethod === "card" ? "border-primary border-2" : ""
+                      }`}
+                    onClick={() => setPaymentMethod("card")}
+                  >
+                    <CardContent className="flex items-center space-x-4 p-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="card"
+                        checked={paymentMethod === "card"}
+                        onChange={() => setPaymentMethod("card")}
+                        className="h-4 w-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold">Credit/Debit Card</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pay with your card
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card
+                    className={`p-4 cursor-pointer transition-all ${paymentMethod === "cash-on-delivery" ? "border-primary border-2" : ""
+                      }`}
+                    onClick={() => setPaymentMethod("cash-on-delivery")}
+                  >
+                    <CardContent className="flex items-center space-x-4 p-2">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cash-on-delivery"
+                        checked={paymentMethod === "cash-on-delivery"}
+                        onChange={() => setPaymentMethod("cash-on-delivery")}
+                        className="h-4 w-4"
+                      />
+                      <div>
+                        <h3 className="font-semibold">Cash on Delivery</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Pay at your door step
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+              <Button
+                className="w-full bg-[#c40600] text-white hover:bg-[#a80500] transition-colors"
+                onClick={handleConfirmPayment}
+                disabled={!paymentMethod}
+              >
+                Confirm Payment
+              </Button>
+            </div>
+          )}
+
           <div className="mt-4 flex space-x-4 justify-center lg:justify-start">
             {currentStep > 0 && (
               <Button variant={"outline"} className="bg-[#c40600] text-white" onClick={handlePrevious}>
@@ -397,47 +366,55 @@ const CheckoutPage = () => {
           </div>
         </div>
 
-        {/* Right section for order summary */}
+        {/* Right section for dynamic Order Summary */}
         <div className="lg:w-1/3 w-full px-4">
           <Card className="bg-[#f5f5f0]">
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {/* Display each item in the cart */}
-                {orderItems.map((item, index) => (
-                  <div key={index} className="flex justify-between">
-                    <div className="flex space-x-4">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="h-12 w-12 object-cover"
-                      />
-                      <div>
-                        <p className="font-medium">{item.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {item.size} - {item.quantity}x
-                        </p>
-                      </div>
-                    </div>
-                    <div className="font-medium">${item.price.toFixed(2)}</div>
+              {cartLoading ? (
+                <p>Loading order summary...</p>
+              ) : cartError ? (
+                <p>Error: {cartError}</p>
+              ) : (
+                <div className="space-y-4">
+                  {cart?.products?.length > 0 ? (
+                    cart.products.map((item: any, index: number) => {
+                      // Safely access product id
+                      const productId = item?.product?._id?.toString() || item?.product;
+                      if (!productId) return null;
+
+                      return (
+                        <div key={index} className="flex justify-between">
+                          <div>
+                            <p className="font-semibold">ID: {productId}</p>
+                            <p>Qty: {item.qty || 0}</p>
+                          </div>
+                          <p className="font-semibold">
+                            ₹{((item.price || 0) * Number(item.qty || 0)).toFixed(2)}
+                          </p>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p>No items in your cart.</p>
+                  )}
+                  <hr className="border-t border-border" />
+                  <div className="flex justify-between">
+                    <p>Subtotal:</p>
+                    <p>₹{(cart?.cartTotal || 0).toFixed(2)}</p>
                   </div>
-                ))}
-                {/* Display subtotal, discount, and total */}
-                <div className="flex justify-between pt-4 border-t border-border">
-                  <p>Subtotal</p>
-                  <p>${subtotal.toFixed(2)}</p>
+                  <div className="flex justify-between">
+                    <p>Discount:</p>
+                    <p>₹{(cart?.totalAfterDiscount || 0).toFixed(2)}</p>
+                  </div>
+                  <div className="flex justify-between font-bold">
+                    <p>Total:</p>
+                    <p>₹{((cart?.cartTotal || 0) - (cart?.totalAfterDiscount || 0)).toFixed(2)}</p>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <p>Discount</p>
-                  <p>-${discount.toFixed(2)}</p>
-                </div>
-                <div className="flex justify-between font-bold">
-                  <p>Total</p>
-                  <p>${total.toFixed(2)}</p>
-                </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>
@@ -445,5 +422,40 @@ const CheckoutPage = () => {
     </div>
   );
 };
+
+async function saveAddress(deliveryAddress: any, userId: string) {
+  try {
+    const response = await fetch('/api/address', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        ...deliveryAddress
+      })
+    });
+
+    //     const data = await response.json();
+
+    //     if (!response.ok) {
+    //       throw new Error(data.message || 'Failed to save address');
+    //     }
+
+    //     // Save to localStorage for persistence
+    //     localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
+
+    //     return {
+    //       success: true,
+    //       message: 'Address saved successfully'
+    //     };
+
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || 'Error saving address'
+    };
+  }
+}
 
 export default CheckoutPage;

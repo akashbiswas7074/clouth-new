@@ -96,7 +96,23 @@ const ShirtSchema = new Schema<Shirt>({
     type: mongoose.Schema.Types.ObjectId, // Reference to Measurement model
     required: false,
   },
-});
+},
+  {
+    timestamps: true,
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id.toString();
+        if (ret.colorId) ret.colorId = ret.colorId.toString();
+        if (ret.fabricId) ret.fabricId = ret.fabricId.toString();
+        if (ret.monogramId) ret.monogramId = ret.monogramId.toString();
+        if (ret.measurementId) ret.measurementId = ret.measurementId.toString();
+        delete ret._id;
+        delete ret.__v;
+        return ret;
+      }
+    }
+  }
+);
 
 // Create the model using the schema
 const ShirtModel =
