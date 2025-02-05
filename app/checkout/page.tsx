@@ -13,6 +13,8 @@ import { FaMapPin, FaCreditCard } from "react-icons/fa";
 import { GiTicket } from "react-icons/gi"; // Game Icons collection
 import { useUser } from "@clerk/nextjs";
 import { useEffect } from "react";
+import { clerkClient } from "@clerk/nextjs/server";
+import { json } from "stream/consumers";
 
 type Steps = {
   title: string;
@@ -76,6 +78,7 @@ const CheckoutPage = () => {
           setCartError(data.message || "Error fetching cart.");
         }
       } catch (err: any) {
+        console.error("Cart fetch error:", err);
         setCartError(err.message || "Error fetching cart.");
       } finally {
         setCartLoading(false);
@@ -139,8 +142,8 @@ const CheckoutPage = () => {
               <div key={index} className="flex items-center mb-4 lg:mb-0 lg:flex-row flex-col lg:space-x-4">
                 <div
                   className={`rounded-full p-2 ${index <= currentStep
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-secondary-foreground"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-secondary text-secondary-foreground"
                     }`}
                 >
                   {index < currentStep ? null : step.icon}
@@ -278,19 +281,21 @@ const CheckoutPage = () => {
                 <p>Error: {cartError}</p>
               ) : (
                 <div className="space-y-4">
-                  {cart && cart.products && cart.products.length > 0 ? (
+                  {cart?.products?.length > 0 ? (
                     cart.products.map((item: any, index: number) => {
-                      const productId =
-                        typeof item.product === "object"
-                          ? item.product.id || item.product._id
-                          : item.product;
+                      // Safely access product id
+                      const productId = item?.product?._id?.toString() || item?.product;
+                      if (!productId) return null;
+
                       return (
                         <div key={index} className="flex justify-between">
                           <div>
                             <p className="font-semibold">ID: {productId}</p>
-                            <p>Qty: {item.qty}</p>
+                            <p>Qty: {item.qty || 0}</p>
                           </div>
-                          <p className="font-semibold">₹{(item.price * Number(item.qty)).toFixed(2)}</p>
+                          <p className="font-semibold">
+                            ₹{((item.price || 0) * Number(item.qty || 0)).toFixed(2)}
+                          </p>
                         </div>
                       );
                     })
@@ -300,15 +305,15 @@ const CheckoutPage = () => {
                   <hr className="border-t border-border" />
                   <div className="flex justify-between">
                     <p>Subtotal:</p>
-                    <p>₹{subtotal.toFixed(2)}</p>
+                    <p>₹{(cart?.cartTotal || 0).toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between">
                     <p>Discount:</p>
-                    <p>₹{discount.toFixed(2)}</p>
+                    <p>₹{(cart?.totalAfterDiscount || 0).toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between font-bold">
                     <p>Total:</p>
-                    <p>₹{total.toFixed(2)}</p>
+                    <p>₹{((cart?.cartTotal || 0) - (cart?.totalAfterDiscount || 0)).toFixed(2)}</p>
                   </div>
                 </div>
               )}
@@ -320,19 +325,18 @@ const CheckoutPage = () => {
   );
 };
 
-export default CheckoutPage;
-// async function saveAddress(deliveryAddress: any, userId: string) {
-//   try {
-//     const response = await fetch('/api/address', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({
-//         userId,
-//         ...deliveryAddress
-//       })
-//     });
+async function saveAddress(deliveryAddress: any, userId: string) {
+  try {
+    const response = await fetch('/api/address', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId,
+        ...deliveryAddress
+      })
+    });
 
 //     const data = await response.json();
 
@@ -348,10 +352,12 @@ export default CheckoutPage;
 //       message: 'Address saved successfully'
 //     };
 
-//   } catch (error: any) {
-//     return {
-//       success: false,
-//       message: error.message || 'Error saving address'
-//     };
-//   }
-// }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || 'Error saving address'
+    };
+  }
+}
+
+export default CheckoutPage;
