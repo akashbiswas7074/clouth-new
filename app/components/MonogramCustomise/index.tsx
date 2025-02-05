@@ -278,7 +278,7 @@ const MonogramCustomizer = () => {
   };
 
   return (
-    <div className="mt-[5rem] flex-col md:flex-row justify-between items-start flex w-full h-fit">
+    <div className="mt-[6.5rem] flex-col md:flex-row justify-between items-start flex w-full h-fit">
       <div className="relative flex justify-center items-center w-full h-[87vh]">
         {Object.entries(selectedItems).map(([section, item], index) =>
           item.image?.url ? (
@@ -313,7 +313,7 @@ const MonogramCustomizer = () => {
         )} */}
       </div>
 
-      <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
+      <div className="flex md:flex left-[.5rem] fixed top-[8.5rem] z-[100] bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}

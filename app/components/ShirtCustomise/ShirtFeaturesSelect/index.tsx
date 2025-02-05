@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+// import { useAuth } from "@clerk/clerk-react"; // Import useAuth to get clerkId
+// import { addShirtToCart } from "@/lib/database/actions/cart.actions";
 
 const sections = [
   "bottom",
@@ -182,6 +184,77 @@ const ShirtCustomizer = () => {
     }
   };
 
+  // const handleCreateShirt = async () => {
+  //   const price = totalPrice;
+  //   try {
+  //     const colorId = localStorage.getItem("colorId");
+  //     const fabricId = localStorage.getItem("fabricId");
+
+  //     if (!colorId || !fabricId) {
+  //       toast.error("Color ID and Fabric ID are required.");
+  //       return;
+  //     }
+
+  //     const { userId: clerkId } = useAuth(); // Get clerkId from Clerk Auth
+  //     if (!clerkId) {
+  //       toast.error("User authentication required.");
+  //       return;
+  //     }
+
+  //     const shirtData = {
+  //       bottom: shirt.bottom || {},
+  //       back: shirt.back || {},
+  //       sleeves: shirt.sleeves || {},
+  //       cuffStyle: shirt.cuffStyle || {},
+  //       cuffLinks: shirt.cuffLinks || {},
+  //       collarStyle: shirt.collarStyle || {},
+  //       collarHeight: shirt.collarHeight || {},
+  //       collarButton: shirt.collarButton || {},
+  //       placket: shirt.placket || {},
+  //       pocket: shirt.pocket || {},
+  //       fit: shirt.fit || {},
+  //     };
+
+  //     // Create the shirt
+  //     const response = await createShirt(
+  //       price,
+  //       shirtData.bottom,
+  //       shirtData.back,
+  //       shirtData.sleeves,
+  //       shirtData.cuffStyle,
+  //       shirtData.cuffLinks,
+  //       shirtData.collarStyle,
+  //       shirtData.collarHeight,
+  //       shirtData.collarButton,
+  //       shirtData.placket,
+  //       shirtData.pocket,
+  //       shirtData.fit,
+  //       watchCompatible,
+  //       colorId,
+  //       fabricId
+  //     );
+
+  //     if (response.success) {
+  //       const shirtId = response.shirt._id;
+  //       localStorage.setItem("shirtId", shirtId);
+  //       toast.success("Shirt created successfully!");
+  //       // const cartResponse = await addShirtToCart(shirtId, clerkId);
+  //       // if (cartResponse.success) {
+  //       //   toast.success("Shirt added to cart successfully!");
+  //       // } else {
+  //       //   toast.error(cartResponse.message || "Failed to add shirt to cart.");
+  //       // }
+
+  //       setIsSubmitted(true);
+  //     } else {
+  //       toast.error(response.message || "Failed to create the shirt.");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("An unexpected error occurred.");
+  //   }
+  // };
+
   const assignItemToSection = (section: keyof Shirt, item: ProductItem) => {
     setShirt((prev) => {
       const updatedShirt = {
@@ -332,7 +405,7 @@ const ShirtCustomizer = () => {
         )}
       </div>
 
-      <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
+      <div className="flex md:flex left-[.5rem] fixed top-[8.5rem] z-[100] bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
