@@ -1,34 +1,31 @@
-"use server"
-
-import {connectToDatabase} from "@/lib/database/connect";
+"use server";
 
 import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
+import { connectToDatabase } from "@/lib/database/connect";
 
 export const createShirt = async (
   price: number,
-  bottom: object, // Now expecting object
-  back: object, // Now expecting object
-  sleeves: object, // Now expecting object
-  cuffstyle: object, // Now expecting object
-  cufflinks: object, // Now expecting object
-  collarstyle: object, // Now expecting object
-  collarheight: object, // Now expecting object
-  collarbutton: object, // Now expecting object
-  placket: object, // Now expecting object
-  pocket: object, // Now expecting object
-  fit: object, // Now expecting object
-  watchCompatible: boolean, // Boolean value
-  colorId: string, // Color ID (MongoDB Object ID)
-  fabricId: string, // Fabric ID (MongoDB Object ID)
+  bottom: object,
+  back: object,
+  sleeves: object,
+  cuffstyle: object,
+  cufflinks: object,
+  collarstyle: object,
+  collarheight: object,
+  collarbutton: object,
+  placket: object,
+  pocket: object,
+  fit: object,
+  watchCompatible: boolean,
+  colorId: string,
+  fabricId: string
 ) => {
   try {
-    connectToDatabase();
-    // Convert the incoming string IDs into MongoDB ObjectIds
+    await connectToDatabase();
     const fabricObjectId = new mongoose.Types.ObjectId(fabricId);
     const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
-    // Create the shirt document
     const newShirt = new ShirtModel({
       price,
       bottom,
@@ -42,18 +39,20 @@ export const createShirt = async (
       placket,
       pocket,
       fit,
-      watchCompatible, // Boolean field
+      watchCompatible,
       colorId: colorObjectId,
       fabricId: fabricObjectId,
     });
 
-    // Save the shirt to the database
     await newShirt.save();
+
+    // Convert the Mongoose document to a plain object
+    const plainShirt = newShirt.toObject();
 
     return {
       message: "Shirt created successfully.",
       success: true,
-      shirt: newShirt,
+      shirt: plainShirt, // Now a plain JS object
     };
   } catch (error: any) {
     console.log(error);
@@ -64,3 +63,42 @@ export const createShirt = async (
   }
 };
 
+export const updateShirtIds = async (
+  shirtId: string,
+  monogramId?: string,
+  measurementId?: string
+) => {
+  try {
+    await connectToDatabase();
+
+    // Prepare the update object dynamically
+    const updateFields: Partial<{ monogramId: mongoose.Types.ObjectId; measurementId: mongoose.Types.ObjectId }> = {};
+
+    if (monogramId) {
+      updateFields.monogramId = new mongoose.Types.ObjectId(monogramId);
+    }
+    if (measurementId) {
+      updateFields.measurementId = new mongoose.Types.ObjectId(measurementId);
+    }
+
+    // Update only the provided fields
+    const updatedShirt = await ShirtModel.findByIdAndUpdate(
+      shirtId,
+      { $set: updateFields },
+      { new: true }
+    ).lean(); // Convert Mongoose document to a plain object
+
+    if (!updatedShirt) {
+      return { message: "Shirt not found.", success: false };
+    }
+
+    return {
+      message: "Shirt updated successfully.",
+      success: true,
+      shirt: updatedShirt,
+    };
+  } catch (error: any) {
+    console.error(error);
+    return { message: "Error updating shirt.", success: false };
+  }
+};
