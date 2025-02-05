@@ -34,11 +34,11 @@ export async function addShirtToCart(shirtId: string, clerkId: string) {
     }
 
     // Find or create cart
-    let cart = await Cart.findOne({ user: user._id });
+    let cart = await Cart.findOne({ user: (user as any)._id });
     
     if (!cart) {
       cart = new Cart({
-        user: user._id,
+        user: (user as any)._id,
         products: [],
         cartTotal: 0
       });
@@ -48,13 +48,18 @@ export async function addShirtToCart(shirtId: string, clerkId: string) {
     const cartItem = {
       product: shirtId,
       qty: "1",
-      price: shirt.price || 0
+      price: (shirt as any).price || 0
     };
 
     cart.products.push(cartItem);
 
     // Update cart total
-    cart.cartTotal = cart.products.reduce((total, item) => 
+    interface CartItem {
+      price: number;
+      qty: string;
+    }
+
+    cart.cartTotal = cart.products.reduce((total: number, item: CartItem) => 
       total + (item.price * Number(item.qty)), 0
     );
 
@@ -98,7 +103,7 @@ export async function getSavedCartForUser(clerkId: string) {
       return { success: false, message: "User not found" };
     }
 
-    const cart = await Cart.findOne({ user: user._id })
+    const cart = await Cart.findOne({ user: (user as any)._id })
       .populate({
         path: "products.product",
         model: "Shirt", // Updated model name to match Shirt registration
@@ -130,7 +135,7 @@ export async function updateCartItemQuantity(clerkId: string, productId: string,
     }
 
     // Find the user's cart (do not use .lean() since we need to update)
-    const cart = await Cart.findOne({ user: user._id });
+    const cart = await Cart.findOne({ user: (user as any)._id });
     if (!cart) {
       return { success: true, cart: null };
     }
