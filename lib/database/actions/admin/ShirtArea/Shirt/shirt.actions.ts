@@ -23,10 +23,12 @@ export const createShirt = async (
 ) => {
   try {
     await connectToDatabase();
+    
+    // Create ObjectIds
     const fabricObjectId = new mongoose.Types.ObjectId(fabricId);
     const colorObjectId = new mongoose.Types.ObjectId(colorId);
 
-    const newShirt = new ShirtModel({
+    const newShirt = await ShirtModel.create({
       price,
       bottom,
       back,
@@ -44,15 +46,30 @@ export const createShirt = async (
       fabricId: fabricObjectId,
     });
 
-    await newShirt.save();
-
-    // Convert the Mongoose document to a plain object
-    const plainShirt = newShirt.toObject();
+    // Convert to plain object and transform
+    const plainShirt = {
+      id: newShirt._id.toString(),
+      price: newShirt.price,
+      bottom: newShirt.bottom,
+      back: newShirt.back,
+      sleeves: newShirt.sleeves,
+      cuffstyle: newShirt.cuffstyle,
+      cufflinks: newShirt.cufflinks,
+      collarstyle: newShirt.collarstyle,
+      collarheight: newShirt.collarheight,
+      collarbutton: newShirt.collarbutton,
+      placket: newShirt.placket,
+      pocket: newShirt.pocket,
+      fit: newShirt.fit,
+      watchCompatible: newShirt.watchCompatible,
+      colorId: newShirt.colorId.toString(),
+      fabricId: newShirt.fabricId.toString(),
+    };
 
     return {
       message: "Shirt created successfully.",
       success: true,
-      shirt: plainShirt, // Now a plain JS object
+      shirt: plainShirt
     };
   } catch (error: any) {
     console.log(error);

@@ -1,106 +1,89 @@
 "use server";
 
-// import { handleError } from "@/lib/utils";
-import Product from "../models/product.model";
-import User from "../models/user.model";
-import Cart from "../models/cart.model";
 import { connectToDatabase } from "../connect";
+import Cart from "../models/cart.model";
+import User from "../models/user.model";
+import ShirtModel from "../models/shirtModel/ShirtModel";
 
-// Cart operations for user:
-export async function saveCartForUser(cart: any, clerkId: string) {
+export async function addShirtToCart(shirtId: string, clerkId: string) {
   try {
     await connectToDatabase();
-    let products = [];
-    let user = await User.findOne({ clerkId });
-    await Cart.deleteOne({ user: user._id });
+    
+    // Debug: log the clerkId
+    console.debug("addShirtToCart: clerkId", clerkId);
 
-    for (let i = 0; i < cart.length; i++) {
-      let dbProduct: any = await Product.findById(cart[i]._id).lean();
-      let subProduct = dbProduct.subProducts[cart[i].style];
-      let tempProduct: any = {};
-      tempProduct.name = dbProduct.name;
-      tempProduct.product = dbProduct._id;
-      tempProduct.color = {
-        color: cart[i].color.color,
-        image: cart[i].color.image,
-      };
-      tempProduct.image = subProduct.images[0].url;
-      tempProduct.qty = Number(cart[i].qty);
-      tempProduct.size = cart[i].size;
-      tempProduct.vendor = cart[i].vendor ? cart[i].vendor : {};
-      tempProduct.vendorId =
-        cart[i].vendor && cart[i].vendor._id ? cart[i].vendor._id : "";
-
-      let price = Number(
-        subProduct.sizes.find((p: any) => p.size == cart[i].size).price
-      );
-      tempProduct.price =
-        subProduct.discount > 0
-          ? (price - (price * Number(subProduct.discount)) / 100).toFixed(2)
-          : price.toFixed(2);
-      products.push(tempProduct);
+    const user = await User.findOne({ clerkId }).lean();
+    if (!user) {
+      console.error("addShirtToCart: User not found for clerkId", clerkId);
+      return { success: false, message: "User not found" };
     }
-    let cartTotal = 0;
-    for (let i = 0; i < products.length; i++) {
-      cartTotal = cartTotal + products[i].price * products[i].qty;
-    }
-    await new Cart({
-      products,
-      cartTotal: cartTotal.toFixed(2),
-      user: user._id,
-    }).save();
-    return { success: true };
-  } catch(error){
+    console.debug("addShirtToCart: user found", user);
 
-  }
-}
-export async function getSavedCartForUser(clerkId: string) {
-  try {
-    await connectToDatabase();
-    const user = await User.findOne({ clerkId });
-    const cart = await Cart.findOne({ user: user._id });
-    return {
-      user: JSON.parse(JSON.stringify(user)),
-      cart: JSON.parse(JSON.stringify(cart)),
-      address: JSON.parse(JSON.stringify(user.address)),
+    const shirt = await ShirtModel.findById(shirtId).lean();
+    if (!shirt) {
+      console.error("addShirtToCart: Shirt not found for id", shirtId);
+      return { success: false, message: "Shirt not found" };
+    }
+    console.debug("addShirtToCart: shirt found", shirt);
+
+    // Convert ObjectIds to strings
+    const plainShirt = {
+      ...shirt,
+      id: shirt._id.toString(),
+      colorId: shirt.colorId?.toString(),
+      fabricId: shirt.fabricId?.toString(),
     };
-  }catch(error){
+    delete plainShirt._id;
+    delete plainShirt.__v;
+    console.debug("addShirtToCart: plainShirt", plainShirt);
 
-  } 
-}
+    let cart = await Cart.findOne({ user: user._id }).lean();
+    if (!cart) {
+      console.debug("addShirtToCart: No existing cart found, creating one.");
+      cart = await Cart.create({
+        products: [],
+        cartTotal: 0,
+        user: user._id
+      });
+      // Convert newly created cart to plain object for consistency
+      cart = cart.toObject();
+    }
+    console.debug("addShirtToCart: current cart", cart);
 
-// update cart for user
-export async function updateCartForUser(products: any) {
-  try {
-    await connectToDatabase();
-    const promises = products.map(async (p: any) => {
-      let dbProduct: any = await Product.findById(p._id).lean();
-      let originalPrice = dbProduct.subProducts[p.style].sizes.find(
-        (x: any) => x.size == p.size
-      ).price;
-      let quantity = dbProduct.subProducts[p.style].sizes.find(
-        (x: any) => x.size == p.size
-      ).qty;
-      let discount = dbProduct.subProducts[p.style].discount;
-      return {
-        ...p,
-        priceBefore: originalPrice,
-        price:
-          discount > 0
-            ? originalPrice - originalPrice / discount
-            : originalPrice,
-        discount,
-        quantity,
-        shippingFee: dbProduct.shipping,
-      };
-    });
-    const data = await Promise.all(promises);
+    const cartProduct = {
+      product: shirtId,
+      qty: "1",
+      price: plainShirt.price
+    };
+    console.debug("addShirtToCart: Adding product", cartProduct);
+
+    const updatedCart = await Cart.findByIdAndUpdate(
+      cart._id,
+      {
+        $push: { products: cartProduct },
+        $inc: { cartTotal: plainShirt.price }
+      },
+      { new: true }
+    ).lean();
+
+    if (!updatedCart) {
+      console.error("addShirtToCart: Failed to update cart for id", cart._id);
+      return { success: false, message: "Error updating cart" };
+    }
+
+    console.debug("addShirtToCart: Updated cart", updatedCart);
+
     return {
       success: true,
-      message: "successfully updated the cart.",
-      data: JSON.parse(JSON.stringify(data)),
+      message: "Shirt added to cart successfully",
+      cart: {
+        ...updatedCart,
+        id: updatedCart._id.toString(),
+        user: updatedCart.user.toString()
+      }
     };
-  } catch (error) {
-
+  } catch (error: any) {
+    console.error("Error adding shirt to cart:", error.message, error);
+    return { success: false, message: "Error adding shirt to cart" };
   }
 }

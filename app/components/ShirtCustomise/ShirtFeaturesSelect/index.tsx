@@ -4,6 +4,9 @@ import { createShirt } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { addShirtToCart } from "@/lib/database/actions/cart.actions";
+import { useAuth } from "@clerk/nextjs";
 
 const sections = [
   "bottom",
@@ -123,18 +126,24 @@ const ShirtCustomizer = () => {
     setIsModalOpen(true);
   };
 
+  const { userId } = useAuth();
+
   const handleCreateShirt = async () => {
     const price = totalPrice;
     try {
       const colorId = localStorage.getItem("colorId");
       const fabricId = localStorage.getItem("fabricId");
-
+  
+      if (!userId) {
+        toast.error("Please login to create a shirt");
+        return;
+      }
+  
       if (!colorId || !fabricId) {
         toast.error("Color ID and Fabric ID are required.");
         return;
       }
-
-      // Provide default values for shirt properties
+  
       const shirtData = {
         bottom: shirt.bottom || {},
         back: shirt.back || {},
@@ -148,8 +157,9 @@ const ShirtCustomizer = () => {
         pocket: shirt.pocket || {},
         fit: shirt.fit || {},
       };
-
-      const response = await createShirt(
+  
+      // Create shirt
+      const shirtResponse = await createShirt(
         price,
         shirtData.bottom,
         shirtData.back,
@@ -166,16 +176,25 @@ const ShirtCustomizer = () => {
         colorId,
         fabricId
       );
-
-      if (response.success) {
-        toast.success("Shirt created successfully!");
-        setIsSubmitted(true);
+  
+      if (shirtResponse.success && shirtResponse.shirt) {
+        // Add shirt to cart using actual userId from Clerk
+        const cartResponse = await addShirtToCart(shirtResponse.shirt.id, userId);
+        
+        if (cartResponse.success) {
+          toast.success("Shirt created and added to cart successfully!");
+          setIsSubmitted(true);
+          // Optional: Redirect to cart or next step
+          router.push("/cart");
+        } else {
+          toast.error(cartResponse.message || "Failed to add shirt to cart");
+        }
       } else {
-        toast.error(response.message || "Failed to create the shirt.");
+        toast.error(shirtResponse.message || "Failed to create the shirt");
       }
     } catch (error) {
       console.error(error);
-      toast.error("An unexpected error occurred.");
+      toast.error("An unexpected error occurred");
     }
   };
 
@@ -411,9 +430,8 @@ const ShirtCustomizer = () => {
             .map((section) => (
               <div
                 key={section}
-                className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
-                  activeSection === section ? "bg-gray-300" : ""
-                }`}
+                className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${activeSection === section ? "bg-gray-300" : ""
+                  }`}
                 onClick={() => setActiveSection(section as keyof ProductData)}
               >
                 {section.charAt(0).toUpperCase() + section.slice(1)}
@@ -423,79 +441,76 @@ const ShirtCustomizer = () => {
           {["collarStyle", "collarHeight", "collarButton"].some((section) =>
             sections.includes(section)
           ) && (
-            <div>
-              <h3
-                className="text-md text-center font-bold mb-[.2rem] cursor-pointer"
-                onClick={toggleCollarSection}
-              >
-                Collar {isCollarOpen ? "▲" : "▼"}
-              </h3>
-              {isCollarOpen && (
-                <div>
-                  {["collarStyle", "collarHeight", "collarButton"].map(
-                    (section) =>
-                      sections.includes(section) && (
-                        <div
-                          key={section}
-                          className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
-                            activeSection === section ? "bg-gray-300" : ""
-                          }`}
-                          onClick={() =>
-                            setActiveSection(section as keyof ProductData)
-                          }
-                        >
-                          {section.charAt(0).toUpperCase() + section.slice(1)}
-                        </div>
-                      )
-                  )}
-                </div>
-              )}
-            </div>
-          )}
+              <div>
+                <h3
+                  className="text-md text-center font-bold mb-[.2rem] cursor-pointer"
+                  onClick={toggleCollarSection}
+                >
+                  Collar {isCollarOpen ? "▲" : "▼"}
+                </h3>
+                {isCollarOpen && (
+                  <div>
+                    {["collarStyle", "collarHeight", "collarButton"].map(
+                      (section) =>
+                        sections.includes(section) && (
+                          <div
+                            key={section}
+                            className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${activeSection === section ? "bg-gray-300" : ""
+                              }`}
+                            onClick={() =>
+                              setActiveSection(section as keyof ProductData)
+                            }
+                          >
+                            {section.charAt(0).toUpperCase() + section.slice(1)}
+                          </div>
+                        )
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
 
           {["cuffStyle", "cuffLinks"].some((section) =>
             sections.includes(section)
           ) && (
-            <div className="mt-4">
-              <h3
-                className="text-center text-md font-bold mb-2 cursor-pointer"
-                onClick={toggleCuffSection}
-              >
-                Cuff {isCuffOpen ? "▲" : "▼"}
-              </h3>
-              {isCuffOpen && longSleeveSelected && (
-                <div>
-                  {["cuffStyle", "cuffLinks"].map(
-                    (section) =>
-                      sections.includes(section) && (
-                        <div
-                          key={section}
-                          className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
-                            activeSection === section ? "bg-gray-300" : ""
-                          }`}
-                          onClick={() =>
-                            setActiveSection(section as keyof ProductData)
-                          }
-                        >
-                          {section.charAt(0).toUpperCase() + section.slice(1)}
-                        </div>
-                      )
-                  )}
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2 text-lg">Watch Compatible:</span>
-                    <button
-                      onClick={handleToggle}
-                      className={`py-2 px-4 rounded-full ${
-                        watchCompatible ? "bg-green-500" : "bg-red-500"
-                      } text-white`}
-                    >
-                      {watchCompatible ? "Yes" : "No"}
-                    </button>
+              <div className="mt-4">
+                <h3
+                  className="text-center text-md font-bold mb-2 cursor-pointer"
+                  onClick={toggleCuffSection}
+                >
+                  Cuff {isCuffOpen ? "▲" : "▼"}
+                </h3>
+                {isCuffOpen && longSleeveSelected && (
+                  <div>
+                    {["cuffStyle", "cuffLinks"].map(
+                      (section) =>
+                        sections.includes(section) && (
+                          <div
+                            key={section}
+                            className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${activeSection === section ? "bg-gray-300" : ""
+                              }`}
+                            onClick={() =>
+                              setActiveSection(section as keyof ProductData)
+                            }
+                          >
+                            {section.charAt(0).toUpperCase() + section.slice(1)}
+                          </div>
+                        )
+                    )}
+                    <div className="flex items-center justify-center">
+                      <span className="mr-2 text-lg">Watch Compatible:</span>
+                      <button
+                        onClick={handleToggle}
+                        className={`py-2 px-4 rounded-full ${watchCompatible ? "bg-green-500" : "bg-red-500"
+                          } text-white`}
+                      >
+                        {watchCompatible ? "Yes" : "No"}
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+              </div>
+            )}
         </div>
       </div>
 
@@ -526,11 +541,10 @@ const ShirtCustomizer = () => {
                   <div
                     key={item._id}
                     onClick={() => handleSelect(activeSection, item)}
-                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${
-                      selectedItems[activeSection]?._id === item._id
+                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${selectedItems[activeSection]?._id === item._id
                         ? "bg-blue-100 border-blue-500 ring-2 ring-blue-400"
                         : "hover:bg-gray-100"
-                    }`}
+                      }`}
                   >
                     {item.icon?.url && (
                       <img

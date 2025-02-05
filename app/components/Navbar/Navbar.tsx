@@ -54,7 +54,7 @@ export default function Navbar() {
             About
           </a>
           <Link href="/history">History</Link>
-          <Link href="/form">Customise</Link>
+          <Link href="/fabric-new">Customise</Link>
         </div>
         <div className="relative">
           <div className="h-10 w-10 rounded-full bg-[#e8e6da] shadow-lg flex items-center justify-center">
@@ -82,7 +82,7 @@ export default function Navbar() {
               About
             </a>
             <Link href="/history">History</Link>
-            <Link href="/form">Customise</Link>
+            <Link href="/fabric-new">Customise</Link>
           </div>
         </div>
       )}
