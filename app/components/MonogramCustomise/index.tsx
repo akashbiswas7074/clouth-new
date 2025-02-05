@@ -1,23 +1,10 @@
 "use client";
-import useProductData from "@/hooks/shirt-details";
-import { createShirt } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import useMonogramData from "@/hooks/monogram-details";
 
-const sections = [
-  "bottom",
-  "back",
-  "placket",
-  "pocket",
-  "sleeves",
-  "fit",
-  "collarStyle",
-  "collarHeight",
-  "collarButton",
-  "cuffStyle",
-  "cuffLinks",
-];
+const sections = ["monogramStyle", "monogramPosition"];
 
 interface ProductItem {
   _id: string;
@@ -28,46 +15,13 @@ interface ProductItem {
 }
 
 interface ProductData {
-  bottom?: ProductItem[];
-  back?: ProductItem[];
-  placket?: ProductItem[];
-  pocket?: ProductItem[];
-  sleeves?: ProductItem[];
-  fit?: ProductItem[];
-  collarStyle?: ProductItem[];
-  collarHeight?: {
-    _id: string;
-    name: string;
-    icon: { url: string };
-    price: number;
-  }[];
-  collarButton?: ProductItem[];
-  cuffStyle?: ProductItem[];
-  cuffLinks?: ProductItem[];
-}
-interface ShirtItem {
-  name: string;
-  image: string;
-  price: number;
+  monogramStyle?: ProductItem[];
+  monogramPosition?: ProductItem[];
 }
 
-interface Shirt {
-  bottom?: ShirtItem;
-  back?: ShirtItem;
-  placket?: ShirtItem;
-  pocket?: ShirtItem;
-  collarStyle?: ShirtItem;
-  collarHeight?: ShirtItem;
-  collarButton?: ShirtItem;
-  cuffStyle?: ShirtItem;
-  cuffLinks?: ShirtItem;
-  fit?: ShirtItem;
-  sleeves?: ShirtItem;
-}
-
-const ShirtCustomizer = () => {
+const MonogramCustomiser = () => {
   const [totalPrice, setTotalPrice] = useState(0);
-  const { data, loading } = useProductData() as {
+  const { data, loading } = useMonogramData() as {
     data: ProductData;
     loading: boolean;
   };
@@ -77,15 +31,10 @@ const ShirtCustomizer = () => {
   const [selectedItems, setSelectedItems] = useState<{
     [key: string]: ProductItem;
   }>({});
-  const [watchCompatible, setWatchCompatible] = useState(false);
-  const [isCollarOpen, setIsCollarOpen] = useState(true);
-  const [isCuffOpen, setIsCuffOpen] = useState(true);
-  const [longSleeveSelected, setLongSleeveSelected] = useState(false);
   const [isBackPopupOpen, setIsBackPopupOpen] = useState(false);
   const [selectedBackImage, setSelectedBackImage] = useState<string | null>(
     null
   );
-  const [shirt, setShirt] = useState<Shirt>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const router = useRouter();
@@ -111,62 +60,6 @@ const ShirtCustomizer = () => {
     setIsModalOpen(true);
   };
 
-  const handleCreateShirt = async () => {
-    const price = totalPrice;
-    try {
-      const colorId = localStorage.getItem("colorId");
-      const fabricId = localStorage.getItem("fabricId");
-
-      if (!colorId || !fabricId) {
-        toast.error("Color ID and Fabric ID are required.");
-        return;
-      }
-
-      const response = await createShirt(
-        price,
-        shirt.bottom,
-        shirt.back,
-        shirt.sleeves,
-        shirt.cuffStyle,
-        shirt.cuffLinks,
-        shirt.collarStyle,
-        shirt.collarHeight,
-        shirt.collarButton,
-        shirt.placket,
-        shirt.pocket,
-        shirt.fit,
-        watchCompatible,
-        colorId,
-        fabricId
-      );
-
-      if (response.success) {
-        toast.success("Shirt created successfully!");
-        setIsSubmitted(true);
-      } else {
-        toast.error(response.message || "Failed to create the shirt.");
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.error("An unexpected error occurred.");
-    }
-  };
-
-  const assignItemToSection = (section: keyof Shirt, item: ProductItem) => {
-    setShirt((prev) => {
-      const updatedShirt = {
-        ...prev,
-        [section]: {
-          name: item.name,
-          image: item.image?.url,
-          price: item.price,
-        },
-      };
-      localStorage.setItem(section, JSON.stringify(item));
-      return updatedShirt;
-    });
-  };
-
   const calculateTotalPrice = (items: Record<string, ProductItem>) => {
     return Object.values(items).reduce(
       (total, item) => total + (item.price || 0),
@@ -175,17 +68,11 @@ const ShirtCustomizer = () => {
   };
 
   useEffect(() => {
-    console.log(shirt);
-  }, [shirt]);
-
-  useEffect(() => {
     // Set default selections without localStorage
     sections.forEach((section) => {
-      if (section === "cuffStyle" || section === "cuffLinks") return;
 
       if (data && data[section as keyof ProductData]?.length) {
         const defaultItem = data[section as keyof ProductData]![0];
-        assignItemToSection(section as keyof Shirt, defaultItem); // Assign to the shirt object
 
         setSelectedItems((prev) => {
           const updatedItems = { ...prev, [section]: defaultItem };
@@ -197,55 +84,19 @@ const ShirtCustomizer = () => {
     });
   }, [data]);
 
-  const handleSelect = (section: keyof ProductData, item: ProductItem) => {
-    assignItemToSection(section as keyof Shirt, item); // Assign to the shirt object
+ const handleSelect = (section: keyof ProductData, item: ProductItem) => {
+  setSelectedItems((prev) => {
+    const isSelected = prev[section]?._id === item._id;
+    const updatedItems = {
+      ...prev,
+      [section]: isSelected ? null : item, // Deselect if already selected, otherwise select
+    };
+    const newTotalPrice = calculateTotalPrice(updatedItems);
+    setTotalPrice(newTotalPrice);
+    return updatedItems;
+  });
+};
 
-    if (section === "sleeves" && item.name.toLowerCase().includes("long")) {
-      setLongSleeveSelected(true);
-    }
-
-    if (section === "sleeves" && item.name.toLowerCase().includes("short")) {
-      setLongSleeveSelected(false);
-      setSelectedItems((prev) => {
-        const updatedItems = { ...prev };
-        delete updatedItems["cuffStyle"];
-        delete updatedItems["cuffLinks"];
-        return updatedItems;
-      });
-    }
-
-    if (section === "back") {
-      setIsBackPopupOpen(true);
-      setSelectedBackImage(item.image?.url); // Adjust if item.image is not an object with 'url'
-
-      setSelectedItems((prev) => {
-        const updatedItems = { ...prev, [section]: item };
-        const newTotalPrice = calculateTotalPrice(updatedItems);
-        setTotalPrice(newTotalPrice);
-        return updatedItems;
-      });
-      return;
-    }
-
-    setSelectedItems((prev) => {
-      const updatedItems = { ...prev, [section]: item };
-      const newTotalPrice = calculateTotalPrice(updatedItems);
-      setTotalPrice(newTotalPrice);
-      return updatedItems;
-    });
-  };
-
-  const handleToggle = () => {
-    setWatchCompatible((prev) => !prev);
-  };
-
-  const toggleCollarSection = () => {
-    setIsCollarOpen((prev) => !prev);
-  };
-
-  const toggleCuffSection = () => {
-    setIsCuffOpen((prev) => !prev);
-  };
 
   const getZIndex = (section: string, index: number) => {
     if (section === "collarStyle") return 50;
@@ -298,7 +149,7 @@ const ShirtCustomizer = () => {
           </button>
         </div>
 
-        {isModalOpen && (
+        {/* {isModalOpen && (
           <div className="z-[100] fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4">
               <h2 className="text-2xl font-bold mb-4">Confirm Shirt Details</h2>
@@ -344,131 +195,23 @@ const ShirtCustomizer = () => {
               )}
             </div>
           </div>
-        )}
+        )} */}
       </div>
-
-      {/* Button to close the back popup */}
-      {isBackPopupOpen && selectedBackImage && (
-        <div className="w-fit h-fit fixed top-0 left-0 right-0 bottom-0 bg-black bg-opacity-50 flex justify-center items-center z-[100]">
-          <div className="bg-white p-4 rounded-lg">
-            <h3 className="text-xl font-bold">Selected Back</h3>
-            <img
-              src={selectedBackImage}
-              alt="Selected Back"
-              className="w-[30rem] h-auto object-cover"
-            />
-            <button
-              onClick={closeBackPopup}
-              className="mt-4 py-2 px-4 bg-red-500 text-white rounded"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
 
       <div className="p-[.5rem] mt-[1.5rem] w-[20%] bg-white h-full flex flex-col justify-start items-center">
         <h2 className="text-xl font-bold">Shirt Customizer</h2>
         <div className="flex flex-col justify-center w-full">
-          {sections
-            .filter(
-              (section) =>
-                ![
-                  "collarStyle",
-                  "collarHeight",
-                  "collarButton",
-                  "cuffStyle",
-                  "cuffLinks",
-                ].includes(section)
-            )
-            .map((section) => (
-              <div
-                key={section}
-                className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
-                  activeSection === section ? "bg-gray-300" : ""
-                }`}
-                onClick={() => setActiveSection(section as keyof ProductData)}
-              >
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-              </div>
-            ))}
-
-          {["collarStyle", "collarHeight", "collarButton"].some((section) =>
-            sections.includes(section)
-          ) && (
-            <div>
-              <h3
-                className="text-md text-center font-bold mb-[.2rem] cursor-pointer"
-                onClick={toggleCollarSection}
-              >
-                Collar {isCollarOpen ? "▲" : "▼"}
-              </h3>
-              {isCollarOpen && (
-                <div>
-                  {["collarStyle", "collarHeight", "collarButton"].map(
-                    (section) =>
-                      sections.includes(section) && (
-                        <div
-                          key={section}
-                          className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
-                            activeSection === section ? "bg-gray-300" : ""
-                          }`}
-                          onClick={() =>
-                            setActiveSection(section as keyof ProductData)
-                          }
-                        >
-                          {section.charAt(0).toUpperCase() + section.slice(1)}
-                        </div>
-                      )
-                  )}
-                </div>
-              )}
+          {sections.map((section) => (
+            <div
+              key={section}
+              className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
+                activeSection === section ? "bg-gray-300" : ""
+              }`}
+              onClick={() => setActiveSection(section as keyof ProductData)}
+            >
+              {section.charAt(0).toUpperCase() + section.slice(1)}
             </div>
-          )}
-
-          {["cuffStyle", "cuffLinks"].some((section) =>
-            sections.includes(section)
-          ) && (
-            <div className="mt-4">
-              <h3
-                className="text-center text-md font-bold mb-2 cursor-pointer"
-                onClick={toggleCuffSection}
-              >
-                Cuff {isCuffOpen ? "▲" : "▼"}
-              </h3>
-              {isCuffOpen && longSleeveSelected && (
-                <div>
-                  {["cuffStyle", "cuffLinks"].map(
-                    (section) =>
-                      sections.includes(section) && (
-                        <div
-                          key={section}
-                          className={`flex flex-col justify-center items-center w-full p-2 cursor-pointer rounded hover:bg-gray-200 ${
-                            activeSection === section ? "bg-gray-300" : ""
-                          }`}
-                          onClick={() =>
-                            setActiveSection(section as keyof ProductData)
-                          }
-                        >
-                          {section.charAt(0).toUpperCase() + section.slice(1)}
-                        </div>
-                      )
-                  )}
-                  <div className="flex items-center justify-center">
-                    <span className="mr-2 text-lg">Watch Compatible:</span>
-                    <button
-                      onClick={handleToggle}
-                      className={`py-2 px-4 rounded-full ${
-                        watchCompatible ? "bg-green-500" : "bg-red-500"
-                      } text-white`}
-                    >
-                      {watchCompatible ? "Yes" : "No"}
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+          ))}
         </div>
       </div>
 
@@ -546,4 +289,4 @@ const ShirtCustomizer = () => {
   );
 };
 
-export default ShirtCustomizer;
+export default MonogramCustomiser;

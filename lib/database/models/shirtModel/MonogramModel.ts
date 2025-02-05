@@ -45,6 +45,8 @@ export const MonogramSchema = new Schema<Monogram>({
   }, // Updated field name
 });
 
-const MonogramModel = mongoose.model<Monogram>("Monogram", MonogramSchema);
+const MonogramModel =
+  mongoose.models.Monogram ||
+  mongoose.model<Monogram>("Monogram", MonogramSchema);
 
 export default MonogramModel;

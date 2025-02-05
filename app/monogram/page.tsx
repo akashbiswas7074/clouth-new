@@ -1,11 +1,12 @@
-import React from 'react'
+import React from "react";
+import MonogramCustomiser from "../components/MonogramCustomise";
 
 const page = () => {
   return (
-    <div className='w-full'>
-      <MonogramCustomise/>
+    <div className="w-full">
+      <MonogramCustomiser />
     </div>
-  )
-}
+  );
+};
 
-export default page
+export default page;
