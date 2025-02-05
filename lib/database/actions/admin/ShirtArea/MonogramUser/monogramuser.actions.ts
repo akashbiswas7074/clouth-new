@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import { connectToDatabase } from "@/lib/database/connect";
 import MonogramUserModel from "@/lib/database/models/shirtModel/MonogramUserModel";
@@ -24,6 +24,7 @@ export const createMonogram = async (
 
     // Create new monogram
     const newMonogram = new MonogramUserModel({
+      price: numericPrice,
       style,
       position,
       text,

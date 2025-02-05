@@ -23,8 +23,8 @@ export const MonogramUserSchema = new Schema<MonogramUser>({
     name: { type: String, required: true },
     price: { type: Number, required: true },
   },
-  text: { type: String, required: true },
-  color: { type: String, required: true },
+  text: { type: String, required: false },
+  color: { type: String, required: false },
 });
 
 const MonogramUserModel =

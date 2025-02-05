@@ -84,14 +84,17 @@ export const updateShirtIds = async (
       measurementId: mongoose.Types.ObjectId;
     }> = {};
 
+    // Only update the monogramId if it is provided
     if (monogramId) {
       updateFields.monogramId = new mongoose.Types.ObjectId(monogramId);
     }
+
+    // Only update the measurementId if it is provided (do not overwrite if not passed)
     if (measurementId) {
       updateFields.measurementId = new mongoose.Types.ObjectId(measurementId);
     }
 
-    // Update only the provided fields
+    // Update only the provided fields, leaving others unchanged
     const updatedShirt = await ShirtModel.findByIdAndUpdate(
       shirtId,
       { $set: updateFields },
