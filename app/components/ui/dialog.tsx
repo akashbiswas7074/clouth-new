@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import * as DialogPrimitive from "@radix-ui/react-dialog"
-import { X } from "lucide-react"
+// import { X } from "lucide-react"
 
+import { AiOutlineClose } from "react-icons/ai";
 import { cn } from "@/lib/utils"
 
 const Dialog = DialogPrimitive.Root
@@ -45,7 +46,7 @@ const DialogContent = React.forwardRef<
     >
       {children}
       <DialogPrimitive.Close className="absolute right-4 top-4 ">
-        <X className=" relative -top-2 -right-2 h-6 w-6 font-bold" />
+        <AiOutlineClose className=" relative -top-2 -right-2 h-6 w-6 font-bold" />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>

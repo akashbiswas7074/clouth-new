@@ -1,5 +1,7 @@
 import { Button } from "@/app/components/ui/button";
-import { ArrowLeft, CheckCircle2 } from "lucide-react";
+// import { ArrowLeft, CheckCircle2 } from "lucide-react";
+import { FaArrowLeft } from "react-icons/fa";
+import { MdCheckCircle } from "react-icons/md";
 import Link from "next/link";
 import { PayPalButton } from "../components/PayPal/PayPalButton";
 
@@ -12,7 +14,7 @@ const OrderPage = () => {
           <div className="max-w-7xl mx-auto">
             {/* Back to Home link */}
             <div className="flex items-center mb-4">
-              <ArrowLeft className="w-5 h-5 mr-2" />
+              <FaArrowLeft className="w-5 h-5 mr-2" />
               <span className="text-sm font-medium">Home</span>
             </div>
 
@@ -66,7 +68,7 @@ const OrderPage = () => {
               <div className="flex-1">
                 {/* Confirmation message */}
                 <div className="flex items-center mb-4">
-                  <CheckCircle2 className="w-[50px] h-[50px] text-green-500 mr-2 flex-shrink-0" />
+                  <MdCheckCircle className="w-[50px] h-[50px] text-green-500 mr-2 flex-shrink-0" />
                   <div>
                     <h2 className="text-xl font-semibold">
                       Your order is confirmed
@@ -156,7 +158,7 @@ const OrderPage = () => {
                 {/* Savings message */}
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
                   <div className="flex items-center">
-                    <CheckCircle2 className="w-5 h-5 text-green-500 mr-2" />
+                    <MdCheckCircle className="w-5 h-5 text-green-500 mr-2" />
                     <span className="text-green-700">
                       Yay! You have saved ₹134 on this order
                     </span>

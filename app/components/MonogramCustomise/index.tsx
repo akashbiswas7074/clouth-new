@@ -9,7 +9,7 @@ const sections = ["monogramStyle", "monogramPosition"];
 interface ProductItem {
   _id: string;
   name: string;
-  icon?: { url: string };
+  //   icon?: { url: string };
   image?: { url: string };
   price?: number;
 }
@@ -25,9 +25,9 @@ const MonogramCustomiser = () => {
     data: ProductData;
     loading: boolean;
   };
-  const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
-    null
-  );
+  //   const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
+  //     null
+  //   );
   const [selectedItems, setSelectedItems] = useState<{
     [key: string]: ProductItem;
   }>({});
@@ -39,12 +39,24 @@ const MonogramCustomiser = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const router = useRouter();
 
+  const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
+    null
+  );
+
   const handleConfirmAndProceed = () => {
-    const currentIndex = sections.indexOf(activeSection);
-    if (currentIndex !== -1 && currentIndex < sections.length - 1) {
-      setActiveSection(sections[currentIndex + 1]); // Move to the next section
+    if (activeSection !== null) {
+      const currentIndex = sections.indexOf(activeSection);
+      if (currentIndex !== -1 && currentIndex < sections.length - 1) {
+        // Ensure that the next section is a valid key of ProductData, or null
+        setActiveSection(
+          sections[currentIndex + 1] as keyof ProductData | null
+        );
+      } else {
+        setActiveSection(null); // Close the box if it's the last section
+      }
     } else {
-      setActiveSection(null); // Close the box if it's the last section
+      // Handle the case where activeSection is null (if needed)
+      setActiveSection(null);
     }
   };
 
@@ -70,7 +82,6 @@ const MonogramCustomiser = () => {
   useEffect(() => {
     // Set default selections without localStorage
     sections.forEach((section) => {
-
       if (data && data[section as keyof ProductData]?.length) {
         const defaultItem = data[section as keyof ProductData]![0];
 
@@ -84,19 +95,18 @@ const MonogramCustomiser = () => {
     });
   }, [data]);
 
- const handleSelect = (section: keyof ProductData, item: ProductItem) => {
-  setSelectedItems((prev) => {
-    const isSelected = prev[section]?._id === item._id;
-    const updatedItems = {
-      ...prev,
-      [section]: isSelected ? null : item, // Deselect if already selected, otherwise select
-    };
-    const newTotalPrice = calculateTotalPrice(updatedItems);
-    setTotalPrice(newTotalPrice);
-    return updatedItems;
-  });
-};
-
+  const handleSelect = (section: keyof ProductData, item: ProductItem) => {
+    setSelectedItems((prev) => {
+      const isSelected = prev[section]?._id === item._id;
+      const updatedItems: Record<string, ProductItem> = {
+        ...prev,
+        [section]: isSelected ? ({} as ProductItem) : item, // Set a default empty object instead of null
+      };
+      const newTotalPrice = calculateTotalPrice(updatedItems);
+      setTotalPrice(newTotalPrice);
+      return updatedItems;
+    });
+  };
 
   const getZIndex = (section: string, index: number) => {
     if (section === "collarStyle") return 50;
@@ -248,13 +258,6 @@ const MonogramCustomiser = () => {
                         : "hover:bg-gray-100"
                     }`}
                   >
-                    {item.icon?.url && (
-                      <img
-                        src={item.icon.url}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover mx-auto rounded-md"
-                      />
-                    )}
                     <p className="text-center font-semibold text-gray-800 mt-2">
                       {item.name}
                     </p>

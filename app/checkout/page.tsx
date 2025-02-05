@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 // Importing UI components from custom UI library and icons from Lucide
 import { Card, CardContent, CardHeader, CardTitle } from "@/app/components/ui/card";
@@ -8,17 +8,20 @@ import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/app/components/ui/radio-group";
 import { Button } from "@/app/components/ui/button";
-import {
-  CheckIcon,
-  MapPinIcon,
-  TicketIcon,
-  CreditCardIcon,
-} from "lucide-react";
+// import {
+//   AiOutlineCheck ,
+//   FaMapPin,
+//   GiTicket,
+//   FaCreditCard,
+// } from "lucide-react";
+import { AiOutlineCheck  } from "react-icons/ai";
+import { FaMapPin, FaCreditCard } from "react-icons/fa";
+import { GiTicket } from "react-icons/gi";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { saveAddress } from "@/lib/database/actions/user.actions";
 import { toast } from "sonner"
-import { PayPalButton } from "../components/PayPal/PayPalButton";
+// import { PayPalButton } from "../components/PayPal/PayPalButton";
 import { useRouter } from "next/navigation";
 
 /**
@@ -37,9 +40,9 @@ type Steps = {
  * - Choose Payment
  */
 const steps: Steps[] = [
-  { title: "Delivery Address", icon: <MapPinIcon className="h-5 w-5" /> },
-  { title: "Apply Coupon", icon: <TicketIcon className="h-5 w-5" /> },
-  { title: "Choose Payment", icon: <CreditCardIcon className="h-5 w-5" /> },
+  { title: "Delivery Address", icon: <FaMapPin className="h-5 w-5" /> },
+  { title: "Apply Coupon", icon: <GiTicket className="h-5 w-5" /> },
+  { title: "Choose Payment", icon: <FaCreditCard className="h-5 w-5" /> },
 ];
 
 /**
@@ -88,7 +91,8 @@ const orderItems: OrderItems[] = [
  */
 const CheckoutPage = () => {
 
-  const { isSignedIn, user, isLoaded } = useUser();
+  // const { isSignedIn, user, isLoaded } = useUser();
+  const { isSignedIn, user } = useUser();
   const router = useRouter();
 
   const [deliveryAddress, setDeliveryAddress] = useState(() => {
@@ -225,7 +229,8 @@ const CheckoutPage = () => {
                     }`}
                 >
                   {index < currentStep ? (
-                    <CheckIcon className="h-5 w-5" />
+                    // <AiOutlineCheck  className="h-5 w-5" />
+                    <></>
                   ) : (
                     step.icon
                   )}

@@ -4,7 +4,9 @@ import React from "react";
 import { Dialog } from "@/app/components/ui/dialog";
 import { Input } from "@/app/components/ui/input";
 import { Button } from "@/app/components/ui/button";
-import { X } from "lucide-react";
+// import { X } from "lucide-react";
+import { AiOutlineClose } from "react-icons/ai";
+
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const SearchModal = ({ setOpen }: { setOpen: any }) => {
@@ -56,7 +58,7 @@ const SearchModal = ({ setOpen }: { setOpen: any }) => {
               size={"icon"}
               onClick={() => setOpen(false)}
             >
-              <X className="h-4 w-4" />
+              <AiOutlineClose className="h-4 w-4" />
             </Button>
           </div>
           <Input

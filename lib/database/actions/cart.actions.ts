@@ -1,10 +1,10 @@
 "use server";
 
 // import { handleError } from "@/lib/utils";
-import connectToDatabase from "../connect";
 import Product from "../models/product.model";
 import User from "../models/user.model";
 import Cart from "../models/cart.model";
+import { connectToDatabase } from "../connect";
 
 // Cart operations for user:
 export async function saveCartForUser(cart: any, clerkId: string) {

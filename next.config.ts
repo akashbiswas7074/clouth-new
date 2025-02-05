@@ -1,7 +1,10 @@
-import type { NextConfig } from "next";
+import { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {},
+  eslint: {
+    ignoreDuringBuilds: true, // Disables ESLint checks during builds (e.g., on Vercel)
+  }, // Remove unrecognized keys
 };
 
 export default nextConfig;

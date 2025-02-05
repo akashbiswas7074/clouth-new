@@ -71,9 +71,9 @@ const ShirtCustomizer = () => {
     data: ProductData;
     loading: boolean;
   };
-  const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
-    null
-  );
+  // const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
+  //   null
+  // );
   const [selectedItems, setSelectedItems] = useState<{
     [key: string]: ProductItem;
   }>({});
@@ -90,12 +90,24 @@ const ShirtCustomizer = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const router = useRouter();
 
+  const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
+    null
+  );
+
   const handleConfirmAndProceed = () => {
-    const currentIndex = sections.indexOf(activeSection);
-    if (currentIndex !== -1 && currentIndex < sections.length - 1) {
-      setActiveSection(sections[currentIndex + 1]); // Move to the next section
+    if (activeSection !== null) {
+      const currentIndex = sections.indexOf(activeSection);
+      if (currentIndex !== -1 && currentIndex < sections.length - 1) {
+        // Ensure that the next section is a valid key of ProductData, or null
+        setActiveSection(
+          sections[currentIndex + 1] as keyof ProductData | null
+        );
+      } else {
+        setActiveSection(null); // Close the box if it's the last section
+      }
     } else {
-      setActiveSection(null); // Close the box if it's the last section
+      // Handle the case where activeSection is null (if needed)
+      setActiveSection(null);
     }
   };
 
@@ -122,19 +134,34 @@ const ShirtCustomizer = () => {
         return;
       }
 
+      // Provide default values for shirt properties
+      const shirtData = {
+        bottom: shirt.bottom || {},
+        back: shirt.back || {},
+        sleeves: shirt.sleeves || {},
+        cuffStyle: shirt.cuffStyle || {},
+        cuffLinks: shirt.cuffLinks || {},
+        collarStyle: shirt.collarStyle || {},
+        collarHeight: shirt.collarHeight || {},
+        collarButton: shirt.collarButton || {},
+        placket: shirt.placket || {},
+        pocket: shirt.pocket || {},
+        fit: shirt.fit || {},
+      };
+
       const response = await createShirt(
         price,
-        shirt.bottom,
-        shirt.back,
-        shirt.sleeves,
-        shirt.cuffStyle,
-        shirt.cuffLinks,
-        shirt.collarStyle,
-        shirt.collarHeight,
-        shirt.collarButton,
-        shirt.placket,
-        shirt.pocket,
-        shirt.fit,
+        shirtData.bottom,
+        shirtData.back,
+        shirtData.sleeves,
+        shirtData.cuffStyle,
+        shirtData.cuffLinks,
+        shirtData.collarStyle,
+        shirtData.collarHeight,
+        shirtData.collarButton,
+        shirtData.placket,
+        shirtData.pocket,
+        shirtData.fit,
         watchCompatible,
         colorId,
         fabricId
@@ -146,7 +173,7 @@ const ShirtCustomizer = () => {
       } else {
         toast.error(response.message || "Failed to create the shirt.");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       toast.error("An unexpected error occurred.");
     }
@@ -216,7 +243,7 @@ const ShirtCustomizer = () => {
 
     if (section === "back") {
       setIsBackPopupOpen(true);
-      setSelectedBackImage(item.image?.url); // Adjust if item.image is not an object with 'url'
+      setSelectedBackImage(item.image?.url ?? null); // Ensure the value is either a string or null
 
       setSelectedItems((prev) => {
         const updatedItems = { ...prev, [section]: item };

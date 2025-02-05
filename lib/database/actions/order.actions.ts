@@ -1,6 +1,6 @@
 "use server";
 
-import connectToDatabase from "../connect";
+import {connectToDatabase} from "../connect";
 import Order from "../models/order.model";
 import User from "../models/user.model";
 import nodemailer from "nodemailer";
@@ -44,7 +44,7 @@ export async function createOrder(
         orderId: null,
       };
     }
-    const newOrder = await new Order({
+    const newOrder: any = await new Order({
       user: user._id,
       products,
       shippingAddress,
@@ -147,7 +147,7 @@ export async function createStripeOrder(
     return redirect("/sign-in");
   }
 
-  const newOrder = await new Order({
+  const newOrder: any = await new Order({
     user: user._id,
     products,
     shippingAddress,
