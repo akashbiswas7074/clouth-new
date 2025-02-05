@@ -358,19 +358,19 @@ async function saveAddress(deliveryAddress: any, userId: string) {
       })
     });
 
-    const data = await response.json();
+//     const data = await response.json();
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to save address');
-    }
+//     if (!response.ok) {
+//       throw new Error(data.message || 'Failed to save address');
+//     }
 
-    // Save to localStorage for persistence
-    localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
+//     // Save to localStorage for persistence
+//     localStorage.setItem('deliveryAddress', JSON.stringify(deliveryAddress));
 
-    return {
-      success: true,
-      message: 'Address saved successfully'
-    };
+//     return {
+//       success: true,
+//       message: 'Address saved successfully'
+//     };
 
   } catch (error: any) {
     return {
