@@ -201,3 +201,70 @@ export async function getUserOrders(userId: string) {
     };
   }
 }
+
+export async function fetchAllOrders() {
+  try {
+    await connectToDatabase();
+
+    const orders = await Order.find({})
+      .populate({
+        path: "products.product",
+        model: "ShirtModel",
+        populate: [
+          { path: "colorId" },
+          { path: "fabricId" },
+          { path: "monogramId" },
+          { path: "measurementId" }
+        ]
+      })
+      .populate("user", "name email")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Format dates and ObjectIds for client
+    const formattedOrders = orders.map(order => ({
+      ...order,
+      _id: order._id.toString(),
+      user: {
+        ...order.user,
+        _id: order.user._id.toString()
+      },
+      products: order.products.map(product => ({
+        ...product,
+        product: {
+          ...product.product,
+          _id: product.product._id.toString(),
+          colorId: product.product.colorId?._id ? {
+            ...product.product.colorId,
+            _id: product.product.colorId._id.toString()
+          } : null,
+          fabricId: product.product.fabricId?._id ? {
+            ...product.product.fabricId,
+            _id: product.product.fabricId._id.toString()
+          } : null,
+          monogramId: product.product.monogramId?._id ? {
+            ...product.product.monogramId,
+            _id: product.product.monogramId._id.toString()
+          } : null,
+          measurementId: product.product.measurementId?._id ? {
+            ...product.product.measurementId,
+            _id: product.product.measurementId._id.toString()
+          } : null
+        }
+      }))
+    }));
+
+    return {
+      orders: formattedOrders,
+      success: true
+    };
+
+  } catch (error: any) {
+    console.error("Error fetching orders:", error);
+    return {
+      message: error.message || "Failed to fetch orders",
+      success: false,
+      orders: []
+    };
+  }
+}
