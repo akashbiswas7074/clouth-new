@@ -60,7 +60,7 @@ const Shirts = () => {
             height={500}
             className="object-cover w-full h-[250px] group-hover:scale-105 transition-transform duration-300"
           />
-          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
+          <div className="absolute inset-0 bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300"></div>
         </div>
         ))}
       </div>
