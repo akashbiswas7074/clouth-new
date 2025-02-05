@@ -87,3 +87,95 @@ export async function addShirtToCart(shirtId: string, clerkId: string) {
     return { success: false, message: "Error adding shirt to cart" };
   }
 }
+
+export async function getSavedCartForUser(clerkId: string) {
+  try {
+    await connectToDatabase();
+    console.debug("getSavedCartForUser: clerkId", clerkId);
+
+    const user = await User.findOne({ clerkId }).lean();
+    if (!user) {
+      console.error("getSavedCartForUser: User not found for clerkId", clerkId);
+      return { success: false, message: "User not found" };
+    }
+    console.debug("getSavedCartForUser: User found", user);
+
+    const cart = await Cart.findOne({ user: user._id })
+      .populate({
+        path: "products.product",
+        model: ShirtModel
+      })
+      .lean();
+    console.debug("getSavedCartForUser: Retrieved cart", cart);
+
+    if (!cart) {
+      return { success: true, cart: null, message: "No cart found" };
+    }
+
+    return {
+      success: true,
+      cart: {
+        ...cart,
+        id: cart._id.toString(),
+        user: cart.user.toString()
+      }
+    };
+  } catch (error: any) {
+    console.error("Error retrieving cart:", error.message, error);
+    return { success: false, message: "Error retrieving cart" };
+  }
+}
+
+export async function updateCartItemQuantity(clerkId: string, productId: string, newQty: number) {
+  try {
+    await connectToDatabase();
+    console.debug("updateCartItemQuantity: clerkId", clerkId);
+
+    const user = await User.findOne({ clerkId }).lean();
+    if (!user) {
+      console.error("updateCartItemQuantity: User not found for clerkId", clerkId);
+      return { success: false, message: "User not found" };
+    }
+    console.debug("updateCartItemQuantity: User found", user);
+
+    const cartDoc = await Cart.findOne({ user: user._id });
+    if (!cartDoc) {
+      console.error("updateCartItemQuantity: Cart not found for user", user._id);
+      return { success: false, message: "Cart not found" };
+    }
+
+    // Find index of product in cart.products array
+    const productIndex = cartDoc.products.findIndex((item: any) => {
+      const id = item.product.toString();
+      return id === productId;
+    });
+    if (productIndex < 0) {
+      console.error("updateCartItemQuantity: Product not found in cart", productId);
+      return { success: false, message: "Product not in cart" };
+    }
+
+    const cartProduct = cartDoc.products[productIndex];
+    const oldQty = Number(cartProduct.qty);
+    const newQuantity = Number(newQty);
+    if (newQuantity < 1) {
+      return { success: false, message: "Quantity must be at least 1" };
+    }
+    const qtyDiff = newQuantity - oldQty;
+    const priceDiff = qtyDiff * cartProduct.price;
+
+    // Update the quantity and cart total
+    cartDoc.products[productIndex].qty = String(newQuantity);
+    cartDoc.cartTotal = (cartDoc.cartTotal || 0) + priceDiff;
+
+    await cartDoc.save();
+    const updatedCart = cartDoc.toObject();
+    updatedCart.id = updatedCart._id.toString();
+    updatedCart.user = updatedCart.user.toString();
+    console.debug("updateCartItemQuantity: Updated cart", updatedCart);
+
+    return { success: true, message: "Cart updated successfully", cart: updatedCart };
+  } catch (error: any) {
+    console.error("Error updating cart item quantity:", error.message, error);
+    return { success: false, message: "Error updating cart item quantity" };
+  }
+}
