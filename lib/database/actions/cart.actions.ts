@@ -8,86 +8,85 @@ import ShirtModel from "../models/shirtModel/ShirtModel";
 export async function addShirtToCart(shirtId: string, clerkId: string) {
   try {
     await connectToDatabase();
-    
-    // Debug: log the clerkId
-    console.debug("addShirtToCart: clerkId", clerkId);
 
+    // Validate inputs
+    if (!mongoose.Types.ObjectId.isValid(shirtId)) {
+      return { success: false, message: "Invalid shirt ID" };
+    }
+
+    // Find user
     const user = await User.findOne({ clerkId }).lean();
     if (!user) {
-      console.error("addShirtToCart: User not found for clerkId", clerkId);
       return { success: false, message: "User not found" };
     }
-    console.debug("addShirtToCart: user found", user);
 
-    const shirt = await ShirtModel.findById(shirtId).lean();
+    // Find shirt with all details
+    const shirt = await ShirtModel.findById(shirtId)
+      .populate('colorId')
+      .populate('fabricId')
+      .populate('monogramId')
+      .populate('measurementId')
+      .lean();
+
     if (!shirt) {
-      console.error("addShirtToCart: Shirt not found for id", shirtId);
       return { success: false, message: "Shirt not found" };
     }
-    console.debug("addShirtToCart: shirt found", shirt);
 
-    // Convert ObjectIds to strings
-    const plainShirt = {
-      ...shirt,
-      id: shirt._id.toString(),
-      colorId: shirt.colorId?.toString(),
-      fabricId: shirt.fabricId?.toString(),
-    };
-    delete plainShirt._id;
-    delete plainShirt.__v;
-    console.debug("addShirtToCart: plainShirt", plainShirt);
-
-    let cart = await Cart.findOne({ user: user._id }).lean();
+    // Find or create cart
+    let cart = await Cart.findOne({ user: user._id });
+    
     if (!cart) {
-      console.debug("addShirtToCart: No existing cart found, creating one.");
-      cart = await Cart.create({
+      cart = new Cart({
+        user: user._id,
         products: [],
-        cartTotal: 0,
-        user: user._id
+        cartTotal: 0
       });
-      // Convert newly created cart to plain object for consistency
-      cart = cart.toObject();
     }
-    console.debug("addShirtToCart: current cart", cart);
 
-    const cartProduct = {
+    // Add product to cart
+    const cartItem = {
       product: shirtId,
       qty: "1",
-      price: plainShirt.price
+      price: shirt.price || 0
     };
-    console.debug("addShirtToCart: Adding product", cartProduct);
 
-    const updatedCart = await Cart.findByIdAndUpdate(
-      cart._id,
-      {
-        $push: { products: cartProduct },
-        $inc: { cartTotal: plainShirt.price }
-      },
-      { new: true }
-    ).lean();
+    cart.products.push(cartItem);
 
-    if (!updatedCart) {
-      console.error("addShirtToCart: Failed to update cart for id", cart._id);
-      return { success: false, message: "Error updating cart" };
-    }
+    // Update cart total
+    cart.cartTotal = cart.products.reduce((total, item) => 
+      total + (item.price * Number(item.qty)), 0
+    );
 
-    console.debug("addShirtToCart: Updated cart", updatedCart);
+    await cart.save();
+
+    // Get updated cart with populated products
+    const updatedCart = await Cart.findById(cart._id)
+      .populate({
+        path: 'products.product',
+        model: ShirtModel,
+        populate: [
+          { path: 'colorId' },
+          { path: 'fabricId' },
+          { path: 'monogramId' },
+          { path: 'measurementId' }
+        ]
+      })
+      .lean();
 
     return {
       success: true,
-      message: "Shirt added to cart successfully",
-      cart: {
-        ...updatedCart,
-        id: updatedCart._id.toString(),
-        user: updatedCart.user.toString()
-      }
+      message: "Added to cart successfully",
+      cart: updatedCart
     };
+
   } catch (error: any) {
-    console.error("Error adding shirt to cart:", error.message, error);
-    return { success: false, message: "Error adding shirt to cart" };
+    console.error("Error adding to cart:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to add to cart"
+    };
   }
 }
-
 
 export async function getSavedCartForUser(clerkId: string) {
   try {

@@ -1,10 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import useProductData from "@/hooks/shirt-details";
 import { createShirt } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
-import { addShirtToCart } from "@/lib/database/actions/cart.actions";
-// import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -127,23 +124,17 @@ const ShirtCustomizer = () => {
     setIsModalOpen(true);
   };
 
-  const { userId } = useAuth();
-
   const handleCreateShirt = async () => {
     const price = totalPrice;
     try {
       const colorId = localStorage.getItem("colorId");
       const fabricId = localStorage.getItem("fabricId");
-  
-      if (!userId) {
-        toast.error("Please login to create a shirt");
-        return;
-      }
-  
+
       if (!colorId || !fabricId) {
         toast.error("Color ID and Fabric ID are required.");
         return;
       }
+
       const shirtData = {
         bottom: shirt.bottom || {},
         back: shirt.back || {},
@@ -157,9 +148,8 @@ const ShirtCustomizer = () => {
         pocket: shirt.pocket || {},
         fit: shirt.fit || {},
       };
-  
-      // Create shirt
-      const shirtResponse = await createShirt(
+
+      const response = await createShirt(
         price,
         shirtData.bottom,
         shirtData.back,
@@ -182,11 +172,11 @@ const ShirtCustomizer = () => {
         toast.success("Shirt created successfully!");
         setIsSubmitted(true);
       } else {
-        toast.error(shirtResponse.message || "Failed to create the shirt");
+        toast.error(response.message || "Failed to create the shirt.");
       }
     } catch (error) {
       console.error(error);
-      toast.error("An unexpected error occurred");
+      toast.error("An unexpected error occurred.");
     }
   };
 
@@ -515,9 +505,10 @@ const ShirtCustomizer = () => {
                       {watchCompatible ? "Yes" : "No"}
                     </button>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -548,10 +539,11 @@ const ShirtCustomizer = () => {
                   <div
                     key={item._id}
                     onClick={() => handleSelect(activeSection, item)}
-                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${selectedItems[activeSection]?._id === item._id
+                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${
+                      selectedItems[activeSection]?._id === item._id
                         ? "bg-blue-100 border-blue-500 ring-2 ring-blue-400"
                         : "hover:bg-gray-100"
-                      }`}
+                    }`}
                   >
                     {item.icon?.url && (
                       <img

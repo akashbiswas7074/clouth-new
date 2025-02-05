@@ -115,3 +115,30 @@ export const updateShirtIds = async (
     return { message: "Error updating shirt.", success: false };
   }
 };
+
+export const getShirtById = async (shirtId: string) => {
+  try {
+    // Validate if the ID is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(shirtId)) {
+      return { message: "Invalid shirt ID.", success: false };
+    }
+
+    // Fetch the shirt by its ID and populate all related fields
+    const shirt = await ShirtModel.findById(shirtId)
+      .populate("colorId") // Populate the full color document
+      .populate("fabricId") // Populate the full fabric document
+      .populate("monogramId") // Populate the full monogram document
+      .populate("measurementId") // Populate the full measurement document
+      .lean(); // Convert Mongoose document to a plain JavaScript object
+
+    // If no shirt is found, return an error
+    if (!shirt) {
+      return { message: "Shirt not found.", success: false };
+    }
+
+    return { message: "Shirt fetched successfully.", success: true, shirt };
+  } catch (error) {
+    console.error(error);
+    return { message: "Error fetching shirt.", success: false };
+  }
+};
