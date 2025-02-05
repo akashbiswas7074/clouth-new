@@ -189,7 +189,7 @@ const CheckoutPage = () => {
                   </Button>
                 </div>
               )}
-              {currentStep === 2 && (
+              {currentStep === 0 && (
                 <div className="space-y-4">
                   {/* Render Payment method selection */}
                   {/* Form for inputting the delivery address */}
@@ -245,14 +245,34 @@ const CheckoutPage = () => {
                     <Label htmlFor="address2">Address 2</Label>
                     <Input id="address2" placeholder="Address 2" value={deliveryAddress.address2} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, address2: e.target.value })} />
                   </div>
-
+                </div>
+              )}
+            </CardContent>
+          </Card>
+              {currentStep === 2 && (
+                <div className="space-y-4">
+                  {/* Payment Method Selection */}
+                  <div className="space-y-2">
+                    <Label>Select Payment Method</Label>
+                    <div className="flex flex-col space-y-2">
+                      <label className="flex items-center space-x-2">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="paypal"
+                          checked={paymentMethod === "paypal"}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                        />
+                        <span>PayPal</span>
+                      </label>
+                    </div>
+                  </div>
                   <Button className="w-full bg-[#c40600] text-white" onClick={handleConfirmPayment}>
                     Confirm Payment
                   </Button>
                 </div>
               )}
-            </CardContent>
-          </Card>
+
 
           <div className="mt-4 flex space-x-4 justify-center lg:justify-start">
             {currentStep > 0 && (
