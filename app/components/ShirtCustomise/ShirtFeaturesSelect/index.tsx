@@ -1,10 +1,7 @@
 "use client";
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import useProductData from "@/hooks/shirt-details";
 import { createShirt } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
-import { addShirtToCart } from "@/lib/database/actions/cart.actions";
-// import { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -92,6 +89,8 @@ const ShirtCustomizer = () => {
   const [shirt, setShirt] = useState<Shirt>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showMonogramOptions, setShowMonogramOptions] = useState(false);
+
   const router = useRouter();
 
   const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
@@ -127,23 +126,17 @@ const ShirtCustomizer = () => {
     setIsModalOpen(true);
   };
 
-  const { userId } = useAuth();
-
   const handleCreateShirt = async () => {
     const price = totalPrice;
     try {
       const colorId = localStorage.getItem("colorId");
       const fabricId = localStorage.getItem("fabricId");
-  
-      if (!userId) {
-        toast.error("Please login to create a shirt");
-        return;
-      }
-  
+
       if (!colorId || !fabricId) {
         toast.error("Color ID and Fabric ID are required.");
         return;
       }
+
       const shirtData = {
         bottom: shirt.bottom || {},
         back: shirt.back || {},
@@ -157,9 +150,8 @@ const ShirtCustomizer = () => {
         pocket: shirt.pocket || {},
         fit: shirt.fit || {},
       };
-  
-      // Create shirt
-      const shirtResponse = await createShirt(
+
+      const response = await createShirt(
         price,
         shirtData.bottom,
         shirtData.back,
@@ -182,11 +174,11 @@ const ShirtCustomizer = () => {
         toast.success("Shirt created successfully!");
         setIsSubmitted(true);
       } else {
-        toast.error(shirtResponse.message || "Failed to create the shirt");
+        toast.error(response.message || "Failed to create the shirt.");
       }
     } catch (error) {
       console.error(error);
-      toast.error("An unexpected error occurred");
+      toast.error("An unexpected error occurred.");
     }
   };
 
@@ -352,8 +344,18 @@ const ShirtCustomizer = () => {
 
       {isModalOpen && (
         <div className="z-[100] fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Confirm Shirt Details</h2>
+          <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold"
+            >
+              &times; {/* Cross Icon */}
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              Confirm Shirt Details
+            </h2>
 
             <div className="space-y-2">
               {Object.entries(shirt).map(
@@ -387,19 +389,41 @@ const ShirtCustomizer = () => {
                 </button>
               </div>
             ) : (
-              <div className="flex justify-between space-x-4">
-                <Link
-                  href="/monogram"
-                  className="w-1/2 text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-                >
-                  Add Monogram
-                </Link>
-                <Link
-                  href="/measurement"
-                  className="w-1/2 text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
-                >
-                  Don't Add
-                </Link>
+              <div className="w-full gap-[.4rem] flex flex-row justify-center items-center">
+                {!showMonogramOptions && (
+                  <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
+                    <Link
+                      href="/measurement"
+                      className="w-full text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                    >
+                      Add Measurement
+                    </Link>
+                    <button
+                      className="w-full text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition2"
+                      onClick={() => setShowMonogramOptions(true)} // Show monogram options on click
+                    >
+                      Don't Add
+                    </button>
+                  </div>
+                )}
+
+                {/* Show monogram options if 'Don't Add' is clicked */}
+                {showMonogramOptions && (
+                  <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
+                    <Link
+                      className="w-full text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                      href="/monogram"
+                    >
+                      Add Monogram
+                    </Link>
+                    <Link
+                      href="/cart"
+                      className="w-full text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+                    >
+                      No Monogram
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -515,9 +539,10 @@ const ShirtCustomizer = () => {
                       {watchCompatible ? "Yes" : "No"}
                     </button>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -548,10 +573,11 @@ const ShirtCustomizer = () => {
                   <div
                     key={item._id}
                     onClick={() => handleSelect(activeSection, item)}
-                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${selectedItems[activeSection]?._id === item._id
+                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${
+                      selectedItems[activeSection]?._id === item._id
                         ? "bg-blue-100 border-blue-500 ring-2 ring-blue-400"
                         : "hover:bg-gray-100"
-                      }`}
+                    }`}
                   >
                     {item.icon?.url && (
                       <img

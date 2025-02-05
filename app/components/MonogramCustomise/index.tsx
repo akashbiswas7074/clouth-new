@@ -1,7 +1,5 @@
 "use client";
-import useProductData from "@/hooks/shirt-details";
 import {
-  createShirt,
   updateShirtIds,
 } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
 import { useEffect, useState } from "react";
@@ -364,7 +362,7 @@ const MonogramCustomizer = () => {
             ) : (
               <div className="flex justify-between space-x-4">
                 <Link
-                  href="/cartDrawer"
+                  href="/cart"
                   className="w-1/2 text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
                 >
                   Add To Cart

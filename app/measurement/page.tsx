@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/router"; // Import useRouter
+import { useRouter } from "next/navigation"; // Import useRouter
 import ShirtMeasurementsForm from "../components/shirtMeasurement/ShirtMeasurementsForm";
 import BodyMeasurementsForm from "../components/bodyMeasurement/BodyMeasurementsForm";
 import {
