@@ -64,7 +64,7 @@ const FabricsWithColors = () => {
   };
 
   return (
-    <div className="min-h-screen pt-28">
+    <div className="min-h-screen pt-28 font-play">
       <div className="container mx-auto p-8">
         <div className="flex flex-col items-center justify-center space-y-6">
           <h2 className="text-4xl font-semibold mb-4 text-[#646464]">
@@ -112,7 +112,7 @@ const FabricsWithColors = () => {
           <div className="absolute bottom-8 right-8">
             <button
               onClick={() => (window.location.href = "/form-new")} // Navigate to the form-new page
-              className="bg-blue-500 text-white px-6 py-2 rounded-full shadow-md hover:bg-blue-600 transition-all duration-300"
+              className="bg-[#C40600] mt-6 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               Next
             </button>

@@ -336,7 +336,7 @@ const ShirtCustomizer = () => {
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+          className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
         >
           Next
         </button>
@@ -377,13 +377,13 @@ const ShirtCustomizer = () => {
               <div className="flex justify-between space-x-4">
                 <button
                   onClick={handleCreateShirt}
-                  className="w-1/2 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Submit
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Cancel
                 </button>
@@ -555,7 +555,7 @@ const ShirtCustomizer = () => {
             </h3>
             <button
               onClick={() => setActiveSection(null)}
-              className="text-gray-500 hover:text-red-500 text-2xl transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               ✕
             </button>
@@ -602,13 +602,13 @@ const ShirtCustomizer = () => {
           <div className="p-4 border-t bg-gray-50 flex justify-between items-center space-x-4">
             <button
               onClick={() => setActiveSection(null)}
-              className="w-1/2 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               Cancel
             </button>
             <button
               onClick={() => handleConfirmAndProceed()}
-              className="w-1/2 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
               disabled={!selectedItems[activeSection]}
             >
               Confirm & Proceed

@@ -3,7 +3,7 @@ import SectionSelector from "../components/ShirtCustomise/ShirtFeaturesSelect";
 import { ToastContainer } from "react-toastify";
 const page = () => {
   return (
-    <div className="w-full">
+    <div className="w-full pt-8 font-play">
       <ToastContainer/>
       <SectionSelector />
     </div>

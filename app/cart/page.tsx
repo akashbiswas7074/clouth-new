@@ -112,7 +112,7 @@ const CartItem = ({ item, onUpdateQuantity }: {
   const details = getDisplayDetails();
 
   return (
-    <Card className="w-full">
+    <Card className="w-full font-play">
       <CardContent className="p-6">
         <div className="flex justify-between mb-4">
           <div className="space-y-4 flex-grow">
@@ -280,7 +280,7 @@ export default function CartPage() {
                 </p>
               )}
               <Link href="/checkout">
-                <Button size="lg" className="mt-4">
+                <Button size="lg" className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
                   Proceed to Checkout
                 </Button>
               </Link>

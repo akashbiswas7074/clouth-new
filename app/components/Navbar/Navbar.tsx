@@ -45,18 +45,18 @@ export default function Navbar() {
   return (
     <nav className="w-full bg-[#f5f5f0] shadow-md px-4 py-2 flex justify-between items-center fixed top-0 z-[200]">
       <div className="flex items-center">
-        <Image src={"/logo.png"} alt="logo" width={100} height={80} />
+        <Image src={"/logo.png"} alt="logo" width={130} height={80} />
       </div>
 
       <div className="flex items-center space-x-4">
-        <div className="md:block hidden lg:flex items-center justify-end space-x-6 text-[#4a2b2b] font-medium">
+        <div className="md:block hidden lg:flex items-center justify-end space-x-6 text-[#4a2b2b] font-bold text-lg">
           <a href="#" onClick={scrollToAbout}>
             About
           </a>
           <Link href="/history">History</Link>
           <Link href="/fabric-new">Customise</Link>
         </div>
-        <div className="relative">
+        <div className="relative mr-10">
           <div className="h-10 w-10 rounded-full bg-[#e8e6da] shadow-lg flex items-center justify-center">
             <CartDrawer />
             <span className="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full px-1">

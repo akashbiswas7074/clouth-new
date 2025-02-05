@@ -10,7 +10,9 @@ export default {
   ],
   theme: {
     extend: {
-      
+      fontFamily:{
+        play: ["var(--font-play)"]
+      },
       colors: {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",

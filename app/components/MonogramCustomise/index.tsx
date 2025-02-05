@@ -317,7 +317,7 @@ const MonogramCustomizer = () => {
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+          className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
         >
           Next
         </button>
@@ -348,13 +348,13 @@ const MonogramCustomizer = () => {
               <div className="flex justify-between space-x-4">
                 <button
                   onClick={handleCreateMonogram}
-                  className="w-1/2 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Submit
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Cancel
                 </button>

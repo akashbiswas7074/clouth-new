@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 export default function Hero() {
   return (
-    <div className="bg-[#f5f5f0]">
+    <div className="bg-[#f5f5f0] pt-28 font-play">
       <div className="w-full lg:h-[500px] flex lg:flex-row flex-col">
         {galleryImages.map((e) => (
           <Image
