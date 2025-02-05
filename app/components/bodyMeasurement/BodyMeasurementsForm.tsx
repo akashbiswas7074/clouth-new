@@ -26,14 +26,14 @@ const BodyMeasurementsForm: React.FC<BodyMeasurementsFormProps> = ({ initialMeas
   };
 
   const imageMapping: { [key in keyof BodyMeasurements]: string } = {
-    neck: '/c1.webp',
-    chest: '/c2.webp',
-    waist: '/c3.webp',
-    hips: '/c4.webp',
-    sleeveLength: '/c2.webp',
-    elbowWidth: '/c1.webp',
-    upperArm: '/c4.webp',
-    shoulder: '/c1.webp',
+    neck: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
+    chest: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778882/cloud3_wlv17l.png',
+    waist: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
+    hips: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
+    sleeveLength: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778882/cloud3_wlv17l.png',
+    elbowWidth: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778883/cloud2_rbgkik.png',
+    upperArm: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778882/cloud3_wlv17l.png',
+    shoulder: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
   };
 
   const descriptionMapping: { [key in keyof BodyMeasurements]: string } = {
