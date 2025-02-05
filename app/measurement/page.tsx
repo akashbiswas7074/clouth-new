@@ -85,7 +85,7 @@ const Page = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="pt-28 px-4 py-2">
+    <form onSubmit={handleSubmit} className="pt-28 px-4 py-2 font-play">
       <div>
         <ShirtMeasurementsForm onChange={handleShirtMeasurementsChange} />
       </div>

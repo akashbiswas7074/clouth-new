@@ -16,7 +16,7 @@ const PaypalPage = () => {
   const amount = "10.00";
 
   return (
-    <div className="container mx-auto pt-36">
+    <div className="container mx-auto pt-36 font-play">
       <h1 className="text-4xl text-center text-[#646464] font-bold mb-6">
         PayPal Payment
       </h1>

@@ -21,7 +21,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-[#f5f5f0] md:pt-14 md:pb-8 px-4 space-y-10">
+    <footer className="bg-[#f5f5f0] md:pt-14 md:pb-8 px-4 space-y-10 font-play">
       <div className="flex flex-col items-center justify-between lg:flex-row ">
         <div className="flex flex-row sm:space-x-20 space-x-5">
           <div>
@@ -109,8 +109,8 @@ const Footer = () => {
           <Image
             src={"/logo 40.png"}
             alt="logo-footer"
-            width={150}
-            height={150}
+            width={100}
+            height={100}
             className="ml-4"
           />
         </div>

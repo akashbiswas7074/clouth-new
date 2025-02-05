@@ -184,7 +184,7 @@ const AccountPopUp = () => {
       {/* <Dialog open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
         <DialogTrigger asChild>
           <div className="relative"> */}
-      <button onClick={handleOnClickAccountMenu} className="lg:flex relative">
+      <button onClick={handleOnClickAccountMenu} className="lg:flex relative font-bold font-play">
         {isSignedIn ? "Account" : "Login"}
       </button>
       {/* </div>
@@ -426,7 +426,7 @@ const AccountPopUp = () => {
                 "https://res.cloudinary.com/dlxpcyiin/image/upload/v1738748939/Screenshot_2025-02-05_151556_e5gu5z.png"
               }
               alt="login"
-              className="object-cover"
+              className="object-cover  w-[500px] h-[560px]"
               width={400}
               height={100}
             />

@@ -89,6 +89,8 @@ const ShirtCustomizer = () => {
   const [shirt, setShirt] = useState<Shirt>({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [showMonogramOptions, setShowMonogramOptions] = useState(false);
+
   const router = useRouter();
 
   const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
@@ -334,7 +336,7 @@ const ShirtCustomizer = () => {
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
-          className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 transition"
+          className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
         >
           Next
         </button>
@@ -342,8 +344,18 @@ const ShirtCustomizer = () => {
 
       {isModalOpen && (
         <div className="z-[100] fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4">
-            <h2 className="text-2xl font-bold mb-4">Confirm Shirt Details</h2>
+          <div className="bg-white p-6 rounded-lg shadow-xl w-96 space-y-4 relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-2 right-2 text-gray-600 hover:text-red-500 text-xl font-bold"
+            >
+              &times; {/* Cross Icon */}
+            </button>
+
+            <h2 className="text-2xl font-bold mb-4 text-center">
+              Confirm Shirt Details
+            </h2>
 
             <div className="space-y-2">
               {Object.entries(shirt).map(
@@ -365,31 +377,53 @@ const ShirtCustomizer = () => {
               <div className="flex justify-between space-x-4">
                 <button
                   onClick={handleCreateShirt}
-                  className="w-1/2 bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Submit
                 </button>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="w-1/2 bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Cancel
                 </button>
               </div>
             ) : (
-              <div className="flex justify-between space-x-4">
-                <Link
-                  href="/monogram"
-                  className="w-1/2 text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
-                >
-                  Add Monogram
-                </Link>
-                <Link
-                  href="/measurement"
-                  className="w-1/2 text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
-                >
-                  Don't Add
-                </Link>
+              <div className="w-full gap-[.4rem] flex flex-row justify-center items-center">
+                {!showMonogramOptions && (
+                  <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
+                    <Link
+                      href="/measurement"
+                      className="w-full text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                    >
+                      Add Measurement
+                    </Link>
+                    <button
+                      className="w-full text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition2"
+                      onClick={() => setShowMonogramOptions(true)} // Show monogram options on click
+                    >
+                      Don't Add
+                    </button>
+                  </div>
+                )}
+
+                {/* Show monogram options if 'Don't Add' is clicked */}
+                {showMonogramOptions && (
+                  <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
+                    <Link
+                      className="w-full text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                      href="/monogram"
+                    >
+                      Add Monogram
+                    </Link>
+                    <Link
+                      href="/cart"
+                      className="w-full text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+                    >
+                      No Monogram
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -521,7 +555,7 @@ const ShirtCustomizer = () => {
             </h3>
             <button
               onClick={() => setActiveSection(null)}
-              className="text-gray-500 hover:text-red-500 text-2xl transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               ✕
             </button>
@@ -568,13 +602,13 @@ const ShirtCustomizer = () => {
           <div className="p-4 border-t bg-gray-50 flex justify-between items-center space-x-4">
             <button
               onClick={() => setActiveSection(null)}
-              className="w-1/2 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               Cancel
             </button>
             <button
               onClick={() => handleConfirmAndProceed()}
-              className="w-1/2 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
               disabled={!selectedItems[activeSection]}
             >
               Confirm & Proceed

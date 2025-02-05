@@ -3,7 +3,7 @@ import FabricsWithColors from "../components/ShirtCustomise/FabricColorSelect";
 
 const page = () => {
   return (
-    <div className="flex flex-col justify-center items-center w-full h-fit">
+    <div className="flex flex-col justify-center items-center font-play w-full h-fit">
       <FabricsWithColors />
     </div>
   );
