@@ -26,14 +26,14 @@ const ShirtMeasurementsForm: React.FC<ShirtMeasurementsFormProps> = ({ initialMe
   };
 
   const imageMapping: { [key in keyof ShirtMeasurements]: string } = {
-    collar: '/c1.webp',
-    halfChest: '/c2.webp',
-    halfWaist: '/c3.webp',
-    halfHips: '/c4.webp',
-    sleevesLength: '/c2.webp',
-    elbow: '/c1.webp',
-    forearm: '/c4.webp',
-    cuff: '/c3.webp',
+    collar: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778883/cloud2_rbgkik.png',
+    halfChest: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
+    halfWaist: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778883/cloud2_rbgkik.png',
+    halfHips: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
+    sleevesLength: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778882/cloud3_wlv17l.png',
+    elbow: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
+    forearm: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778883/cloud2_rbgkik.png',
+    cuff: 'https://res.cloudinary.com/dlxpcyiin/image/upload/v1738778881/cloud1_wqszqi.png',
   };
 
   const descriptionMapping: { [key in keyof ShirtMeasurements]: string } = {
