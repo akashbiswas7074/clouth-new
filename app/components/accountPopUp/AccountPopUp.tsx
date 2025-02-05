@@ -78,21 +78,11 @@ const AccountPopUp = () => {
   const [logoutDialogOpen, setLogoutDialogOpen] = useState(false);
 
   useEffect(() => {
-    const popupShown = localStorage.getItem("popupShown");
-    if (popupShown) {
-      setHasShownPopup(true);
-      return;
+    // Check if user is loaded and not signed in
+    if (isLoaded && !isSignedIn) {
+      setAccountMenuOpen(true);
     }
-
-    if (!isSignedIn) {
-      const timeoutId = setTimeout(() => {
-        setAccountMenuOpen(true);
-        localStorage.setItem("popupShown", "true");
-        setHasShownPopup(true);
-      }, 5000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [setAccountMenuOpen, isSignedIn]);
+  }, [isLoaded, isSignedIn, setAccountMenuOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
