@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+"use client";
+import { useEffect, useRef } from "react";
 
 type PayPalButtonProps = {
   amount: string;
@@ -10,7 +11,8 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({ amount, onSuccess })
 
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = "https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD";
+    // Ensure currency is set to a supported code (e.g., "USD")
+    script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=USD`;
     script.async = true;
     script.onload = () => {
       if ((window as any).paypal) {
@@ -18,20 +20,24 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({ amount, onSuccess })
           createOrder: (data: any, actions: any) => {
             return actions.order.create({
               purchase_units: [{
-                amount: { value: amount }
+                amount: {
+                  value: amount
+                }
               }]
             });
           },
           onApprove: async (data: any, actions: any) => {
             const order = await actions.order.capture();
             onSuccess(order);
+          },
+          onError: (err: any) => {
+            console.error("PayPal Error:", err);
           }
         }).render(paypalRef.current);
       }
     };
 
     document.body.appendChild(script);
-
     return () => {
       document.body.removeChild(script);
     };
