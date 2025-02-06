@@ -153,6 +153,8 @@ const ShirtCustomizer = () => {
         fit: shirt.fit || {},
       };
 
+      console.log(shirtData);
+
       const response = await createShirt(
         price,
         shirtData.bottom,
