@@ -14,6 +14,7 @@ export interface Order extends Document {
       price: number;
     }
   ],
+  userid : String,
   cartTotal: number,
   totalAfterDiscount: number,
   orderConfirmation: boolean;
@@ -48,6 +49,7 @@ export const OrderSchema = new Schema<Order>({
       price: Number,
     },
   ],
+  userid : String,
   cartTotal: Number,
   totalAfterDiscount: Number,
   orderConfirmation: { type: Boolean, required: true },

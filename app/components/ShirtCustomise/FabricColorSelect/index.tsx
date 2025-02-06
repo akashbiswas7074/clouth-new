@@ -112,7 +112,7 @@ const FabricsWithColors = () => {
           <div className="absolute bottom-8 right-8">
             <button
               onClick={() => (window.location.href = "/form-new")} // Navigate to the form-new page
-              className="bg-[#C40600] mt-6 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
+              className="bg-[#C40600] mt-10 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               Next
             </button>

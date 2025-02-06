@@ -82,15 +82,12 @@ const ShirtCustomizer: React.FC = () => {
   };
 
   // Handle the submit button (generate PDF receipt)
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    // Generate PDF receipt as before
     const doc = new jsPDF();
     doc.setFont("Helvetica", "normal");
-
-    // Title
     doc.setFontSize(18);
     doc.text("Shirt Customization Receipt", 20, 20);
-
-    // Add categories and selected options
     let yPosition = 40;
     categories.forEach((category) => {
       const selectedCategoryOption = getCategoryOptions(category.name).find(
@@ -108,13 +105,49 @@ const ShirtCustomizer: React.FC = () => {
         yPosition += 40;
       }
     });
-
-    // Add total price
     doc.setFontSize(14);
     doc.text(`Total Price: $${totalPrice}`, 20, yPosition);
-
-    // Save the PDF
     doc.save("shirt-customization-receipt.pdf");
+
+    // Prepare the shirt data to be saved in the database
+    // Adjust the objects below as per your application's needs.
+    const shirtData = {
+      price: totalPrice,
+      bottom: {}, // Customize with the selected option details
+      back: {},
+      sleeves: {},
+      cuffstyle: {},
+      cufflinks: {},
+      collarstyle: {},
+      collarheight: {},
+      collarbutton: {},
+      placket: {},
+      pocket: {},
+      fit: {},
+      watchCompatible: false, // Update based on selection if available
+      colorId: "dummyColorId", // Replace with actual id once available
+      fabricId: "dummyFabricId", // Replace with actual id once available
+    };
+
+    try {
+      const res = await fetch("/api/shirt", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(shirtData),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Shirt saved to the database successfully!");
+      } else {
+        alert("Failed to save shirt.");
+      }
+    } catch (error) {
+      console.error("Error saving shirt", error);
+      alert("Error saving shirt.");
+    }
   };
 
   return (

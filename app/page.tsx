@@ -6,17 +6,19 @@ import DiverseShirt from './components/diverseShirt/DiverseShirt'
 import Footer from './components/footer/Footer'
 import Sponsers from './components/sponsors/Index'
 import Shirts from './components/shirts/Shirts'
+import Preloader from './components/Preloader'
 
 const page = () => {
   return (
     <>
+      <Preloader /> 
       <Hero />
       {/* <Explore/> */}
       <Shirts/>
       <DiverseShirt/>
       {/* <Explore/> */}
       <Sponsers/>
-      <Footer/>
+      {/* <Footer/> */}
     </>
   )
 }

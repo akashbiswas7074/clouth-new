@@ -1,84 +1,88 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation"; // Import useRouter
+import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 import ShirtMeasurementsForm from "../components/shirtMeasurement/ShirtMeasurementsForm";
 import BodyMeasurementsForm from "../components/bodyMeasurement/BodyMeasurementsForm";
-import {
-  Measurement,
-  ShirtMeasurements,
-  BodyMeasurements,
-} from "@/app/utils/data/measurement";
+import { Measurement, ShirtMeasurements, BodyMeasurements } from "@/app/utils/data/measurement";
 import { createMeasurement } from "@/lib/database/actions/measurement.actions";
-import { toast } from "sonner";
 import { updateShirtIds } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
+import { addShirtToCart } from "@/lib/database/actions/cart.actions";
 
 const Page = () => {
-  const router = useRouter(); // Initialize useRouter hook
-
-  const [shirtMeasurements, setShirtMeasurements] = useState<
-    ShirtMeasurements | undefined
-  >(undefined);
-  const [bodyMeasurements, setBodyMeasurements] = useState<
-    BodyMeasurements | undefined
-  >(undefined);
-  const [measurementId, setMeasurementId] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false); // Add a flag to track submission status
+  const router = useRouter();
+  const { user } = useUser();
+  const [shirtMeasurements, setShirtMeasurements] = useState<ShirtMeasurements | undefined>();
+  const [bodyMeasurements, setBodyMeasurements] = useState<BodyMeasurements | undefined>();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleShirtMeasurementsChange = (measurements: ShirtMeasurements) => {
     setShirtMeasurements(measurements);
-    console.log("Shirt Measurements:", measurements);
   };
 
   const handleBodyMeasurementsChange = (measurements: BodyMeasurements) => {
     setBodyMeasurements(measurements);
-    console.log("Body Measurements:", measurements);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (isSubmitting) return; // Prevent multiple submissions while already submitting
-
-    setIsSubmitting(true); // Set submitting flag to true to prevent duplicate submissions
-
-    const combinedMeasurements: Measurement = {
-      shirt: shirtMeasurements,
-      body: bodyMeasurements,
-    };
+    if (isSubmitting || !user) return;
+    setIsSubmitting(true);
 
     try {
-      const response = await createMeasurement(combinedMeasurements);
+      // 1. Create measurement
+      const measurementResponse = await createMeasurement({
+        shirt: shirtMeasurements,
+        body: bodyMeasurements,
+      });
 
-      if (response.success) {
-        setMeasurementId(response.id as string);
-
-        const shirtId = localStorage.getItem("shirtId");
-        if (!shirtId) throw new Error("Shirt ID not found in localStorage");
-
-        const updateResponse = await updateShirtIds(
-          shirtId,
-          undefined,
-          response.id as string
-        );
-
-        if (updateResponse.success) {
-          toast(updateResponse.message);
-        } else {
-          throw new Error(updateResponse.message || "Failed to update shirt");
-        }
-
-        toast(response.message);
-
-        // Redirect to the /monogram page after successful form submission
-        router.push("/cart");
+      if (!measurementResponse.success) {
+        throw new Error(measurementResponse.message);
       }
+
+      // 2. Get shirtId from localStorage
+      const shirtId = localStorage.getItem("shirtId");
+      if (!shirtId) throw new Error("Shirt ID not found");
+
+      // 3. Update shirt with measurement ID
+      const updateResponse = await updateShirtIds(
+        shirtId,
+        undefined,
+        measurementResponse.id as string
+      );
+
+      if (!updateResponse.success) {
+        throw new Error(updateResponse.message);
+      }
+
+      // 4. Add shirt to cart
+      const cartResponse = await addShirtToCart(shirtId, user.id);
+      
+      if (!cartResponse.success) {
+        throw new Error(cartResponse.message);
+      }
+
+      // 5. Success - clean up and redirect
+      toast.success("Measurements saved and shirt added to cart!");
+      localStorage.removeItem("shirtId");
+      router.push("/cart");
+
     } catch (error: any) {
-      toast.error(error.message || "Failed to create measurement");
+      toast.error(error.message || "Failed to process request");
     } finally {
-      setIsSubmitting(false); // Reset submitting flag after completion
+      setIsSubmitting(false);
     }
   };
+
+  if (!user) {
+    return (
+      <div className="pt-28 px-4 py-2 text-center">
+        <p>Please sign in to continue</p>
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="pt-28 px-4 py-2 font-play">
@@ -94,7 +98,7 @@ const Page = () => {
         <button
           type="submit"
           className="bg-[#c40600] px-4 py-2 text-white rounded-lg font-semibold"
-          disabled={isSubmitting} // Disable the button during submission
+          disabled={isSubmitting}
         >
           {isSubmitting ? "Saving..." : "Save Measurements"}
         </button>

@@ -313,7 +313,7 @@ const MonogramCustomizer = () => {
         )} */}
       </div>
 
-      <div className="flex md:flex left-[.5rem] fixed top-[8.5rem] z-[100] bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
+      <div className="flex md:flex fixed top-[7rem] z-[100] mt-10 left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
@@ -363,7 +363,7 @@ const MonogramCustomizer = () => {
               <div className="flex justify-between space-x-4">
                 <Link
                   href="/cart"
-                  className="w-1/2 text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                  className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
                   Add To Cart
                 </Link>
@@ -379,7 +379,7 @@ const MonogramCustomizer = () => {
         </div>
       )}
 
-      <div className="p-4 mt-6 w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
+      <div className="p-4 mt-14 mb-6 w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           Monogram Customizer
         </h2>
@@ -488,13 +488,13 @@ const MonogramCustomizer = () => {
           <div className="p-4 border-t bg-gray-50 flex justify-between items-center space-x-4">
             <button
               onClick={() => setActiveSection(null)}
-              className="w-1/2 bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
             >
               Cancel
             </button>
             <button
               onClick={() => handleConfirmAndProceed()}
-              className="w-1/2 bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+             className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
               disabled={!selectedItems[activeSection]}
             >
               Confirm & Proceed

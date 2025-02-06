@@ -1,10 +1,12 @@
 "use server";
 
 import { connectToDatabase } from "../connect";
+import OrderModel from "../models/order.model";
 import Order from "../models/order.model";
 import User from "../models/user.model";
 import mongoose from "mongoose";
 import { unstable_cache } from "next/cache";
+import ShirtModel from "../models/shirtModel/ShirtModel";
 
 const { ObjectId } = mongoose.Types;
 
@@ -56,8 +58,8 @@ export async function createOrder(
       };
     }
 
-    const newOrder = await new Order({
-      user: user._id,
+    const newOrder = await new OrderModel({
+      userid : user.clerkId,
       products: products.map((product) => ({
         product: product._id,
         qty: product.qty.toString(),
@@ -180,13 +182,26 @@ export async function updateOrderPaymentStatus(
   }
 }
 
-export async function getUserOrders(userId: string) {
+export async function getUserOrders(userid: string) {
   try {
     await connectToDatabase();
     
-    const orders = await Order.find({ user: userId })
-      .populate("products.product")
-      .sort({ paymentTime: -1 });
+    console.log("Fetching orders for user:", userid); // Debug log
+
+    const orders = await OrderModel.find({ userid })
+      .populate({
+        path: 'products.product',
+        model: ShirtModel,
+        populate: [
+          { path: 'colorId' },
+          { path: 'fabricId' },
+          { path: 'measurementId' }
+        ]
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    console.log("Found orders:", orders); // Debug log
 
     return {
       orders: JSON.parse(JSON.stringify(orders)),
@@ -194,6 +209,7 @@ export async function getUserOrders(userId: string) {
     };
 
   } catch (error: any) {
+    console.error("Error in getUserOrders:", error);
     return {
       message: error.message || "Failed to fetch user orders",
       success: false,
@@ -201,3 +217,111 @@ export async function getUserOrders(userId: string) {
     };
   }
 }
+
+export const fetchOrders = async () => {
+  try {
+    // Connect to the database
+    await connectToDatabase();
+    console.log("Connected to database");
+
+    // Fetch orders from the database, populate the 'products' field
+    const orders = await OrderModel.find()
+      .populate({
+        path: "products.product",
+        model: ShirtModel, // Use the imported ShirtModel
+        select: "name price", // You can add any fields you want to fetch from the ShirtModel
+      })
+      .lean(); // Make the result plain JavaScript objects
+
+    // Format dates and ObjectIds for client
+    interface IProductReference {
+      _id: string;
+      [key: string]: any; // For other properties that might exist
+    }
+
+    interface IPopulatedProduct {
+      colorId?: { _id: string; [key: string]: any } | null;
+      fabricId?: { _id: string; [key: string]: any } | null;
+      monogramId?: { _id: string; [key: string]: any } | null;
+      measurementId?: { _id: string; [key: string]: any } | null;
+      _id: string;
+      [key: string]: any;
+    }
+
+    interface IOrderProduct {
+      product: IPopulatedProduct;
+      [key: string]: any;
+    }
+
+    interface IOrderUser {
+      _id: string;
+      name?: string;
+      email?: string;
+      [key: string]: any;
+    }
+
+    interface IOrder {
+      _id: string;
+      user: IOrderUser;
+      products: IOrderProduct[];
+      [key: string]: any;
+    }
+
+    interface IProductMapping {
+      product: {
+        _id: string;
+        colorId?: { _id: string; [key: string]: any } | null;
+        fabricId?: { _id: string; [key: string]: any } | null;
+        monogramId?: { _id: string; [key: string]: any } | null;
+        measurementId?: { _id: string; [key: string]: any } | null;
+        [key: string]: any;
+      };
+      [key: string]: any;
+    }
+
+        const formattedOrders: IOrder[] = orders.map(order => ({
+          ...order,
+          _id: (order as any)._id.toString(),
+          user: {
+            ...order.user,
+            _id: order.user._id.toString()
+          },
+          products: order.products.map((product: IProductMapping) => ({
+            ...product,
+            product: {
+              ...product.product,
+              _id: product.product._id.toString(),
+              colorId: product.product.colorId?._id ? {
+                ...product.product.colorId,
+                _id: product.product.colorId._id.toString()
+              } : null,
+              fabricId: product.product.fabricId?._id ? {
+                ...product.product.fabricId,
+                _id: product.product.fabricId._id.toString()
+              } : null,
+              monogramId: product.product.monogramId?._id ? {
+                ...product.product.monogramId,
+                _id: product.product.monogramId._id.toString()
+              } : null,
+              measurementId: product.product.measurementId?._id ? {
+                ...product.product.measurementId,
+                _id: product.product.measurementId._id.toString()
+              } : null
+            }
+          }))
+        }));
+
+    return {
+      orders: formattedOrders,
+      success: true
+    };
+
+  } catch (error: any) {
+    console.error("Error fetching orders:", error);
+    return {
+      message: error.message || "Failed to fetch orders",
+      success: false,
+      orders: []
+    };
+  }
+};
