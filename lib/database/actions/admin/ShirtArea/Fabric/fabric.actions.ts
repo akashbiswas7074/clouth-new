@@ -3,6 +3,7 @@
 import { connectToDatabase } from "@/lib/database/connect";
 import FabricModel from "@/lib/database/models/shirtModel/FabricModel";
 import cloudinary from "cloudinary";
+import mongoose from "mongoose";
 
 // Cloudinary configuration
 cloudinary.v2.config({
@@ -198,5 +199,30 @@ export const getAllFabrics = async () => {
   } catch (error: any) {
     console.log(error);
     return [];
+  }
+};
+
+export const getFabricById = async (fabricId: string) => {
+  try {
+    await connectToDatabase(); // Ensure DB connection
+
+    if (!mongoose.Types.ObjectId.isValid(fabricId)) {
+      return { message: "Invalid fabric ID.", success: false };
+    }
+
+    const fabric = await FabricModel.findById(fabricId).lean();
+
+    if (!fabric) {
+      return { message: "Fabric not found.", success: false };
+    }
+
+    return {
+      message: "Fabric fetched successfully.",
+      success: true,
+      fabric: JSON.parse(JSON.stringify(fabric)),
+    };
+  } catch (error: any) {
+    console.log(error);
+    return { message: "Error fetching fabric.", success: false };
   }
 };

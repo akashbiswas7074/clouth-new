@@ -4,7 +4,61 @@ import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/database/connect";
 import { addShirtToCart } from "../../../cart.actions";
+<<<<<<< HEAD
+import { getColorById } from "../Color/color.actions";
+import { getFabricById } from "../Fabric/fabric.actions";
+import { getMonogramById } from "../Monogram/monogram.actions";
+import { getMeasurementById } from "../../../measurement.actions";
+
+interface ProductItem {
+  name: string;
+  image: string;
+  price: string;
+}
+
+interface Color {
+  _id: string;
+  name: string;
+}
+
+interface Fabric {
+  _id: string;
+  fabricName: string;
+}
+
+interface Monogram {
+  _id: string;
+  [key: string]: any; // Handle dynamic monogram properties
+}
+
+interface Measurement {
+  _id: string;
+  [key: string]: any; // Handle dynamic measurement properties
+}
+
+// Define the type of a populated shirt document
+interface PopulatedShirt {
+  price: number;
+  collarStyle?: ProductItem;
+  collarButton?: ProductItem;
+  collarHeight?: ProductItem;
+  cuffStyle?: ProductItem;
+  cuffLinks?: ProductItem;
+  watchCompatible?: boolean;
+  bottom?: ProductItem;
+  back?: ProductItem;
+  pocket?: ProductItem;
+  placket?: ProductItem;
+  sleeves?: ProductItem;
+  fit?: ProductItem;
+  colorId?: Color;
+  fabricId?: Fabric;
+  monogramId?: Monogram;
+  measurementId?: Measurement;
+}
+=======
 import { useUser } from "@clerk/nextjs";
+>>>>>>> ba9be376ca8d5e53ec619cce017c74bf726403fe
 
 export const createShirt = async (
   price: number,
@@ -128,31 +182,59 @@ export const updateShirtIds = async (
 
 export const getShirtById = async (shirtId: string) => {
   try {
-    // Validate if the ID is a valid ObjectId
     if (!mongoose.Types.ObjectId.isValid(shirtId)) {
       return { message: "Invalid shirt ID.", success: false };
     }
 
-    // Fetch the shirt by its ID and populate all related fields
-    const shirt = await ShirtModel.findById(shirtId)
-      .populate("colorId") // Populate the full color document
-      .populate("fabricId") // Populate the full fabric document
-      .populate("monogramId") // Populate the full monogram document
-      .populate("measurementId") // Populate the full measurement document
-      .lean(); // Convert Mongoose document to a plain JavaScript object
+    // Fetch the shirt and populate the necessary fields
+    const shirt = (await ShirtModel.findById(shirtId)
+      .populate<{ colorId: Color | null }>("colorId")
+      .populate<{ fabricId: Fabric | null }>("fabricId")
+      .populate<{ monogramId: Monogram | null }>("monogramId")
+      .populate<{ measurementId: Measurement | null }>("measurementId")
+      .lean()) as PopulatedShirt | null;
 
-    // If no shirt is found, return an error
     if (!shirt) {
       return { message: "Shirt not found.", success: false };
     }
 
-    return { message: "Shirt fetched successfully.", success: true, shirt };
+    // Fetch additional details only if the IDs exist
+    const color = shirt.colorId ? await getColorById(shirt.colorId.toString()) : null;
+    const fabric = shirt.fabricId ? await getFabricById(shirt.fabricId.toString()) : null;
+    const monogram = shirt.monogramId ? await getMonogramById(shirt.monogramId.toString()) : null;
+    const measurement = shirt.measurementId ? await getMeasurementById(shirt.measurementId.toString()) : null;
+
+    // Formatting the response with structured data
+    const formattedShirt = {
+      price: shirt.price,
+      collarStyle: shirt.collarStyle?.name || null,
+      collarButton: shirt.collarButton?.name || null,
+      collarHeight: shirt.collarHeight?.name || null,
+      cuffStyle: shirt.cuffStyle?.name || null,
+      cuffLinks: shirt.cuffLinks?.name || null,
+      watchCompatible: shirt.watchCompatible ?? null,
+      bottom: shirt.bottom?.name || null,
+      back: shirt.back?.name || null,
+      pocket: shirt.pocket?.name || null,
+      placket: shirt.placket?.name || null,
+      sleeves: shirt.sleeves?.name || null,
+      fit: shirt.fit?.name || null,
+      color: color?.success ? color.color : null,  // Return full color details
+      fabric: fabric?.success ? fabric.fabric : null, // Return full fabric details
+      monogram: monogram?.success ? monogram.monogram : null, // Return full monogram details
+      measurement: measurement || null, // Return full measurement details
+    };
+
+    return {
+      message: "Shirt fetched successfully.",
+      success: true,
+      shirt: formattedShirt,
+    };
   } catch (error) {
     console.error(error);
     return { message: "Error fetching shirt.", success: false };
   }
 };
-
 export const updateShirtPrice = async (shirtId: string, price: number) => {
   try {
     await connectToDatabase();

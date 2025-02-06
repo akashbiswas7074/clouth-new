@@ -496,7 +496,7 @@ const ShirtCustomizer = () => {
               </div>
             ) : (
               <div className="w-full gap-[.4rem] flex flex-row justify-center items-center">
-                {!showMonogramOptions && (
+                {/* {!showMonogramOptions && (
                   <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
                     <Link
                       href="/measurement"
@@ -511,7 +511,7 @@ const ShirtCustomizer = () => {
                       Don't Add
                     </button>
                   </div>
-                )}
+                )} */}
 
                 {/* Show monogram options if 'Don't Add' is clicked */}
                 {showMonogramOptions && (
@@ -523,7 +523,7 @@ const ShirtCustomizer = () => {
                       Add Monogram
                     </Link>
                     <Link
-                      href="/cart"
+                      href="/measurement"
                       className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                     >
                       No Monogram

@@ -5,6 +5,7 @@ import Cart from "../models/cart.model";
 import User from "../models/user.model";
 import ShirtModel from "../models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
+import { getShirtById } from "./admin/ShirtArea/Shirt/shirt.actions";
 
 export async function addShirtToCart(shirtId: string, clerkId: string) {
   try {
@@ -21,14 +22,20 @@ export async function addShirtToCart(shirtId: string, clerkId: string) {
       throw new Error("User not found. Please ensure you're logged in.");
     }
 
-    // Find shirt
-    const shirt = await ShirtModel.findById(shirtId);
-    if (!shirt) {
+    //finding shirt 
+    const shirt = await getShirtById(shirtId);
+    if(!shirt){
       throw new Error("Shirt not found");
     }
 
+    // Find shirt
+    // const shirt = await ShirtModel.findById(shirtId);
+    // if (!shirt) {
+    //   throw new Error("Shirt not found");
+    // }
+
     // Find or create cart with explicit error handling
-    let cart = await Cart.findOne({ user: user._id });
+    let cart = await Cart.findOne({ user : user._id });
     if (!cart) {
       cart = new Cart({
         user: user._id,
@@ -51,7 +58,7 @@ export async function addShirtToCart(shirtId: string, clerkId: string) {
       cart.products.push({
         product: shirtId,
         qty: "1",
-        price: shirt.price
+        price: shirt.shirt?.price || 0
       });
     }
 
@@ -145,3 +152,94 @@ export async function updateCartItemQuantity(clerkId: string, productId: string,
     return { success: false, message: error.message || "Error updating cart" };
   }
 }
+
+// ...existing code...
+
+export async function deleteShirtFromCart(clerkId: string, productId: string) {
+  try {
+    await connectToDatabase();
+
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    const cart = await Cart.findOne({ user: user._id });
+    if (!cart) {
+      return { success: false, message: "Cart not found" };
+    }
+
+    // Remove product from cart
+    cart.products = cart.products.filter(
+      (item:any) => item.product.toString() !== productId
+    );
+
+    // Recalculate cart total
+    cart.cartTotal = cart.products.reduce(
+      (total:any, item:any) => total + (item.price * parseInt(item.qty)),
+      0
+    );
+
+    await cart.save();
+
+    // Get populated cart data
+    const updatedCart = await Cart.findById(cart._id)
+      .populate({
+        path: 'products.product',
+        populate: [
+          { path: 'colorId' },
+          { path: 'fabricId' },
+          { path: 'measurementId' }
+        ]
+      });
+
+    return {
+      success: true,
+      message: "Product removed from cart",
+      cart: updatedCart
+    };
+
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Error removing product from cart"
+    };
+  }
+}
+
+export async function deleteAllCart(clerkId: string) {
+  try {
+    await connectToDatabase();
+
+    const user = await User.findOne({ clerkId });
+    if (!user) {
+      return { success: false, message: "User not found" };
+    }
+
+    const cart = await Cart.findOne({ user: user._id });
+    if (!cart) {
+      return { success: false, message: "Cart not found" };
+    }
+
+    // Clear cart
+    cart.products = [];
+    cart.cartTotal = 0;
+    cart.totalAfterDiscount = 0;
+
+    await cart.save();
+
+    return {
+      success: true,
+      message: "Cart cleared successfully",
+      cart
+    };
+
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Error clearing cart"
+    };
+  }
+}
+
+// ...existing code...

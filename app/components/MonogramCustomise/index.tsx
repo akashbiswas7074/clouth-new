@@ -369,10 +369,10 @@ const MonogramCustomizer = () => {
             ) : (
               <div className="flex justify-between space-x-4">
                 <Link
-                  href="/cart"
+                  href="/measurement"
                   className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                 >
-                  Add To Cart
+                  Go to Measurement
                 </Link>
                 {/* <Link
                   href="/measurement"
