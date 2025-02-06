@@ -59,7 +59,7 @@ const PaypalPage = () => {
 
     // Calculate the actual amount from the cart.
     // Use totalAfterDiscount if available, otherwise use the cartTotal.
-    const amount = cart ? (cart.totalAfterDiscount || cart.cartTotal).toFixed(2) : "0.00";
+    const amount = cart ? cart.cartTotal.toFixed(2) : "0.00";
 
     return (
         <div className="container mx-auto pt-36 font-play">

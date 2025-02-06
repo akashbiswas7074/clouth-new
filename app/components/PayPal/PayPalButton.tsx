@@ -11,7 +11,6 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({ amount, onSuccess })
 
   useEffect(() => {
     const script = document.createElement('script');
-    // Ensure currency is set to a supported code (e.g., "USD")
     script.src = `https://www.paypal.com/sdk/js?client-id=${process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID}&currency=USD`;
     script.async = true;
     script.onload = () => {
@@ -38,8 +37,12 @@ export const PayPalButton: React.FC<PayPalButtonProps> = ({ amount, onSuccess })
     };
 
     document.body.appendChild(script);
+
     return () => {
-      document.body.removeChild(script);
+      // Only remove the script if it is still attached to a parent node.
+      if (script.parentNode) {
+        script.parentNode.removeChild(script);
+      }
     };
   }, [amount, onSuccess]);
 

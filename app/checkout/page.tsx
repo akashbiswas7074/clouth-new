@@ -98,7 +98,7 @@ const CheckoutPage = () => {
         0
       )
       : 0;
-  const discount = 600; // You can update this logic if needed
+  const discount = 0; // You can update this logic if needed
   const total = subtotal - discount;
 
   const handleNext = () => {
