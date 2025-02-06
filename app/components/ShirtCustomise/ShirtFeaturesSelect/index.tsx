@@ -294,7 +294,7 @@ const ShirtCustomizer = () => {
   };
 
   return (
-    <div className="mt-[5rem] flex-col md:flex-row justify-between items-start flex w-full h-fit">
+    <div className="mt-[5rem] flex-col md:flex-row justify-between items-start mb-10 flex w-full h-fit">
       <div className="relative flex justify-center items-center w-full h-[87vh]">
         {Object.entries(selectedItems).map(([section, item], index) =>
           item.image?.url ? (
@@ -332,7 +332,7 @@ const ShirtCustomizer = () => {
         )}
       </div>
 
-      <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
+      <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center mt-10 space-x-4">
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
@@ -394,12 +394,12 @@ const ShirtCustomizer = () => {
                   <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
                     <Link
                       href="/measurement"
-                      className="w-full text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                      className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                     >
                       Add Measurement
                     </Link>
                     <button
-                      className="w-full text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition2"
+                      className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                       onClick={() => setShowMonogramOptions(true)} // Show monogram options on click
                     >
                       Don't Add
@@ -411,14 +411,14 @@ const ShirtCustomizer = () => {
                 {showMonogramOptions && (
                   <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
                     <Link
-                      className="w-full text-center bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition"
+                      className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                       href="/monogram"
                     >
                       Add Monogram
                     </Link>
                     <Link
                       href="/cart"
-                      className="w-full text-center bg-gray-500 text-white py-2 rounded-md hover:bg-gray-600 transition"
+                      className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
                     >
                       No Monogram
                     </Link>

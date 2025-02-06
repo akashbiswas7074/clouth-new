@@ -151,7 +151,7 @@ const CartDrawer = () => {
             <FaShoppingCart className="text-[#4a2b2b]" />
           </button>
         </SheetTrigger>
-        <SheetContent className="w-[90%] max-w-[450px] sm:max-w-[540px] mt-20 z-50">
+        <SheetContent className="w-[90%] max-w-[450px] sm:max-w-[540px] mt-32 z-50">
           <SheetHeader>
             <SheetTitle className="subHeading">CART</SheetTitle>
           </SheetHeader>
