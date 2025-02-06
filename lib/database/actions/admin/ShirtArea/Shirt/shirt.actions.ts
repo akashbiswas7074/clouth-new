@@ -143,3 +143,34 @@ export const getShirtById = async (shirtId: string) => {
   }
 };
 
+export const updateShirtPrice = async (shirtId: string, price: number) => {
+  try {
+    await connectToDatabase();
+
+    // Find the current shirt to get its existing price
+    const shirt = await ShirtModel.findById(shirtId);
+
+    if (!shirt) {
+      return { message: "Shirt not found.", success: false };
+    }
+
+    // Calculate the updated price
+    const updatedPrice = (shirt.price || 0) + price;
+
+    // Update the shirt's price
+    const updatedShirt = await ShirtModel.findByIdAndUpdate(
+      shirtId,
+      { $set: { price: updatedPrice } },
+      { new: true }
+    ).lean(); // Convert Mongoose document to a plain object
+
+    return {
+      message: "Shirt price updated successfully.",
+      success: true,
+      shirt: updatedShirt,
+    };
+  } catch (error: any) {
+    console.error(error);
+    return { message: "Error updating shirt price.", success: false };
+  }
+};

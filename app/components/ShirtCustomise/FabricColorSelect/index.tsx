@@ -20,17 +20,18 @@ interface Fabric {
 const FabricsWithColors = () => {
   const [fabrics, setFabrics] = useState<Fabric[]>([]);
   const [colors, setColors] = useState<{ [fabricId: string]: Color[] }>({});
+  const [selectedFabric, setSelectedFabric] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedColorImages, setSelectedColorImages] = useState<{
     [fabricId: string]: string | null;
   }>({});
+  const [isNextEnabled, setIsNextEnabled] = useState(false);
 
-  // Fetch fabrics and colors on component mount
   useEffect(() => {
     const fetchFabrics = async () => {
       const fabricsData = await getAllFabrics();
       setFabrics(fabricsData);
 
-      // Fetch colors for each fabric
       fabricsData.forEach(async (fabric: Fabric) => {
         const colorData = await getColorByFabric(fabric._id);
         setColors((prev) => ({
@@ -38,7 +39,6 @@ const FabricsWithColors = () => {
           [fabric._id]: colorData,
         }));
 
-        // Set default image to the first color if available
         if (colorData.length > 0) {
           setSelectedColorImages((prev) => ({
             ...prev,
@@ -51,14 +51,34 @@ const FabricsWithColors = () => {
     fetchFabrics();
   }, []);
 
-  // Handle color click to display the image and save to localStorage
+  useEffect(() => {
+    const storedFabricId = localStorage.getItem("fabricId");
+    const storedColorId = localStorage.getItem("colorId");
+    if (storedFabricId && storedColorId) {
+      setSelectedFabric(storedFabricId);
+      setSelectedColor(storedColorId);
+      setIsNextEnabled(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    setIsNextEnabled(!!selectedFabric && !!selectedColor);
+  }, [selectedFabric, selectedColor]);
+
+  const handleFabricClick = (fabricId: string) => {
+    setSelectedFabric(fabricId);
+    setSelectedColor(null);
+  };
+
   const handleColorClick = (fabricId: string, color: Color) => {
     setSelectedColorImages((prev) => ({
       ...prev,
       [fabricId]: color.image.url,
     }));
 
-    // Save colorId and fabricId to localStorage
+    setSelectedFabric(fabricId);
+    setSelectedColor(color._id);
+
     localStorage.setItem("colorId", color._id);
     localStorage.setItem("fabricId", fabricId);
   };
@@ -70,11 +90,16 @@ const FabricsWithColors = () => {
           <h2 className="text-4xl font-semibold mb-4 text-[#646464]">
             Fabrics
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {fabrics.map((fabric) => (
               <div
                 key={fabric._id}
-                className="w-full rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 overflow-hidden relative"
+                className={`w-full rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 overflow-hidden relative cursor-pointer ${
+                  selectedFabric === fabric._id
+                    ? "border-4 border-blue-500"
+                    : ""
+                }`}
+                onClick={() => handleFabricClick(fabric._id)}
               >
                 <div className="absolute top-0 left-0 w-full bg-white text-center p-2 font-semibold text-gray-800">
                   {fabric.fabricName}
@@ -82,22 +107,23 @@ const FabricsWithColors = () => {
                 <div className="p-4">
                   <h3 className="text-lg font-medium mb-2">Colors</h3>
                   <div className="flex flex-wrap gap-2">
-                    {/* Default image or selected image for each fabric */}
                     <div className="w-full mb-4">
                       <img
                         src={
-                          selectedColorImages[fabric._id] || "defaultImage.jpg" // Provide a fallback if no color is selected
+                          selectedColorImages[fabric._id] || "defaultImage.jpg"
                         }
                         alt="Selected Color"
                         className="w-full max-w-xs rounded-lg shadow-lg"
                       />
                     </div>
-
-                    {/* Color selection circles */}
                     {colors[fabric._id]?.map((color) => (
                       <div
                         key={color._id}
-                        className="w-8 h-8 rounded-full cursor-pointer"
+                        className={`w-8 h-8 rounded-full cursor-pointer border-2 ${
+                          selectedColor === color._id
+                            ? "border-blue-500"
+                            : "border-transparent"
+                        }`}
                         style={{ backgroundColor: color.hexCode }}
                         onClick={() => handleColorClick(fabric._id, color)}
                       ></div>
@@ -108,11 +134,10 @@ const FabricsWithColors = () => {
             ))}
           </div>
 
-          {/* Next Button */}
-          <div className="absolute bottom-8 right-8">
+          <div className="fixed bottom-[1rem] right-[1rem]">
             <button
-              onClick={() => (window.location.href = "/form-new")} // Navigate to the form-new page
-              className="bg-[#C40600] mt-10 text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
+              onClick={() => (window.location.href = "/form-new")}
+              className="hover:bg-[#530e0c] bg-[#C40600] mt-10 text-white py-3 px-6 rounded-lg font-medium transition duration-300"
             >
               Next
             </button>

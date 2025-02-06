@@ -144,27 +144,38 @@ const useProductData = () => {
             ]);
 
           // Extracting different categories for Collar and Cuff
-          const collarStyle = collar?.map((collar: Collar) => ({
-            ...collar.style,
-            _id: collar._id,
-          }));
-          const collarHeight = collar?.map((collar: Collar) => ({
-            ...collar.height,
-            _id: collar._id,
-          }));
-          const collarButton = collar?.map((collar: Collar) => ({
-            ...collar.collar_button,
-            _id: collar._id, // Assigning collar's id to collarButton
-          }));
+          const collarStyle = collar
+            ?.filter((collar: Collar) => collar.style?.name) // Ensure valid names
+            .map((collar: Collar) => ({
+              ...collar.style,
+              _id: collar._id,
+            }));
 
-          const cuffStyle = cuff?.map((cuff: Cuff) => ({
-            ...cuff.style,
-            _id: cuff._id,
-          }));
-          const cuffLinks = cuff?.map((cuff: Cuff) => ({
-            ...cuff.cufflinks,
-            _id: cuff._id,
-          }));
+          const collarHeight = collar
+            ?.filter((collar: Collar) => collar.height?.name)
+            .map((collar: Collar) => ({
+              ...collar.height,
+              _id: collar._id,
+            }));
+
+          const collarButton = collar
+            ?.filter((collar: Collar) => collar.collar_button?.name)
+            .map((collar: Collar) => ({
+              ...collar.collar_button,
+              _id: collar._id,
+            }));
+
+          const cuffStyle = cuff
+            ?.filter((cuff: Cuff) => cuff.style?.name)
+            .map((cuff: Cuff) => ({
+              ...cuff.style,
+              _id: cuff._id,
+            }));
+
+          // const isValid = (item: any) => item?.name?.trim() !== "";
+          const cuffLinks = cuff
+            ?.filter((cuff: Cuff) => cuff.cufflinks?.name) // Filter out null or empty names
+            .map((cuff: Cuff) => ({ ...cuff.cufflinks, _id: cuff._id }));
 
           setData({
             back,
