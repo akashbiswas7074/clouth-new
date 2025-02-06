@@ -140,3 +140,28 @@ export const getColorByFabric = async (fabricId: string) => {
     return [];
   }
 };
+
+export const getColorById = async (colorId: string) => {
+  try {
+    await connectToDatabase(); // Ensure DB connection
+
+    if (!mongoose.Types.ObjectId.isValid(colorId)) {
+      return { message: "Invalid color ID.", success: false };
+    }
+
+    const color = await ColorModel.findById(colorId).lean();
+
+    if (!color) {
+      return { message: "Color not found.", success: false };
+    }
+
+    return {
+      message: "Color fetched successfully.",
+      success: true,
+      color: JSON.parse(JSON.stringify(color)),
+    };
+  } catch (error: any) {
+    console.log(error);
+    return { message: "Error fetching color.", success: false };
+  }
+};

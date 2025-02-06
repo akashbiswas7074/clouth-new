@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { v2 as cloudinary } from "cloudinary";
 import MonogramModel from "@/lib/database/models/shirtModel/MonogramModel";
 import { connectToDatabase } from "@/lib/database/connect";
+import MonogramUserModel from "@/lib/database/models/shirtModel/MonogramUserModel";
 
 // Cloudinary configuration
 cloudinary.config({
@@ -179,5 +180,30 @@ export const deleteMonogram = async (monogramId: string) => {
       message: "Error deleting monogram.",
       success: false,
     };
+  }
+};
+
+export const getMonogramById = async (monogramId: string) => {
+  try {
+    await connectToDatabase(); // Ensure DB connection
+
+    if (!mongoose.Types.ObjectId.isValid(monogramId)) {
+      return { message: "Invalid monogram ID.", success: false };
+    }
+
+    const monogram = await MonogramUserModel.findById(monogramId).lean();
+
+    if (!monogram) {
+      return { message: "Monogram not found.", success: false };
+    }
+
+    return {
+      message: "Monogram fetched successfully.",
+      success: true,
+      monogram: JSON.parse(JSON.stringify(monogram)),
+    };
+  } catch (error: any) {
+    console.log(error);
+    return { message: "Error fetching monogram.", success: false };
   }
 };

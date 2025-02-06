@@ -1,37 +1,51 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
-import { Card, CardContent } from "../components/ui/card";
-import { Button } from "../components/ui/button";
-import { Loader2, Minus, Plus } from "lucide-react";
+import { Card, CardContent } from "@/app/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
-import { getSavedCartForUser, updateCartItemQuantity } from "@/lib/database/actions/cart.actions";
+import { toast } from "sonner";
+import { 
+  getSavedCartForUser, 
+  updateCartItemQuantity, 
+  deleteShirtFromCart 
+} from "@/lib/database/actions/cart.actions";
+import { getFabricById } from "@/lib/database/actions/admin/ShirtArea/Fabric/fabric.actions";
+import { getColorById } from "@/lib/database/actions/admin/ShirtArea/Color/color.actions";
+import { getMeasurementById } from "@/lib/database/actions/measurement.actions";
+import Image from "next/image";
 
 interface ShirtDetails {
   _id: string;
   price: number;
-  collarStyle: { name: string };
-  collarButton: { name: string };
-  collarHeight: { name: string };
-  cuffStyle: { name: string };
-  cuffLinks: { name: string };
-  watchCompatible: boolean;
-  bottom: { name: string };
-  back: { name: string };
-  pocket: { name: string };
-  placket: { name: string };
-  sleeves: { name: string };
-  fit: { name: string };
-  fabricId?: { 
+  collarStyle?: { name: string };
+  collarButton?: { name: string };
+  collarHeight?: { name: string };
+  cuffStyle?: { name: string };
+  cuffLinks?: { name: string };
+  watchCompatible?: boolean;
+  bottom?: { name: string };
+  back?: { name: string };
+  pocket?: { name: string };
+  placket?: { name: string };
+  sleeves?: { name: string };
+  fit?: { name: string };
+  fabricId?: string;
+  colorId?: string;
+  measurementId?: string;
+  fabricDetails?: {
     name: string;
     type: string;
+    image?: string;
   };
-  colorId?: { 
+  colorDetails?: {
     name: string;
-    code: string;
+    hexCode: string;
+    image?: string;
   };
-  measurementId?: {
+  measurementDetails?: {
     collar: number;
     chest: number;
     waist: number;
@@ -55,134 +69,167 @@ interface CartData {
   message?: string;
 }
 
-const CartItem = ({ item, onUpdateQuantity }: {
-  item: CartItem;
-  onUpdateQuantity: (id: string, qty: number) => Promise<void>;
-}) => {
-  const getDisplayDetails = () => {
-    const details = [];
-
-    // Style Details
-    if (item.product.collarStyle?.name) {
-      details.push({ category: "Style", label: "Collar", value: item.product.collarStyle.name });
-    }
-    if (item.product.cuffStyle?.name) {
-      details.push({ category: "Style", label: "Cuff", value: item.product.cuffStyle.name });
-    }
-    if (item.product.fit?.name) {
-      details.push({ category: "Style", label: "Fit", value: item.product.fit.name });
-    }
-
-    // Material Details
-    if (item.product.fabricId?.name) {
-      details.push({ 
-        category: "Material", 
-        label: "Fabric", 
-        value: `${item.product.fabricId.name} (${item.product.fabricId.type})` 
-      });
-    }
-    if (item.product.colorId?.name) {
-      details.push({ 
-        category: "Material", 
-        label: "Color", 
-        value: item.product.colorId.name 
-      });
-    }
-
-    // Features
-    if (item.product.pocket?.name) {
-      details.push({ category: "Features", label: "Pocket", value: item.product.pocket.name });
-    }
-    if (item.product.placket?.name) {
-      details.push({ category: "Features", label: "Placket", value: item.product.placket.name });
-    }
-    if (item.product.watchCompatible) {
-      details.push({ category: "Features", label: "Watch", value: "Compatible" });
-    }
-
-    return details.reduce((acc, detail) => {
-      if (!acc[detail.category]) {
-        acc[detail.category] = [];
-      }
-      acc[detail.category].push({ label: detail.label, value: detail.value });
-      return acc;
-    }, {} as Record<string, { label: string; value: string }[]>);
-  };
-
-  const details = getDisplayDetails();
+const ShirtFeatures = ({ details }: { details: ShirtDetails }) => {
+  const features = [
+    { label: 'Collar Style', value: details.collarStyle?.name },
+    { label: 'Collar Button', value: details.collarButton?.name },
+    { label: 'Collar Height', value: details.collarHeight?.name },
+    { label: 'Cuff Style', value: details.cuffStyle?.name },
+    { label: 'Cuff Links', value: details.cuffLinks?.name },
+    { label: 'Bottom', value: details.bottom?.name },
+    { label: 'Back', value: details.back?.name },
+    { label: 'Pocket', value: details.pocket?.name },
+    { label: 'Placket', value: details.placket?.name },
+    { label: 'Sleeves', value: details.sleeves?.name },
+    { label: 'Fit', value: details.fit?.name },
+  ].filter(f => f.value);
 
   return (
-    <Card className="w-full font-play">
-      <CardContent className="p-6">
-        <div className="flex justify-between mb-4">
-          <div className="space-y-4 flex-grow">
+    <div className="grid grid-cols-2 gap-2 text-sm">
+      {features.map((f, i) => (
+        <p key={i}>
+          <span className="text-gray-600">{f.label}:</span> {f.value}
+        </p>
+      ))}
+      <p>
+        <span className="text-gray-600">Watch Compatible:</span>
+        {details.watchCompatible ? ' Yes' : ' No'}
+      </p>
+    </div>
+  );
+};
+
+const CartItem = ({ 
+  item, 
+  onUpdateQuantity, 
+  onDelete, 
+  isUpdating 
+}: {
+  item: CartItem;
+  onUpdateQuantity: (id: string, qty: number) => Promise<void>;
+  onDelete: (id: string) => Promise<void>;
+  isUpdating: boolean;
+}) => {
+  const [details, setDetails] = useState<ShirtDetails>(item.product);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDetails() {
+      try {
+        const [fabricRes, colorRes, measurementRes] = await Promise.all([
+          details.fabricId ? getFabricById(details.fabricId) : null,
+          details.colorId ? getColorById(details.colorId) : null,
+          details.measurementId ? getMeasurementById(details.measurementId) : null
+        ]);
+
+        setDetails({
+          ...details,
+          fabricDetails: fabricRes?.fabric,
+          colorDetails: colorRes?.color,
+          measurementDetails: measurementRes
+        });
+      } catch (error) {
+        console.error("Error fetching details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchDetails();
+  }, [item.product]);
+
+  if (isLoading) {
+    return <Card className="w-full p-6 flex justify-center">
+      <Loader2 className="h-6 w-6 animate-spin" />
+    </Card>;
+  }
+
+  return (
+    <Card className="w-full">
+      <CardContent className="p-6 space-y-6">
+        <div className="flex justify-between">
+          <h3 className="font-semibold text-lg">Custom Shirt</h3>
+          <div className="text-right">
+            <p className="font-bold text-lg">
+              ${(item.price * parseInt(item.qty)).toFixed(2)}
+            </p>
+            <p className="text-sm text-gray-500">
+              ${item.price.toFixed(2)} each
+            </p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-4">
             <div>
-              <h3 className="font-semibold text-lg">Custom Shirt</h3>
-              <p className="text-sm text-gray-500 mb-2">ID: {item.product._id}</p>
+              <h4 className="font-medium mb-2">Style Details</h4>
+              <ShirtFeatures details={details} />
             </div>
 
-            <div className="grid md:grid-cols-3 gap-6">
-              {Object.entries(details).map(([category, items]) => (
-                <div key={category}>
-                  <h4 className="font-medium text-sm mb-2">{category}</h4>
-                  <div className="space-y-1">
-                    {items.map((detail, index) => (
-                      <p key={index} className="text-sm">
-                        {detail.label}: <span className="font-medium">{detail.value}</span>
-                      </p>
-                    ))}
+            {(details.fabricDetails || details.colorDetails) && (
+              <div>
+                <h4 className="font-medium mb-2">Material</h4>
+                {details.fabricDetails && (
+                  <p className="text-sm">
+                    Fabric: {details.fabricDetails.fabricName} 
+                    {details.fabricDetails.type && ` (${details.fabricDetails.type})`}
+                  </p>
+                )}
+                {details.colorDetails && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <div 
+                      className="w-4 h-4 rounded-full border"
+                      style={{ backgroundColor: details.colorDetails.hexCode }}
+                    />
+                    <p className="text-sm">{details.colorDetails.name}</p>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {item.product.measurementId && (
-              <div className="border-t pt-3">
-                <h4 className="font-medium text-sm mb-2">Measurements</h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <p className="text-sm">
-                    Collar: <span className="font-medium">{item.product.measurementId.collar}″</span>
-                  </p>
-                  <p className="text-sm">
-                    Chest: <span className="font-medium">{item.product.measurementId.chest}″</span>
-                  </p>
-                  <p className="text-sm">
-                    Waist: <span className="font-medium">{item.product.measurementId.waist}″</span>
-                  </p>
-                  <p className="text-sm">
-                    Sleeves: <span className="font-medium">{item.product.measurementId.sleevesLength}″</span>
-                  </p>
-                </div>
+                )}
               </div>
             )}
           </div>
 
-          <div className="text-right min-w-[150px]">
-            <p className="font-semibold text-lg mb-1">
-              ${(item.price * parseInt(item.qty)).toFixed(2)}
-            </p>
-            <p className="text-sm text-gray-500 mb-3">
-              ${item.price.toFixed(2)} each
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) - 1)}
-                disabled={parseInt(item.qty) <= 1}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <span className="w-8 text-center">{item.qty}</span>
-              <Button
-                size="icon"
-                variant="outline"
-                onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) + 1)}
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
+          {details.measurementDetails && (
+            <div>
+              <h4 className="font-medium mb-2">Measurements</h4>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <p>Collar: {details.measurementDetails.collar}″</p>
+                <p>Chest: {details.measurementDetails.chest}″</p>
+                <p>Waist: {details.measurementDetails.waist}″</p>
+                <p>Sleeves: {details.measurementDetails.sleevesLength}″</p>
+              </div>
             </div>
+          )}
+        </div>
+
+        <div className="flex justify-end items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) - 1)}
+              disabled={isUpdating || parseInt(item.qty) <= 1}
+            >
+              <Minus className="h-4 w-4" />
+            </Button>
+            <span className="w-8 text-center">
+              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : item.qty}
+            </span>
+            <Button
+              size="icon"
+              variant="outline"
+              onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) + 1)}
+              disabled={isUpdating}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
           </div>
+          <Button
+            size="icon"
+            variant="destructive"
+            onClick={() => onDelete(item.product._id)}
+            disabled={isUpdating}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </CardContent>
     </Card>
@@ -190,35 +237,38 @@ const CartItem = ({ item, onUpdateQuantity }: {
 };
 
 export default function CartPage() {
-  const { isLoaded, user } = useUser();
-  const [cart, setCart] = useState<CartData['cart']>(undefined);
+  const { user } = useUser();
+  const [cart, setCart] = useState<CartData['cart']>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingItem, setUpdatingItem] = useState<string | null>(null);
 
   useEffect(() => {
-    async function fetchCart() {
-      if (!isLoaded || !user) {
-        setLoading(false);
-        return;
-      }
+    fetchCart();
+  }, [user]);
 
-      try {
-        const response = await getSavedCartForUser(user.id);
-        if (response.success && response.cart) {
-          setCart(response.cart);
-        }
-      } catch (error) {
-        console.error("Error fetching cart:", error);
-      } finally {
-        setLoading(false);
-      }
+  const fetchCart = async () => {
+    if (!user) {
+      setLoading(false);
+      return;
     }
 
-    fetchCart();
-  }, [isLoaded, user]);
+    try {
+      const response = await getSavedCartForUser(user.id);
+      if (response.success && response.cart) {
+        setCart(response.cart);
+      }
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      toast.error("Failed to load cart");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const updateQuantity = async (productId: string, newQty: number) => {
-    if (!user?.id || newQty < 1) return;
-
+    if (!user?.id) return;
+    
+    setUpdatingItem(productId);
     try {
       const response = await updateCartItemQuantity(user.id, productId, newQty);
       if (response.success && response.cart) {
@@ -226,23 +276,44 @@ export default function CartPage() {
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
+      toast.error("Failed to update quantity");
+    } finally {
+      setUpdatingItem(null);
+    }
+  };
+
+  const handleDelete = async (productId: string) => {
+    if (!user?.id) return;
+
+    setUpdatingItem(productId);
+    try {
+      const response = await deleteShirtFromCart(user.id, productId);
+      if (response.success) {
+        toast.success("Item removed from cart");
+        setCart(response.cart);
+      }
+    } catch (error) {
+      console.error("Error removing item:", error);
+      toast.error("Failed to remove item");
+    } finally {
+      setUpdatingItem(null);
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen pt-16 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
   }
 
-  if (!user) {
+  if (!cart?.products?.length) {
     return (
-      <div className="min-h-screen pt-16 flex items-center justify-center">
-        <p>Please sign in to view your cart</p>
-        <Link href="/sign-in">
-          <Button className="ml-4">Sign In</Button>
+      <div className="min-h-screen pt-16 flex flex-col items-center justify-center">
+        <p className="text-lg text-gray-600 mb-4">Your cart is empty</p>
+        <Link href="/customize">
+          <Button>Start Shopping</Button>
         </Link>
       </div>
     );
@@ -251,43 +322,35 @@ export default function CartPage() {
   return (
     <div className="min-h-screen pt-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
-      
-      {!cart?.products?.length ? (
-        <div className="text-center py-12">
-          <p className="text-lg text-gray-600 mb-4">Your cart is empty</p>
-          <Link href="/customize">
-            <Button>Start Shopping</Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="grid gap-6">
-          {cart.products.map((item) => (
-            <CartItem
-              key={item.product._id}
-              item={item}
-              onUpdateQuantity={updateQuantity}
-            />
-          ))}
+      <div className="space-y-6">
+        {cart.products.map((item) => (
+          <CartItem
+            key={item.product._id}
+            item={item}
+            onUpdateQuantity={updateQuantity}
+            onDelete={handleDelete}
+            isUpdating={updatingItem === item.product._id}
+          />
+        ))}
 
-          <div className="mt-8 border-t pt-6">
-            <div className="flex flex-col items-end gap-2">
-              <p className="text-2xl font-bold">
-                Total: ${cart.cartTotal.toFixed(2)}
+        <div className="mt-8 border-t pt-6">
+          <div className="flex flex-col items-end gap-2">
+            <p className="text-2xl font-bold">
+              Total: ${cart.cartTotal.toFixed(2)}
+            </p>
+            {cart.totalAfterDiscount !== undefined && (
+              <p className="text-xl text-green-600">
+                Discounted Total: ${cart.totalAfterDiscount.toFixed(2)}
               </p>
-              {cart.totalAfterDiscount && (
-                <p className="text-xl text-green-600">
-                  Discounted Total: ${cart.totalAfterDiscount.toFixed(2)}
-                </p>
-              )}
-              <Link href="/checkout">
-                <Button size="lg" className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300">
-                  Proceed to Checkout
-                </Button>
-              </Link>
-            </div>
+            )}
+            <Link href="/checkout">
+              <Button size="lg" className="mt-4">
+                Proceed to Checkout
+              </Button>
+            </Link>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
