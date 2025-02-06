@@ -1,7 +1,5 @@
 "use client";
-import {
-  updateShirtIds,
-} from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
+import { updateShirtIds, updateShirtPrice } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
@@ -146,9 +144,18 @@ const MonogramCustomizer = () => {
           const updateResponse = await updateShirtIds(shirtId, monogramId);
 
           if (updateResponse.success) {
-            toast.success(
-              "Shirt created and updated with monogram successfully!"
-            );
+            // Now update the shirt price
+            const priceUpdateResponse = await updateShirtPrice(shirtId, price);
+
+            if (priceUpdateResponse.success) {
+              toast.success(
+                "Shirt created, updated with monogram, and price updated successfully!"
+              );
+            } else {
+              toast.error(
+                priceUpdateResponse.message || "Failed to update shirt price."
+              );
+            }
           } else {
             toast.error(updateResponse.message || "Failed to update shirt.");
           }
@@ -261,14 +268,14 @@ const MonogramCustomizer = () => {
   // };
 
   const getZIndex = (section: string, index: number) => {
-    if (section === "collarStyle") return 50;
-    if (section === "collarButton") return 60;
-    if (section === "cuffStyle") return 70;
-    if (section === "cuffLinks") return 80;
-    if (section === "placket" || section === "pocket") return 40;
-    if (section === "sleeves") return 30;
-    if (section === "fit") return 20;
-    if (section === "bottom") return 20;
+    if (section === "monogramStyle") return 60;
+    if (section === "monogramPosition") return 50;
+    // if (section === "cuffStyle") return 70;
+    // if (section === "cuffLinks") return 80;
+    // if (section === "placket" || section === "pocket") return 40;
+    // if (section === "sleeves") return 30;
+    // if (section === "fit") return 20;
+    // if (section === "bottom") return 20;
     return index;
   };
 
@@ -278,7 +285,7 @@ const MonogramCustomizer = () => {
   };
 
   return (
-    <div className="mt-[5rem] flex-col md:flex-row justify-between items-start flex w-full h-fit">
+    <div className="mt-[6.5rem] flex-col md:flex-row justify-between items-start flex w-full h-fit">
       <div className="relative flex justify-center items-center w-full h-[87vh]">
         {Object.entries(selectedItems).map(([section, item], index) =>
           item.image?.url ? (
@@ -313,7 +320,7 @@ const MonogramCustomizer = () => {
         )} */}
       </div>
 
-      <div className="flex md:flex fixed top-[7rem] z-[100] mt-10 left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
+      <div className="flex md:flex fixed top-[9rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
@@ -379,7 +386,7 @@ const MonogramCustomizer = () => {
         </div>
       )}
 
-      <div className="p-4 mt-14 mb-6 w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
+      <div className="p-4 mt-[2rem] mb-6 w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           Monogram Customizer
         </h2>
@@ -433,7 +440,7 @@ const MonogramCustomizer = () => {
       </div>
 
       {activeSection && (
-        <div className="mt-[6.5rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
+        <div className="mt-[4rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
           {/* Header */}
           <div className="p-4 border-b flex justify-between items-center bg-gray-50">
             <h3 className="text-xl font-bold capitalize text-gray-800">
@@ -494,7 +501,7 @@ const MonogramCustomizer = () => {
             </button>
             <button
               onClick={() => handleConfirmAndProceed()}
-             className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
+              className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
               disabled={!selectedItems[activeSection]}
             >
               Confirm & Proceed

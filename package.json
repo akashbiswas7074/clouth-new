@@ -40,6 +40,7 @@
     "@types/date-fns": "^2.5.3",
     "awesome": "^0.0.7",
     "class-variance-authority": "^0.7.1",
+    "clerk": "^0.8.3",
     "cloudinary": "^2.5.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

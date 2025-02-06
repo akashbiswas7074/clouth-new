@@ -94,26 +94,35 @@ const ShirtCustomizer = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [showMonogramOptions, setShowMonogramOptions] = useState(false);
-
   const router = useRouter();
-
   const [activeSection, setActiveSection] = useState<keyof ProductData | null>(
     null
   );
+  const [isPleatSelected, setIsPleatSelected] = useState(false);
 
   const handleConfirmAndProceed = () => {
     if (activeSection !== null) {
-      const currentIndex = sections.indexOf(activeSection);
-      if (currentIndex !== -1 && currentIndex < sections.length - 1) {
-        // Ensure that the next section is a valid key of ProductData, or null
-        setActiveSection(
-          sections[currentIndex + 1] as keyof ProductData | null
-        );
-      } else {
-        setActiveSection(null); // Close the box if it's the last section
+      let currentIndex = sections.indexOf(activeSection);
+
+      if (currentIndex !== -1) {
+        let nextIndex = currentIndex + 1;
+
+        while (
+          nextIndex < sections.length &&
+          ((!longSleeveSelected &&
+            ["cuffStyle", "cuffLinks"].includes(sections[nextIndex])) ||
+            (isPleatSelected && sections[nextIndex] === "pocket"))
+        ) {
+          nextIndex++; // Skip the section if the condition matches
+        }
+
+        if (nextIndex < sections.length) {
+          setActiveSection(sections[nextIndex] as keyof ProductData | null);
+        } else {
+          setActiveSection(null); // Close the box if it's the last section
+        }
       }
     } else {
-      // Handle the case where activeSection is null (if needed)
       setActiveSection(null);
     }
   };
@@ -160,6 +169,8 @@ const ShirtCustomizer = () => {
         fit: shirt.fit || {},
       };
 
+      console.log(shirtData);
+
       const response = await createShirt(
         price,
         shirtData.bottom,
@@ -192,6 +203,77 @@ const ShirtCustomizer = () => {
     }
   };
 
+  // const handleCreateShirt = async () => {
+  //   const price = totalPrice;
+  //   try {
+  //     const colorId = localStorage.getItem("colorId");
+  //     const fabricId = localStorage.getItem("fabricId");
+
+  //     if (!colorId || !fabricId) {
+  //       toast.error("Color ID and Fabric ID are required.");
+  //       return;
+  //     }
+
+  //     const { userId: clerkId } = useAuth(); // Get clerkId from Clerk Auth
+  //     if (!clerkId) {
+  //       toast.error("User authentication required.");
+  //       return;
+  //     }
+
+  //     const shirtData = {
+  //       bottom: shirt.bottom || {},
+  //       back: shirt.back || {},
+  //       sleeves: shirt.sleeves || {},
+  //       cuffStyle: shirt.cuffStyle || {},
+  //       cuffLinks: shirt.cuffLinks || {},
+  //       collarStyle: shirt.collarStyle || {},
+  //       collarHeight: shirt.collarHeight || {},
+  //       collarButton: shirt.collarButton || {},
+  //       placket: shirt.placket || {},
+  //       pocket: shirt.pocket || {},
+  //       fit: shirt.fit || {},
+  //     };
+
+  //     // Create the shirt
+  //     const response = await createShirt(
+  //       price,
+  //       shirtData.bottom,
+  //       shirtData.back,
+  //       shirtData.sleeves,
+  //       shirtData.cuffStyle,
+  //       shirtData.cuffLinks,
+  //       shirtData.collarStyle,
+  //       shirtData.collarHeight,
+  //       shirtData.collarButton,
+  //       shirtData.placket,
+  //       shirtData.pocket,
+  //       shirtData.fit,
+  //       watchCompatible,
+  //       colorId,
+  //       fabricId
+  //     );
+
+  //     if (response.success) {
+  //       const shirtId = response.shirt._id;
+  //       localStorage.setItem("shirtId", shirtId);
+  //       toast.success("Shirt created successfully!");
+  //       // const cartResponse = await addShirtToCart(shirtId, clerkId);
+  //       // if (cartResponse.success) {
+  //       //   toast.success("Shirt added to cart successfully!");
+  //       // } else {
+  //       //   toast.error(cartResponse.message || "Failed to add shirt to cart.");
+  //       // }
+
+  //       setIsSubmitted(true);
+  //     } else {
+  //       toast.error(response.message || "Failed to create the shirt.");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     toast.error("An unexpected error occurred.");
+  //   }
+  // };
+
   const assignItemToSection = (section: keyof Shirt, item: ProductItem) => {
     setShirt((prev) => {
       const updatedShirt = {
@@ -221,6 +303,7 @@ const ShirtCustomizer = () => {
     // Set default selections without localStorage
     sections.forEach((section) => {
       if (section === "cuffStyle" || section === "cuffLinks") return;
+      if (section === "placket") return;
 
       if (data && data[section as keyof ProductData]?.length) {
         const defaultItem = data[section as keyof ProductData]![0];
@@ -251,6 +334,19 @@ const ShirtCustomizer = () => {
         delete updatedItems["cuffLinks"];
         return updatedItems;
       });
+    }
+
+    if (section === "placket" && item.name.toLowerCase().includes("pleat")) {
+      setIsPleatSelected(true);
+      setSelectedItems((prev) => {
+        const updatedItems = { ...prev };
+        delete updatedItems["pocket"];
+        return updatedItems;
+      });
+    }
+    if (section === "placket" && !item.name.toLowerCase().includes("pleat")) {
+      // Disable pocket section if placket item includes "pleat"
+      setIsPleatSelected(false);
     }
 
     if (section === "back") {
@@ -304,15 +400,15 @@ const ShirtCustomizer = () => {
   };
 
   return (
-    <div className="mt-[5rem] flex-col md:flex-row justify-between items-start mb-10 flex w-full h-fit">
-      <div className="relative flex justify-center items-center w-full h-[87vh]">
+    <div className="mt-[4rem] flex-col md:flex-row justify-between items-start mb-10 flex w-full h-fit">
+      <div className="relative mt-[1.5rem] md:mt-0 flex justify-center items-center w-full h-[87vh]">
         {Object.entries(selectedItems).map(([section, item], index) =>
           item.image?.url ? (
             <img
               key={index}
               src={item.image.url}
               alt={item.name}
-              className="absolute top-auto bottom-auto left-auto right-auto w-[80%] md:w-[40vw] h-auto object-cover rounded-none"
+              className="absolute top-auto bottom-auto left-auto right-auto w-[90%] md:w-[40vw] h-auto object-cover rounded-none"
               style={{
                 // transform: "translate(-50%, -50%)",
                 // left: "50%",
@@ -342,7 +438,7 @@ const ShirtCustomizer = () => {
         )}
       </div>
 
-      <div className="flex md:flex fixed top-[7rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center mt-10 space-x-4">
+      <div className="flex md:flex fixed top-[9rem] z-[100] left-0 bg-white p-2 shadow-lg rounded-lg items-center space-x-4">
         <div className="text-xl font-bold">Total: ${totalPrice.toFixed(2)}</div>
         <button
           onClick={handleOpenModal}
@@ -440,7 +536,7 @@ const ShirtCustomizer = () => {
         </div>
       )}
 
-      <div className="p-4 mt-6 w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
+      <div className="p-4 mt-0 md:mt-[2rem] w-full md:w-[40%] xl:w-[30%] bg-white h-full flex flex-col justify-start items-center shadow-lg rounded-xl">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           Shirt Customizer
         </h2>
@@ -457,16 +553,25 @@ const ShirtCustomizer = () => {
                   "cuffLinks",
                 ].includes(section)
             )
-            .map((section) => (
-              <div
-                key={section}
-                className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${activeSection === section ? "bg-gray-300" : ""
-                  }`}
-                onClick={() => setActiveSection(section as keyof ProductData)}
-              >
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-              </div>
-            ))}
+            .map((section) => {
+              const isDisabled = section === "pocket" && isPleatSelected;
+
+              return (
+                <div
+                  key={section}
+                  className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out
+          ${isDisabled ? "bg-gray-200 cursor-not-allowed opacity-50" : "hover:bg-gray-100"} 
+          ${activeSection === section ? "bg-gray-300" : ""}`}
+                  onClick={() => {
+                    if (!isDisabled) {
+                      setActiveSection(section as keyof ProductData);
+                    }
+                  }}
+                >
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </div>
+              );
+            })}
 
           {/* Collar Section */}
           {["collarStyle", "collarHeight", "collarButton"].some((section) =>
@@ -553,7 +658,7 @@ const ShirtCustomizer = () => {
       </div>
 
       {activeSection && (
-        <div className="mt-[6.5rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
+        <div className="mt-[8rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
           {/* Header */}
           <div className="p-4 border-b flex justify-between items-center bg-gray-50">
             <h3 className="text-xl font-bold capitalize text-gray-800">
