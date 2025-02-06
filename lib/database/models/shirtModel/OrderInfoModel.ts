@@ -22,10 +22,10 @@ export interface Order extends Document {
 
 // Define the Order schema
 export const OrderSchema = new Schema<Order>({
-  shirt: { 
+  shirt: {
     type: mongoose.Schema.Types.ObjectId, // Correctly reference ObjectId
-    ref: "Shirt", // Reference the "Shirt" model
-    required: true 
+    ref: "Shirt", // Reference the "ShirtModel" model
+    required: true
   },
   orderConfirmation: { type: Boolean, required: true },
   deliveryStatus: {

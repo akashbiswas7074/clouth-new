@@ -6,7 +6,7 @@ export interface Order extends Document {
     {
       product: {
         type: mongoose.Schema.Types.ObjectId;
-        ref: "ShirtModel";
+        ref: "Shirt";
       },
       qty: {
         type: String;
@@ -14,7 +14,7 @@ export interface Order extends Document {
       price: number;
     }
   ],
-  userid : String,
+  userid: String,
   cartTotal: number,
   totalAfterDiscount: number,
   orderConfirmation: boolean;
@@ -41,7 +41,7 @@ export const OrderSchema = new Schema<Order>({
     {
       product: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "ShirtModel",
+        ref: "Shirt",
       },
       qty: {
         type: String,
@@ -49,7 +49,7 @@ export const OrderSchema = new Schema<Order>({
       price: Number,
     },
   ],
-  userid : String,
+  userid: String,
   cartTotal: Number,
   totalAfterDiscount: Number,
   orderConfirmation: { type: Boolean, required: true },
