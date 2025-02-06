@@ -4,6 +4,7 @@ import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/database/connect";
 import { addShirtToCart } from "../../../cart.actions";
+import { useUser } from "@clerk/nextjs";
 
 export const createShirt = async (
   price: number,
