@@ -7,12 +7,15 @@ import { Card, CardContent } from "@/app/components/ui/card";
 import { Badge } from "@/components/ui/badge"
 import { Loader2, Package } from "lucide-react";
 import { format } from "date-fns";
+import Link from "next/link";
 
+// Types
 interface OrderProduct {
   product: {
     _id: string;
     price: number;
-    collarStyle?: { name: string };
+    name: string;
+    image?: string;
     fabricId?: { name: string; type: string };
     colorId?: { name: string };
     measurementId?: {
@@ -51,6 +54,7 @@ interface Order {
   createdAt: string;
 }
 
+// Status Badge Component
 const DeliveryStatusBadge = ({ status }: { status: Order["deliveryStatus"] }) => {
   const statusColors = {
     pending: "bg-yellow-100 text-yellow-800",
@@ -65,6 +69,7 @@ const DeliveryStatusBadge = ({ status }: { status: Order["deliveryStatus"] }) =>
   );
 };
 
+// Payment Method Badge Component
 const PaymentMethodBadge = ({ method }: { method: Order["paymentMethod"] }) => {
   const displayNames = {
     credit_card: "Credit Card",
@@ -80,6 +85,7 @@ const PaymentMethodBadge = ({ method }: { method: Order["paymentMethod"] }) => {
   );
 };
 
+// Order Card Component
 const OrderCard = ({ order }: { order: Order }) => {
   const formatDate = (dateString: string) => {
     try {
@@ -92,9 +98,12 @@ const OrderCard = ({ order }: { order: Order }) => {
   return (
     <Card className="w-full">
       <CardContent className="p-6">
+        {/* Order Header */}
         <div className="flex flex-col md:flex-row justify-between mb-6">
           <div>
-            <p className="font-medium">Order ID: {order._id}</p>
+            <Link href={`/order/${order._id}`} className="font-medium hover:underline">
+              Order ID: {order._id}
+            </Link>
             <p className="text-sm text-gray-500">
               Placed on {formatDate(order.createdAt)}
             </p>
@@ -103,10 +112,10 @@ const OrderCard = ({ order }: { order: Order }) => {
             </div>
           </div>
           <div className="mt-4 md:mt-0 text-right">
-            <p className="font-medium">Total: ${order.cartTotal.toFixed(2)}</p>
+            <p className="font-medium">Total: ₹{order.cartTotal.toFixed(2)}</p>
             {order.totalAfterDiscount < order.cartTotal && (
               <p className="text-sm text-green-600">
-                Discounted: ${order.totalAfterDiscount.toFixed(2)}
+                Discounted: ₹{order.totalAfterDiscount.toFixed(2)}
               </p>
             )}
             <div className="mt-2">
@@ -115,80 +124,65 @@ const OrderCard = ({ order }: { order: Order }) => {
           </div>
         </div>
 
+        {/* Products List */}
         {order.products.map((item, index) => (
           item.product && (
             <div key={index} className="border-t pt-4 mb-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div>
-                  <h3 className="font-medium mb-2">Custom Shirt Details</h3>
+                  <h3 className="font-medium mb-2">Product Details</h3>
                   <div className="space-y-1 text-sm">
-                    {item.product.collarStyle?.name && (
-                      <p>Style: {item.product.collarStyle.name}</p>
+                    <p>Name: {item.product.name || 'Custom Shirt'}</p>
+                    <p>Quantity: {item.qty}</p>
+                    <p>Price per item: ₹{item.price}</p>
+                    {item.product.fabricId && (
+                      <p>Fabric: {item.product.fabricId.name} ({item.product.fabricId.type})</p>
                     )}
-                    {item.product.fabricId?.name && (
-                      <p>Fabric: {item.product.fabricId.name} 
-                        {item.product.fabricId.type && ` (${item.product.fabricId.type})`}
-                      </p>
-                    )}
-                    {item.product.colorId?.name && (
+                    {item.product.colorId && (
                       <p>Color: {item.product.colorId.name}</p>
                     )}
                   </div>
                 </div>
 
-                {item.product.measurementId && (
-                  <div>
-                    <h3 className="font-medium mb-2">Measurements</h3>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      {item.product.measurementId.collar && (
+                {/* Measurements & Shipping Details */}
+                <div>
+                  {item.product.measurementId && (
+                    <div className="mb-4">
+                      <h4 className="font-medium mb-1">Measurements</h4>
+                      <div className="text-sm grid grid-cols-2 gap-2">
                         <p>Collar: {item.product.measurementId.collar}″</p>
-                      )}
-                      {item.product.measurementId.chest && (
                         <p>Chest: {item.product.measurementId.chest}″</p>
-                      )}
-                      {item.product.measurementId.waist && (
                         <p>Waist: {item.product.measurementId.waist}″</p>
-                      )}
-                      {item.product.measurementId.sleevesLength && (
                         <p>Sleeves: {item.product.measurementId.sleevesLength}″</p>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-4 flex justify-between text-sm">
-                <p>Quantity: {item.qty}</p>
-                <p>Price: ${item.price.toFixed(2)}</p>
+                  )}
+                </div>
               </div>
             </div>
           )
         ))}
 
-        <div className="border-t pt-4">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-medium mb-2">Shipping Details</h3>
-              <div className="text-sm space-y-1">
-                <p>{order.orderAddress.address1}</p>
-                {order.orderAddress.address2 && <p>{order.orderAddress.address2}</p>}
-                <p>
-                  {order.orderAddress.city}, {order.orderAddress.state} {order.orderAddress.zipCode}
-                </p>
-                <p>{order.orderAddress.country}</p>
-                <p>Phone: {order.orderAddress.phoneNumber}</p>
-              </div>
+        {/* Shipping Address */}
+        <div className="border-t pt-4 grid md:grid-cols-2 gap-6">
+          <div>
+            <h3 className="font-medium mb-2">Shipping Address</h3>
+            <div className="text-sm space-y-1">
+              <p>{order.orderAddress.address1}</p>
+              {order.orderAddress.address2 && <p>{order.orderAddress.address2}</p>}
+              <p>{order.orderAddress.city}, {order.orderAddress.state} {order.orderAddress.zipCode}</p>
+              <p>{order.orderAddress.country}</p>
+              <p>Phone: {order.orderAddress.phoneNumber}</p>
             </div>
+          </div>
 
-            <div>
-              <h3 className="font-medium mb-2">Payment Details</h3>
-              <div className="text-sm space-y-1">
-                <p>Payment Date: {formatDate(order.paymentTime)}</p>
-                <p>Delivery Cost: ${order.deliveryCost.toFixed(2)}</p>
-                {order.receipt && (
-                  <p>Receipt Number: {order.receipt}</p>
-                )}
-              </div>
+          {/* Payment Details */}
+          <div>
+            <h3 className="font-medium mb-2">Payment Details</h3>
+            <div className="text-sm space-y-1">
+              <p>Payment Date: {formatDate(order.paymentTime)}</p>
+              <p>Delivery Cost: ₹{order.deliveryCost.toFixed(2)}</p>
+              {order.receipt && <p>Receipt Number: {order.receipt}</p>}
             </div>
           </div>
         </div>
@@ -197,6 +191,7 @@ const OrderCard = ({ order }: { order: Order }) => {
   );
 };
 
+// Main History Page Component
 export default function OrderHistory() {
   const { user, isLoaded } = useUser();
   const [orders, setOrders] = useState<Order[]>([]);
@@ -226,10 +221,18 @@ export default function OrderHistory() {
     }
   }, [user, isLoaded]);
 
-  if (loading) {
+  if (!isLoaded || loading) {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen pt-16 flex items-center justify-center">
+        <p className="text-gray-500">Please sign in to view your order history</p>
       </div>
     );
   }
