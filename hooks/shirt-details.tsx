@@ -46,6 +46,7 @@ interface Collar {
 }
 
 interface Cuff {
+  _id?: string;
   style?: {
     name: string;
     image: {
@@ -130,28 +131,23 @@ const useProductData = () => {
       if (fabricId && colorId) {
         setLoading(true);
         try {
-          const [
-            back,
-            bottom,
-            collar,
-            cuff,
-            fit,
-            placket,
-            pocket,
-            sleeves,
-          ] = await Promise.all([
-            getBacksByColorAndFabric(fabricId, colorId),
-            getBottomsByColorAndFabric(fabricId, colorId),
-            getCollarsByColorAndFabric(fabricId, colorId),
-            getCuffsByColorAndFabric(fabricId, colorId),
-            getFitsByColorAndFabric(fabricId, colorId),
-            getPlacketsByColorAndFabric(fabricId, colorId),
-            getPocketsByColorAndFabric(fabricId, colorId),
-            getSleevesByColorAndFabric(fabricId, colorId),
-          ]);
+          const [back, bottom, collar, cuff, fit, placket, pocket, sleeves] =
+            await Promise.all([
+              getBacksByColorAndFabric(fabricId, colorId),
+              getBottomsByColorAndFabric(fabricId, colorId),
+              getCollarsByColorAndFabric(fabricId, colorId),
+              getCuffsByColorAndFabric(fabricId, colorId),
+              getFitsByColorAndFabric(fabricId, colorId),
+              getPlacketsByColorAndFabric(fabricId, colorId),
+              getPocketsByColorAndFabric(fabricId, colorId),
+              getSleevesByColorAndFabric(fabricId, colorId),
+            ]);
 
           // Extracting different categories for Collar and Cuff
-          const collarStyle = collar?.map((collar: Collar) => collar.style);
+          const collarStyle = collar?.map((collar: Collar) => ({
+            ...collar.style,
+            _id: collar._id,
+          }));
           const collarHeight = collar?.map((collar: Collar) => ({
             ...collar.height,
             _id: collar._id,
@@ -161,8 +157,14 @@ const useProductData = () => {
             _id: collar._id, // Assigning collar's id to collarButton
           }));
 
-          const cuffStyle = cuff?.map((cuff: Cuff) => cuff.style);
-          const cuffLinks = cuff?.map((cuff: Cuff) => cuff.cufflinks);
+          const cuffStyle = cuff?.map((cuff: Cuff) => ({
+            ...cuff.style,
+            _id: cuff._id,
+          }));
+          const cuffLinks = cuff?.map((cuff: Cuff) => ({
+            ...cuff.cufflinks,
+            _id: cuff._id,
+          }));
 
           setData({
             back,
