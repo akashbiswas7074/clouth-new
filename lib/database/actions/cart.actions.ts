@@ -10,83 +10,66 @@ export async function addShirtToCart(shirtId: string, clerkId: string) {
   try {
     await connectToDatabase();
 
-    // Validate inputs
-    if (!mongoose.Types.ObjectId.isValid(shirtId)) {
-      return { success: false, message: "Invalid shirt ID" };
+    if (!clerkId) {
+      throw new Error("ClerkId is required");
     }
 
-    // Find user
-    const user = await User.findOne({ clerkId }).lean();
+    // Find user with better error handling
+    const user = await User.findOne({ clerkId });
     if (!user) {
-      return { success: false, message: "User not found" };
+      console.error(`No user found for clerkId: ${clerkId}`);
+      throw new Error("User not found. Please ensure you're logged in.");
     }
 
-    // Find shirt with all details
-    const shirt = await ShirtModel.findById(shirtId)
-      .populate('colorId')
-      .populate('fabricId')
-      .populate('monogramId')
-      .populate('measurementId')
-      .lean();
-
+    // Find shirt
+    const shirt = await ShirtModel.findById(shirtId);
     if (!shirt) {
-      return { success: false, message: "Shirt not found" };
+      throw new Error("Shirt not found");
     }
 
-    // Find or create cart
-    let cart = await Cart.findOne({ user: (user as any)._id });
-    
+    // Find or create cart with explicit error handling
+    let cart = await Cart.findOne({ user: user._id });
     if (!cart) {
       cart = new Cart({
-        user: (user as any)._id,
+        user: user._id,
         products: [],
         cartTotal: 0
       });
     }
 
-    // Add product to cart
-    const cartItem = {
-      product: shirtId,
-      qty: "1",
-      price: (shirt as any).price || 0
-    };
+    // Add product with better validation
+    const existingProductIndex = cart.products.findIndex(
+      (item: any) => item.product.toString() === shirtId
+    );
 
-    cart.products.push(cartItem);
-
-    // Update cart total
-    interface CartItem {
-      price: number;
-      qty: string;
+    if (existingProductIndex > -1) {
+      // Update existing product quantity
+      cart.products[existingProductIndex].qty = 
+        (parseInt(cart.products[existingProductIndex].qty) + 1).toString();
+    } else {
+      // Add new product
+      cart.products.push({
+        product: shirtId,
+        qty: "1",
+        price: shirt.price
+      });
     }
 
-    cart.cartTotal = cart.products.reduce((total: number, item: CartItem) => 
-      total + (item.price * Number(item.qty)), 0
+    // Recalculate cart total
+    cart.cartTotal = cart.products.reduce((total: number, item: any) => 
+      total + (item.price * parseInt(item.qty)), 0
     );
 
     await cart.save();
 
-    // Get updated cart with populated products
-    const updatedCart = await Cart.findById(cart._id)
-      .populate({
-        path: 'products.product',
-        model: ShirtModel,
-        populate: [
-          { path: 'colorId' },
-          { path: 'fabricId' },
-          { path: 'monogramId' },
-          { path: 'measurementId' }
-        ]
-      })
-      .lean();
-
     return {
       success: true,
       message: "Added to cart successfully",
-      cart: updatedCart
+      cart: cart.toObject()
     };
 
   } catch (error: any) {
-    console.error("Error adding to cart:", error);
+    console.error("Error in addShirtToCart:", error);
     return {
       success: false,
       message: error.message || "Failed to add to cart"

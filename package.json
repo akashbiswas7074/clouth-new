@@ -37,6 +37,7 @@
     "@radix-ui/react-tabs": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.5",
     "@react-email/components": "^0.0.32",
+    "@types/date-fns": "^2.5.3",
     "awesome": "^0.0.7",
     "class-variance-authority": "^0.7.1",
     "clerk": "^0.8.3",

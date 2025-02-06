@@ -184,15 +184,6 @@ const CheckoutPage = () => {
               <CardTitle className="subHeading">{steps[currentStep].title}</CardTitle>
             </CardHeader>
             <CardContent>
-              {currentStep === 0 && (
-                <div className="space-y-4">
-                  {/* Render Delivery Address form */}
-                  {/* (Your existing delivery address form code goes here) */}
-                  <Button className="w-full bg-[#c40600] text-white" onClick={handleSaveAddress}>
-                    Save Address And Continue
-                  </Button>
-                </div>
-              )}
               {currentStep === 1 && (
                 <div className="space-y-4">
                   <label htmlFor="couponCode">Enter Coupon Code</label>
@@ -214,14 +205,14 @@ const CheckoutPage = () => {
                   {/* Form for inputting the delivery address */}
                   {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="First Name" />
+                    <Label htmlFor="firstName">First Name</Label>
+                    <Input id="firstName" placeholder="First Name" />
                     </div>
                     <div>
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Last Name" />
+                    <Label htmlFor="lastName">Last Name</Label>
+                    <Input id="lastName" placeholder="Last Name" />
                     </div>
-                  </div> */}
+                    </div> */}
                   <div>
                     <Label htmlFor="phoneNumber">Phone Number</Label>
                     <Input id="phoneNumber" placeholder="Phone Number" value={deliveryAddress.phoneNumber} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, phoneNumber: e.target.value })} />
@@ -264,6 +255,9 @@ const CheckoutPage = () => {
                     <Label htmlFor="address2">Address 2</Label>
                     <Input id="address2" placeholder="Address 2" value={deliveryAddress.address2} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, address2: e.target.value })} />
                   </div>
+                  <Button className="w-full bg-[#c40600] text-white" onClick={handleSaveAddress}>
+                    Save Address And Continue
+                  </Button>
                 </div>
               )}
             </CardContent>
@@ -403,15 +397,15 @@ const CheckoutPage = () => {
                   <hr className="border-t border-border" />
                   <div className="flex justify-between">
                     <p>Subtotal:</p>
-                    <p>₹{(cart?.cartTotal || 0).toFixed(2)}</p>
+                    <p>₹{(subtotal || 0).toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between">
                     <p>Discount:</p>
-                    <p>₹{(cart?.totalAfterDiscount || 0).toFixed(2)}</p>
+                    <p>₹{(discount || 0).toFixed(2)}</p>
                   </div>
                   <div className="flex justify-between font-bold">
                     <p>Total:</p>
-                    <p>₹{((cart?.cartTotal || 0) - (cart?.totalAfterDiscount || 0)).toFixed(2)}</p>
+                    <p>₹{(total).toFixed(2)}</p>
                   </div>
                 </div>
               )}

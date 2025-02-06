@@ -3,6 +3,7 @@
 import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/database/connect";
+import { addShirtToCart } from "../../../cart.actions";
 
 export const createShirt = async (
   price: number,
@@ -19,7 +20,8 @@ export const createShirt = async (
   fit: object,
   watchCompatible: boolean,
   colorId: string,
-  fabricId: string
+  fabricId: string,
+  clerkId: string
 ) => {
   try {
     await connectToDatabase();
@@ -55,6 +57,13 @@ export const createShirt = async (
     await newShirt.save();
 
     const plainShirt = newShirt.toObject();
+
+    console.log("Shirt created successfully:", plainShirt);
+
+    const cartResult = await addShirtToCart(newShirt._id.toString(), clerkId);
+    if (!cartResult.success) {
+      console.error("Failed to add shirt to cart:", cartResult.message);
+    }
 
     return {
       message: "Shirt created successfully.",
