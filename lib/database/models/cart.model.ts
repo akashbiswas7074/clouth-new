@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const { ObjectId } = mongoose.Schema;
+
 const cartSchema = new mongoose.Schema(
   {
     products: [
@@ -14,16 +15,17 @@ const cartSchema = new mongoose.Schema(
         price: Number,
       },
     ],
-    cartTotal: Number,
-    totalAfterDiscount: Number,
-    user: {
-      type: ObjectId,
-      ref: "User",
+    cartTotal: {
+      type: Number,
+      default: 0,
     },
+    totalAfterDiscount: Number,
+    user: String,
   },
   {
     timestamps: true,
   }
 );
+
 const Cart = mongoose.models.Cart || mongoose.model("Cart", cartSchema);
 export default Cart;

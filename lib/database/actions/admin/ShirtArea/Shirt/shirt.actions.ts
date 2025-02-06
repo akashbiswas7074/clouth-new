@@ -4,7 +4,6 @@ import ShirtModel from "@/lib/database/models/shirtModel/ShirtModel";
 import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/database/connect";
 import { addShirtToCart } from "../../../cart.actions";
-<<<<<<< HEAD
 import { getColorById } from "../Color/color.actions";
 import { getFabricById } from "../Fabric/fabric.actions";
 import { getMonogramById } from "../Monogram/monogram.actions";
@@ -56,9 +55,6 @@ interface PopulatedShirt {
   monogramId?: Monogram;
   measurementId?: Measurement;
 }
-=======
-import { useUser } from "@clerk/nextjs";
->>>>>>> ba9be376ca8d5e53ec619cce017c74bf726403fe
 
 export const createShirt = async (
   price: number,
@@ -235,6 +231,7 @@ export const getShirtById = async (shirtId: string) => {
     return { message: "Error fetching shirt.", success: false };
   }
 };
+
 export const updateShirtPrice = async (shirtId: string, price: number) => {
   try {
     await connectToDatabase();
@@ -266,3 +263,4 @@ export const updateShirtPrice = async (shirtId: string, price: number) => {
     return { message: "Error updating shirt price.", success: false };
   }
 };
+

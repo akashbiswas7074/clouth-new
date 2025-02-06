@@ -514,7 +514,7 @@ const ShirtCustomizer = () => {
                 )} */}
 
                 {/* Show monogram options if 'Don't Add' is clicked */}
-                {showMonogramOptions && (
+                {!showMonogramOptions && (
                   <div className="w-full gap-[.4rem] flex flex-row items-center justify-center">
                     <Link
                       className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
