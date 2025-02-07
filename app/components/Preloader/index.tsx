@@ -15,7 +15,7 @@ export default function Preloader() {
     return () => clearTimeout(timer);
   }, []);
 
-  return (
+  return (<div className="z-[200]">
     <AnimatePresence>
       {isVisible && (
         <motion.div
@@ -24,7 +24,7 @@ export default function Preloader() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
-          className="fixed inset-0 z-50 flex h-[100dvh] w-full items-center justify-center bg-white"
+          className="fixed inset-0 z-[600] flex h-[100dvh] w-full items-center justify-center bg-white"
         >
           <motion.div
             initial={{ opacity: 0 }}
@@ -360,6 +360,6 @@ export default function Preloader() {
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence></div>
   );
 }
