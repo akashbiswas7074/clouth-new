@@ -62,7 +62,7 @@ export async function createOrder(
     const newOrder = await new OrderModel({
       userid : user.clerkId,
       products: products.map((product) => ({
-        product: product._id,
+        product: product.product,
         qty: product.qty.toString(),
         price: product.price,
       })),

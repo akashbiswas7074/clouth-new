@@ -7,8 +7,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 
-
-
 const sections = [
   "bottom",
   "back",
@@ -304,6 +302,7 @@ const ShirtCustomizer = () => {
     sections.forEach((section) => {
       if (section === "cuffStyle" || section === "cuffLinks") return;
       if (section === "placket") return;
+      if (section === "back") return;
 
       if (data && data[section as keyof ProductData]?.length) {
         const defaultItem = data[section as keyof ProductData]![0];
@@ -353,12 +352,13 @@ const ShirtCustomizer = () => {
       setIsBackPopupOpen(true);
       setSelectedBackImage(item.image?.url ?? null); // Ensure the value is either a string or null
 
-      setSelectedItems((prev) => {
-        const updatedItems = { ...prev, [section]: item };
-        const newTotalPrice = calculateTotalPrice(updatedItems);
-        setTotalPrice(newTotalPrice);
-        return updatedItems;
-      });
+      // setSelectedItems((prev) => {
+      //   const updatedItems = { ...prev, [section]: item };
+      //   const newTotalPrice = calculateTotalPrice(updatedItems);
+      //   setTotalPrice(newTotalPrice);
+      //   return updatedItems;
+      // });
+      assignItemToSection(section as keyof Shirt, item);
       return;
     }
 
@@ -383,14 +383,14 @@ const ShirtCustomizer = () => {
   };
 
   const getZIndex = (section: string, index: number) => {
-    if (section === "collarStyle") return 50;
-    if (section === "collarButton") return 60;
-    if (section === "cuffStyle") return 70;
-    if (section === "cuffLinks") return 80;
-    if (section === "placket" || section === "pocket") return 40;
-    if (section === "sleeves") return 30;
-    if (section === "fit") return 20;
-    if (section === "bottom") return 20;
+    if (section === "collarStyle") return 5;
+    if (section === "collarButton") return 6;
+    if (section === "cuffStyle") return 7;
+    if (section === "cuffLinks") return 8;
+    if (section === "placket" || section === "pocket") return 4;
+    if (section === "sleeves") return 3;
+    if (section === "fit") return 2;
+    if (section === "bottom") return 2;
     return index;
   };
 
@@ -577,90 +577,93 @@ const ShirtCustomizer = () => {
           {["collarStyle", "collarHeight", "collarButton"].some((section) =>
             sections.includes(section)
           ) && (
-              <div className="mt-4 w-full">
-                <h3
-                  className="text-lg text-center font-semibold text-gray-700 py-2 cursor-pointer bg-gray-200 rounded-lg"
-                  onClick={toggleCollarSection}
-                >
-                  Collar {isCollarOpen ? "▲" : "▼"}
-                </h3>
-                {isCollarOpen && (
-                  <div className="mt-2">
-                    {["collarStyle", "collarHeight", "collarButton"].map(
-                      (section) =>
-                        sections.includes(section) && (
-                          <div
-                            key={section}
-                            className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${activeSection === section ? "bg-gray-300" : ""
-                              }`}
-                            onClick={() =>
-                              setActiveSection(section as keyof ProductData)
-                            }
-                          >
-                            {section.charAt(0).toUpperCase() + section.slice(1)}
-                          </div>
-                        )
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
+            <div className="mt-4 w-full">
+              <h3
+                className="text-lg text-center font-semibold text-gray-700 py-2 cursor-pointer bg-gray-200 rounded-lg"
+                onClick={toggleCollarSection}
+              >
+                Collar {isCollarOpen ? "▲" : "▼"}
+              </h3>
+              {isCollarOpen && (
+                <div className="mt-2">
+                  {["collarStyle", "collarHeight", "collarButton"].map(
+                    (section) =>
+                      sections.includes(section) && (
+                        <div
+                          key={section}
+                          className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${
+                            activeSection === section ? "bg-gray-300" : ""
+                          }`}
+                          onClick={() =>
+                            setActiveSection(section as keyof ProductData)
+                          }
+                        >
+                          {section.charAt(0).toUpperCase() + section.slice(1)}
+                        </div>
+                      )
+                  )}
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Cuff Section */}
           {["cuffStyle", "cuffLinks"].some((section) =>
             sections.includes(section)
           ) && (
-              <div className="mt-6 w-full">
-                <h3
-                  className="text-lg text-center font-semibold text-gray-700 py-2 cursor-pointer bg-gray-200 rounded-lg"
-                  onClick={toggleCuffSection}
-                >
-                  Cuff {isCuffOpen ? "▲" : "▼"}
-                </h3>
-                {isCuffOpen && longSleeveSelected && (
-                  <div className="mt-2">
-                    {["cuffStyle", "cuffLinks"].map(
-                      (section) =>
-                        sections.includes(section) && (
-                          <div
-                            key={section}
-                            className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${activeSection === section ? "bg-gray-300" : ""
-                              }`}
-                            onClick={() =>
-                              setActiveSection(section as keyof ProductData)
-                            }
-                          >
-                            {section.charAt(0).toUpperCase() + section.slice(1)}
-                          </div>
-                        )
-                    )}
+            <div className="mt-6 w-full">
+              <h3
+                className="text-lg text-center font-semibold text-gray-700 py-2 cursor-pointer bg-gray-200 rounded-lg"
+                onClick={toggleCuffSection}
+              >
+                Cuff {isCuffOpen ? "▲" : "▼"}
+              </h3>
+              {isCuffOpen && longSleeveSelected && (
+                <div className="mt-2">
+                  {["cuffStyle", "cuffLinks"].map(
+                    (section) =>
+                      sections.includes(section) && (
+                        <div
+                          key={section}
+                          className={`flex flex-col justify-center items-center w-full p-3 cursor-pointer rounded-lg transition-all duration-200 ease-in-out hover:bg-gray-100 ${
+                            activeSection === section ? "bg-gray-300" : ""
+                          }`}
+                          onClick={() =>
+                            setActiveSection(section as keyof ProductData)
+                          }
+                        >
+                          {section.charAt(0).toUpperCase() + section.slice(1)}
+                        </div>
+                      )
+                  )}
 
-                    {/* Watch Compatible Button */}
-                    <div className="flex items-center justify-center mt-4">
-                      <span className="mr-3 text-lg font-medium text-gray-700">
-                        Watch Compatible:
-                      </span>
-                      <button
-                        onClick={handleToggle}
-                        className={`py-2 px-6 rounded-full text-white font-semibold transition-all duration-200 ease-in-out ${watchCompatible
+                  {/* Watch Compatible Button */}
+                  <div className="flex items-center justify-center mt-4">
+                    <span className="mr-3 text-lg font-medium text-gray-700">
+                      Watch Compatible:
+                    </span>
+                    <button
+                      onClick={handleToggle}
+                      className={`py-2 px-6 rounded-full text-white font-semibold transition-all duration-200 ease-in-out ${
+                        watchCompatible
                           ? "bg-green-500 hover:bg-green-600"
                           : "bg-red-500 hover:bg-red-600"
-                          }`}
-                      >
-                        {watchCompatible ? "Yes" : "No"}
-                      </button>
-                    </div>
+                      }`}
+                    >
+                      {watchCompatible ? "Yes" : "No"}
+                    </button>
                   </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {activeSection && (
-        <div className="mt-[8rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl overflow-y-auto transition-transform transform translate-x-0 z-[100] border-l border-gray-200">
-          {/* Header */}
-          <div className="p-4 border-b flex justify-between items-center bg-gray-50">
+        <div className="pb-[10rem] mt-[8rem] fixed right-0 top-0 h-full lg:w-[30%] w-[80%] md:w-[50%] bg-white shadow-2xl flex flex-col z-[100] border-l border-gray-200">
+          {/* Header - Fixed at top */}
+          <div className="sticky top-0 p-4 border-b flex justify-between items-center bg-gray-50">
             <h3 className="text-xl font-bold capitalize text-gray-800">
               {activeSection}
             </h3>
@@ -672,44 +675,47 @@ const ShirtCustomizer = () => {
             </button>
           </div>
 
-          {/* Content */}
-          <div className="p-4 space-y-4">
-            {data[activeSection]?.length === 0 ? (
-              <p className="text-center text-gray-500">
-                No items available in {activeSection}.
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                {data[activeSection]?.map((item) => (
-                  <div
-                    key={item._id}
-                    onClick={() => handleSelect(activeSection, item)}
-                    className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${selectedItems[activeSection]?._id === item._id
-                      ? "bg-blue-100 border-blue-500 ring-2 ring-blue-400"
-                      : "hover:bg-gray-100"
+          {/* Content - Scrollable */}
+          <div className="flex-grow overflow-y-auto">
+            <div className="p-4 space-y-4">
+              {data[activeSection]?.length === 0 ? (
+                <p className="text-center text-gray-500">
+                  No items available in {activeSection}.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-4">
+                  {data[activeSection]?.map((item) => (
+                    <div
+                      key={item._id}
+                      onClick={() => handleSelect(activeSection, item)}
+                      className={`p-4 border rounded-lg cursor-pointer transition shadow-sm ${
+                        selectedItems[activeSection]?._id === item._id
+                          ? "bg-blue-100 border-blue-500 ring-2 ring-blue-400"
+                          : "hover:bg-gray-100"
                       }`}
-                  >
-                    {item.icon?.url && (
-                      <img
-                        src={item.icon.url}
-                        alt={item.name}
-                        className="w-20 h-20 object-cover mx-auto rounded-md"
-                      />
-                    )}
-                    <p className="text-center font-semibold text-gray-800 mt-2">
-                      {item.name}
-                    </p>
-                    <p className="text-center text-sm text-gray-600">
-                      {item.price}$
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+                    >
+                      {item.icon?.url && (
+                        <img
+                          src={item.icon.url}
+                          alt={item.name}
+                          className="w-20 h-20 object-cover mx-auto rounded-md"
+                        />
+                      )}
+                      <p className="text-center font-semibold text-gray-800 mt-2">
+                        {item.name}
+                      </p>
+                      <p className="text-center text-sm text-gray-600">
+                        {item.price}$
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Footer Buttons */}
-          <div className="p-4 border-t bg-gray-50 flex justify-between items-center space-x-4">
+          {/* Footer - Fixed at bottom */}
+          <div className="sticky bottom-0 p-4 border-t bg-gray-50 flex justify-between items-center space-x-4">
             <button
               onClick={() => setActiveSection(null)}
               className="bg-[#C40600] text-white py-3 px-6 rounded-lg font-medium hover:bg-gray-800 transition duration-300"
