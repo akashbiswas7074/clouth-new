@@ -104,7 +104,30 @@ const OrderPage = () => {
                 </div>
               </div>
             </div>
-            {/* Further rendering */}
+            <div className="mb-6 border rounded-lg overflow-hidden">
+              <div className="p-4">
+                <h2 className="font-semibold text-lg mb-2">Shipping Address</h2>
+                <p>{order.orderAddress?.address1}</p>
+                <p>{order.orderAddress?.address2}</p>
+                <p>{order.orderAddress?.city}, {order.orderAddress?.state} {order.orderAddress?.zipCode}</p>
+                <p>{order.orderAddress?.country}</p>
+                <p>Phone: {order.orderAddress?.phoneNumber}</p>
+              </div>
+            </div>
+            <div className="mb-6 border rounded-lg overflow-hidden">
+              <div className="p-4">
+                <h2 className="font-semibold text-lg mb-2">Products</h2>
+                {order.products.map((product: any, index: number) => (
+                  <div key={index} className="mb-4">
+                    <p><strong>Name:</strong> {product.product.name}</p>
+                    <p><strong>Quantity:</strong> {product.qty}</p>
+                    <p><strong>Price:</strong> ₹{product.price}</p>
+                    <p><strong>Size:</strong> {product.size}</p>
+                    <p><strong>Color:</strong> {product.color.color}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
             <Link href={"/"}>
               <Button className="w-full mt-3">CONTINUE SHOPPING</Button>
             </Link>

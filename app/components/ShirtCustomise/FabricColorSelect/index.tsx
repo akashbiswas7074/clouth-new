@@ -26,6 +26,7 @@ const FabricsWithColors = () => {
     [fabricId: string]: string | null;
   }>({});
   const [isNextEnabled, setIsNextEnabled] = useState(false);
+  const [searchTerm, setSearchTerm] = useState<string>("");
 
   useEffect(() => {
     const fetchFabrics = async () => {
@@ -83,6 +84,14 @@ const FabricsWithColors = () => {
     localStorage.setItem("fabricId", fabricId);
   };
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
+
+  const filteredFabrics = fabrics.filter((fabric) =>
+    fabric.fabricName.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen pt-28 font-play">
       <div className="container mx-auto p-8">
@@ -90,8 +99,15 @@ const FabricsWithColors = () => {
           <h2 className="text-4xl font-semibold mb-4 text-[#646464]">
             Fabrics
           </h2>
+          <input
+            type="text"
+            placeholder="Search Fabrics"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="p-2 border border-gray-300 rounded-lg mb-4"
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {fabrics.map((fabric) => (
+            {filteredFabrics.map((fabric) => (
               <div
                 key={fabric._id}
                 className={`w-full rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 overflow-hidden relative cursor-pointer ${

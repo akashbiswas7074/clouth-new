@@ -22,6 +22,18 @@ const formatDate = (dateString: string | number | Date) => {
   }
 };
 
+const formatDateTime = (dateString: string | number | Date) => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      return 'Date unavailable';
+    }
+    return format(date, 'MMM d, yyyy, h:mm a');
+  } catch (error) {
+    return 'Date unavailable';
+  }
+};
+
 const OrderPage = () => {
   const { orderId } = useParams();
   const [order, setOrder] = useState<any>(null);
@@ -77,7 +89,7 @@ const OrderPage = () => {
             </Link>
             <div className="text-center mb-6">
               <h1 className="text-2xl font-bold">
-                THANK YOU {order.orderAddress?.name}
+                THANK YOU {order.orderAddress?.firstName} {order.orderAddress?.lastName}
               </h1>
               <p className="text-gray-600">Order ID: {order._id}</p>
             </div>
@@ -86,11 +98,6 @@ const OrderPage = () => {
                 <div className="w-full sm:w-1/2 md:w-1/5 p-4 border-b sm:border-b-0 sm:border-r">
                   <div className="font-semibold text-sm mb-1">ORDER NUMBER:</div>
                   <div>{order._id}</div>
-                </div>
-
-                <div className="w-full sm:w-1/2 md:w-1/4 p-4 border-b md:border-b-0 md:border-r">
-                  <div className="font-semibold text-sm mb-1">DATE:</div>
-                  <div>{formatDate(order.createdAt)}</div>
                 </div>
 
                 <div className="w-full sm:w-1/2 md:w-1/4 p-4 border-b md:border-b-0 md:border-r">
@@ -104,7 +111,37 @@ const OrderPage = () => {
                 </div>
               </div>
             </div>
-            {/* Download Receipt Button */}
+            <div className="mb-6 border rounded-lg overflow-hidden">
+              <div className="p-4">
+                <h2 className="font-semibold text-lg mb-2">Shipping Address</h2>
+                <p>{order.orderAddress?.firstName} {order.orderAddress?.lastName}</p>
+                <p>{order.orderAddress?.address1}</p>
+                <p>{order.orderAddress?.address2}</p>
+                <p>{order.orderAddress?.city}, {order.orderAddress?.state} {order.orderAddress?.zipCode}</p>
+                <p>{order.orderAddress?.country}</p>
+                <p>Phone: {order.orderAddress?.phoneNumber}</p>
+              </div>
+            </div>
+            <div className="mb-6 border rounded-lg overflow-hidden">
+              <div className="p-4">
+                <h2 className="font-semibold text-lg mb-2">Products</h2>
+                {order.products.map((product: any, index: number) => (
+                  <div key={index} className="mb-4">
+                    <p><strong>Name:</strong> {product.product?.name || "N/A"}</p>
+                    <p><strong>Quantity:</strong> {product.qty}</p>
+                    <p><strong>Price:</strong> ₹{product.price}</p>
+                    <p><strong>Size:</strong> {product.size}</p>
+                    <p><strong>Color:</strong> {product.color?.color}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mb-6 border rounded-lg overflow-hidden">
+              <div className="p-4">
+                <h2 className="font-semibold text-lg mb-2">Payment Time</h2>
+                <p>{formatDateTime(order.paymentTime)}</p>
+              </div>
+            </div>
             <Button
               onClick={() => downloadPDF(order)}
               className="w-full mt-3 mb-3"

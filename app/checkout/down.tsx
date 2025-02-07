@@ -20,7 +20,7 @@ interface OrderProduct {
 }
 
 interface Order {
-  orderId: string;
+  _id: string; // Ensure order ID is included
   orderConfirmation: boolean;
   deliveryStatus: string;
   price: number;
@@ -34,20 +34,26 @@ interface Order {
 
 // Dummy productDetails lookup; replace with your actual data source
 const productDetails: Record<string, any> = {
-    
+  // ...existing product details...
 };
 
 export const downloadPDF = (order: Order) => {
   const doc = new jsPDF();
 
   // Title
+  doc.setFontSize(22);
+  doc.setFont("helvetica", "bold");
+  doc.text("Clouth My Shirt", 105, 20, { align: "center" });
+
+  // Subtitle
   doc.setFontSize(18);
-  doc.text("Order Details", 20, 20);
+  doc.setFont("helvetica", "normal");
+  doc.text("Order Details", 105, 30, { align: "center" });
 
   // Order details
   doc.setFontSize(12);
-  let yPosition = 30;
-  doc.text(`Order ID: ${order.orderId}`, 20, yPosition);
+  let yPosition = 40;
+  doc.text(`Order ID: ${order._id}`, 20, yPosition); // Use order._id
   yPosition += 10;
   doc.text(
     `Order Confirmation: ${order.orderConfirmation ? "Confirmed" : "Not Confirmed"}`,
@@ -57,9 +63,9 @@ export const downloadPDF = (order: Order) => {
   yPosition += 10;
   doc.text(`Delivery Status: ${order.deliveryStatus}`, 20, yPosition);
   yPosition += 10;
-  doc.text(`Total: $${order.price}`, 20, yPosition);
+  doc.text(`Total: ₹${order.price}`, 20, yPosition);
   yPosition += 10;
-  doc.text(`Delivery Cost: $${order.deliveryCost}`, 20, yPosition);
+  doc.text(`Delivery Cost: ₹${order.deliveryCost}`, 20, yPosition);
   yPosition += 10;
   doc.text(`Payment Method: ${order.paymentMethod}`, 20, yPosition);
   yPosition += 10;
@@ -105,7 +111,7 @@ export const downloadPDF = (order: Order) => {
     yPosition += 10;
     doc.text("Product ID:", 20, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(`${product.productId}`, 60, yPosition);
+    doc.text(`${product._id}`, 60, yPosition);
     yPosition += 10;
     doc.setFont(labelStyle.font, labelStyle.fontStyle);
     doc.text("Quantity:", 20, yPosition);
@@ -115,138 +121,16 @@ export const downloadPDF = (order: Order) => {
     doc.setFont(labelStyle.font, labelStyle.fontStyle);
     doc.text("Price:", 20, yPosition);
     doc.setFont("helvetica", "normal");
-    doc.text(`$${product.price}`, 60, yPosition);
-    yPosition += 15;
-
-    // Get product specific details; fall back to empty object if none
-    const details = productDetails[product.productId || ""] || {};
-
-    // Divide details into two columns for the monogram section.
-    const xOffset = 110; // X-coordinate for second column
-
-    // Shirt Details Section
-    doc.setFont(labelStyle.font, labelStyle.fontStyle);
-    doc.text("Shirt details:", 20, yPosition);
-    yPosition += 10;
-    doc.setFont("helvetica", "normal");
-    doc.text("Collar Style:", 20, yPosition);
-    doc.text(`${details?.collarStyle || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Collar Button:", 20, yPosition);
-    doc.text(`${details?.collarButton || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Collar Height:", 20, yPosition);
-    doc.text(`${details?.collarHeight || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Cuff Style:", 20, yPosition);
-    doc.text(`${details?.cuffStyle || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Cuff Links:", 20, yPosition);
-    doc.text(`${details?.cuffLinks || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Fit:", 20, yPosition);
-    doc.text(`${details?.fit || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Back:", 20, yPosition);
-    doc.text(`${details?.back || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Bottom:", 20, yPosition);
-    doc.text(`${details?.bottom || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Placket:", 20, yPosition);
-    doc.text(`${details?.placket || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Pocket:", 20, yPosition);
-    doc.text(`${details?.pocket || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Sleeves:", 20, yPosition);
-    doc.text(`${details?.sleeves || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Fabric:", 20, yPosition);
-    doc.text(`${details?.fabric?.fabricName || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Color:", 20, yPosition);
-    doc.text(`${details?.color?.name || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-
-    // Monogram Section
-    doc.setFont(labelStyle.font, labelStyle.fontStyle);
-    doc.text("MONOGRAM DETAILS:", 20, yPosition);
-    yPosition += 10;
-    doc.setFont("helvetica", "normal");
-    doc.text("Monogram Text:", 20, yPosition);
-    doc.text(`${details?.monogram?.text || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Monogram Color:", 20, yPosition);
-    doc.text(`${details?.monogram?.color || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Monogram Style:", 20, yPosition);
-    doc.text(`${details?.monogram?.style?.name || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Monogram Position:", 20, yPosition);
-    doc.text(`${details?.monogram?.position?.name || "N/A"}`, xOffset, yPosition);
-    yPosition += 15;
-
-    // Add a new page for measurement details
-    doc.addPage();
-    yPosition = 20;
-
-    // Measurement Section (split in two columns)
-    doc.setFont(labelStyle.font, labelStyle.fontStyle);
-    doc.text("MEASUREMENT DETAILS:", 20, yPosition);
-    yPosition += 10;
-
-    // Left column measurements
-    doc.setFont("helvetica", "normal");
-    doc.text("Collar:", 20, yPosition);
-    doc.text(`${details?.measurement?.collar || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Neck:", 20, yPosition);
-    doc.text(`${details?.measurement?.neck || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Chest:", 20, yPosition);
-    doc.text(`${details?.measurement?.chest || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Half Chest:", 20, yPosition);
-    doc.text(`${details?.measurement?.halfChest || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Waist:", 20, yPosition);
-    doc.text(`${details?.measurement?.waist || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Half Waist:", 20, yPosition);
-    doc.text(`${details?.measurement?.halfWaist || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-
-    // Right column measurements
-    doc.text("Hips:", 20, yPosition);
-    doc.text(`${details?.measurement?.hips || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Half Hips:", 20, yPosition);
-    doc.text(`${details?.measurement?.halfHips || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Shoulder:", 20, yPosition);
-    doc.text(`${details?.measurement?.shoulder || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Sleeves Length:", 20, yPosition);
-    doc.text(`${details?.measurement?.sleevesLength || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Upper Arm:", 20, yPosition);
-    doc.text(`${details?.measurement?.upperArm || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Elbow:", 20, yPosition);
-    doc.text(`${details?.measurement?.elbow || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Elbow Width:", 20, yPosition);
-    doc.text(`${details?.measurement?.elbowWidth || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Forearm:", 20, yPosition);
-    doc.text(`${details?.measurement?.forearm || "N/A"}`, xOffset, yPosition);
-    yPosition += 10;
-    doc.text("Cuff:", 20, yPosition);
-    doc.text(`${details?.measurement?.cuff || "N/A"}`, xOffset, yPosition);
+    doc.text(`₹${product.price}`, 60, yPosition);
     yPosition += 15;
   });
 
+  // Thank you message
+  yPosition += 20;
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text("Thank you for visiting our website!", 105, yPosition, { align: "center" });
+
   // Save the PDF with an appropriate name
-  doc.save(`${order.orderId}-details.pdf`);
+  doc.save(`${order._id}-details.pdf`); // Use order._id
 };

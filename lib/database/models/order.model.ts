@@ -9,12 +9,12 @@ export interface Order extends Document {
         ref: "Shirt";
       },
       qty: {
-        type: String;
+        type: string;
       },
       price: number;
     }
   ],
-  userid: String,
+  userid: string,
   cartTotal: number,
   totalAfterDiscount: number,
   orderConfirmation: boolean;

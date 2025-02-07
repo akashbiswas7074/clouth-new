@@ -124,19 +124,16 @@ export async function updateCartItemQuantity(
   try {
     await connectToDatabase();
 
-    // Find the user by clerkId
     const user = await User.findOne({ clerkId }).lean();
     if (!user) {
       return { success: false, message: "User not found" };
     }
 
-    // Find the user's cart (do not use .lean() since we need to update)
     const cart = await Cart.findOne({ user: (user as any)._id });
     if (!cart) {
       return { success: true, cart: null };
     }
 
-    // Adjust index check to handle populated product objects
     const index = cart.products.findIndex((item: any) => {
       const prodId = item.product._id
         ? item.product._id.toString()
@@ -148,14 +145,18 @@ export async function updateCartItemQuantity(
     }
 
     if (newQty <= 0) {
-      // Optionally remove the product from cart if quantity is set to zero or less
       cart.products.splice(index, 1);
     } else {
       cart.products[index].qty = newQty.toString();
     }
 
+    cart.cartTotal = cart.products.reduce(
+      (total: number, item: any) => total + item.price * parseInt(item.qty),
+      0
+    );
+
     await cart.save();
-    return { success: true, cart };
+    return { success: true, cart: cart.toObject() };
   } catch (error: any) {
     return { success: false, message: error.message || "Error updating cart" };
   }
@@ -177,34 +178,17 @@ export async function deleteShirtFromCart(clerkId: string, productId: string) {
       return { success: false, message: "Cart not found" };
     }
 
-    // Remove product from cart
     cart.products = cart.products.filter(
       (item: any) => item.product.toString() !== productId
     );
 
-    // Recalculate cart total
     cart.cartTotal = cart.products.reduce(
       (total: any, item: any) => total + item.price * parseInt(item.qty),
       0
     );
 
     await cart.save();
-
-    // Get populated cart data
-    const updatedCart = await Cart.findById(cart._id).populate({
-      path: "products.product",
-      populate: [
-        { path: "colorId" },
-        { path: "fabricId" },
-        { path: "measurementId" },
-      ],
-    });
-
-    return {
-      success: true,
-      message: "Product removed from cart",
-      cart: updatedCart,
-    };
+    return { success: true, cart: cart.toObject() };
   } catch (error: any) {
     return {
       success: false,

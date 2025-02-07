@@ -17,19 +17,19 @@ export interface Measurements extends Document {
 }
 
 export const MeasurementsSchema = new Schema<Measurements>({
-  unit: { type: String, required: true },
-  neck: { type: Number, required: true },
-  chest: { type: Number, required: true },
-  waist: { type: Number, required: true },
-  hips: { type: Number, required: true },
-  shoulder: { type: Number, required: true },
-  sleeve_length: { type: Number, required: true },
-  elbow_width: { type: Number, required: true },
-  forearm_width: { type: Number, required: true },
-  wrist_cuff: { type: Number, required: true },
-  bicep: { type: Number, required: true },
-  shirt_length: { type: Number, required: true },
-  armhole: { type: Number, required: true },
+  unit: { type: String },
+  neck: { type: Number },
+  chest: { type: Number },
+  waist: { type: Number },
+  hips: { type: Number },
+  shoulder: { type: Number },
+  sleeve_length: { type: Number },
+  elbow_width: { type: Number },
+  forearm_width: { type: Number },
+  wrist_cuff: { type: Number },
+  bicep: { type: Number },
+  shirt_length: { type: Number },
+  armhole: { type: Number },
 });
 
 export default MeasurementsSchema;

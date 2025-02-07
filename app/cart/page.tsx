@@ -100,6 +100,12 @@ const ShirtFeatures = ({ details }: { details: ShirtDetails }) => {
   );
 };
 
+const handleButtonClick = (callback: (event: React.MouseEvent) => void) => (event: React.MouseEvent) => {
+  event.preventDefault();
+  event.stopPropagation();
+  callback(event);
+};
+
 const CartItem = ({ 
   item, 
   onUpdateQuantity, 
@@ -107,8 +113,8 @@ const CartItem = ({
   isUpdating 
 }: {
   item: CartItem;
-  onUpdateQuantity: (id: string, qty: number) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
+  onUpdateQuantity: (id: string, qty: number, event: React.MouseEvent) => Promise<void>;
+  onDelete: (id: string, event: React.MouseEvent) => Promise<void>;
   isUpdating: boolean;
 }) => {
   const [details, setDetails] = useState<ShirtDetails>(item.product);
@@ -206,7 +212,7 @@ const CartItem = ({
             <Button
               size="icon"
               variant="outline"
-              onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) - 1)}
+              onClick={handleButtonClick((event) => onUpdateQuantity(item.product._id, parseInt(item.qty) - 1, event))}
               disabled={isUpdating || parseInt(item.qty) <= 1}
             >
               <FaMinus className="h-4 w-4" />
@@ -217,7 +223,7 @@ const CartItem = ({
             <Button
               size="icon"
               variant="outline"
-              onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) + 1)}
+              onClick={handleButtonClick((event) => onUpdateQuantity(item.product._id, parseInt(item.qty) + 1, event))}
               disabled={isUpdating}
             >
               <FaPlus className="h-4 w-4" />
@@ -226,7 +232,7 @@ const CartItem = ({
           <Button
             size="icon"
             variant="destructive"
-            onClick={() => onDelete(item.product._id)}
+            onClick={handleButtonClick((event) => onDelete(item.product._id, event))}
             disabled={isUpdating}
           >
             <FaTrashAlt className="h-4 w-4" />
@@ -266,14 +272,26 @@ export default function CartPage() {
     }
   };
 
-  const updateQuantity = async (productId: string, newQty: number) => {
+  const handleButtonClick = (callback: (event: React.MouseEvent) => void) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    callback(event);
+  };
+
+  const updateQuantity = async (productId: string, newQty: number, event: React.MouseEvent) => {
     if (!user?.id) return;
-    
+
     setUpdatingItem(productId);
     try {
       const response = await updateCartItemQuantity(user.id, productId, newQty);
       if (response.success && response.cart) {
-        setCart(response.cart);
+        setCart((prevCart) => {
+          if (!prevCart) return prevCart;
+          const updatedProducts = prevCart.products.map((item) =>
+            item.product._id === productId ? { ...item, qty: newQty.toString() } : item
+          );
+          return { ...prevCart, products: updatedProducts, cartTotal: response.cart.cartTotal };
+        });
       }
     } catch (error) {
       console.error("Error updating quantity:", error);
@@ -283,7 +301,7 @@ export default function CartPage() {
     }
   };
 
-  const handleDelete = async (productId: string) => {
+  const handleDelete = async (productId: string, event: React.MouseEvent) => {
     if (!user?.id) return;
 
     setUpdatingItem(productId);
@@ -291,7 +309,13 @@ export default function CartPage() {
       const response = await deleteShirtFromCart(user.id, productId);
       if (response.success) {
         toast.success("Item removed from cart");
-        setCart(response.cart);
+        setCart((prevCart) => {
+          if (!prevCart) return prevCart;
+          const updatedProducts = prevCart.products.filter(
+            (item) => item.product._id !== productId
+          );
+          return { ...prevCart, products: updatedProducts, cartTotal: response.cart.cartTotal };
+        });
       }
     } catch (error) {
       console.error("Error removing item:", error);

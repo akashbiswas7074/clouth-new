@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-
-// Importing UI components from custom UI library and icons from Lucide
+import React, { useState, useEffect } from "react";
 import { Input } from "@/app/components/ui/input";
 import { Label } from "@/app/components/ui/label";
 import { useRouter } from "next/navigation";
@@ -10,11 +8,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/app/components/ui/ca
 import { Button } from "@/app/components/ui/button";
 import { toast } from "react-toast";
 import { FaMapPin, FaCreditCard } from "react-icons/fa";
-import { GiTicket } from "react-icons/gi"; // Game Icons collection
+import { GiTicket } from "react-icons/gi";
 import { useUser } from "@clerk/nextjs";
-import { useEffect } from "react";
-import { clerkClient } from "@clerk/nextjs/server";
-import { json } from "stream/consumers";
 import { createOrder } from "@/lib/database/actions/order.actions";
 
 type Steps = {
@@ -37,16 +32,18 @@ const CheckoutPage = () => {
       return savedAddress
         ? JSON.parse(savedAddress)
         : {
-          phoneNumber: "",
-          address1: "",
-          address2: "",
-          city: "",
-          state: "",
-          country: "",
-          zipCode: "",
-        };
+            name: "",
+            phoneNumber: "",
+            address1: "",
+            address2: "",
+            city: "",
+            state: "",
+            country: "",
+            zipCode: "",
+          };
     }
     return {
+      name: "",
       phoneNumber: "",
       address1: "",
       address2: "",
@@ -94,9 +91,9 @@ const CheckoutPage = () => {
   const subtotal =
     cart && cart.products
       ? cart.products.reduce(
-        (sum: number, item: any) => sum + item.price * Number(item.qty),
-        0
-      )
+          (sum: number, item: any) => sum + item.price * Number(item.qty),
+          0
+        )
       : 0;
   const discount = 0; // You can update this logic if needed
   const total = subtotal - discount;
@@ -203,16 +200,10 @@ const CheckoutPage = () => {
                 <div className="space-y-4">
                   {/* Render Payment method selection */}
                   {/* Form for inputting the delivery address */}
-                  {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                    <Label htmlFor="firstName">First Name</Label>
-                    <Input id="firstName" placeholder="First Name" />
-                    </div>
-                    <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input id="lastName" placeholder="Last Name" />
-                    </div>
-                    </div> */}
+                  <div>
+                    <Label htmlFor="name">Name</Label>
+                    <Input id="name" placeholder="Name" value={deliveryAddress.name} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, name: e.target.value })} />
+                  </div>
                   <div>
                     <Label htmlFor="phoneNumber">Phone Number</Label>
                     <Input id="phoneNumber" placeholder="Phone Number" value={deliveryAddress.phoneNumber} onChange={(e) => setDeliveryAddress({ ...deliveryAddress, phoneNumber: e.target.value })} />
