@@ -170,7 +170,7 @@ const AccountPopUp = () => {
   };
 
   return (
-    <div>
+    <div className="z-[600]">
       {/* <Dialog open={accountMenuOpen} onOpenChange={setAccountMenuOpen}>
         <DialogTrigger asChild>
           <div className="relative"> */}

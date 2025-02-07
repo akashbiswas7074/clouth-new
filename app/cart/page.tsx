@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { 
@@ -16,6 +15,8 @@ import { getFabricById } from "@/lib/database/actions/admin/ShirtArea/Fabric/fab
 import { getColorById } from "@/lib/database/actions/admin/ShirtArea/Color/color.actions";
 import { getMeasurementById } from "@/lib/database/actions/measurement.actions";
 import Image from "next/image";
+import { FaMinus, FaPlus, FaTrashAlt } from "react-icons/fa";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 interface ShirtDetails {
   _id: string;
@@ -126,7 +127,7 @@ const CartItem = ({
           ...details,
           fabricDetails: fabricRes?.fabric,
           colorDetails: colorRes?.color,
-          measurementDetails: measurementRes
+          measurementDetails: measurementRes || undefined
         });
       } catch (error) {
         console.error("Error fetching details:", error);
@@ -139,7 +140,7 @@ const CartItem = ({
 
   if (isLoading) {
     return <Card className="w-full p-6 flex justify-center">
-      <Loader2 className="h-6 w-6 animate-spin" />
+      <AiOutlineLoading3Quarters className="h-6 w-6 animate-spin" />
     </Card>;
   }
 
@@ -170,7 +171,7 @@ const CartItem = ({
                 <h4 className="font-medium mb-2">Material</h4>
                 {details.fabricDetails && (
                   <p className="text-sm">
-                    Fabric: {details.fabricDetails.fabricName} 
+                    Fabric: {details.fabricDetails.name} 
                     {details.fabricDetails.type && ` (${details.fabricDetails.type})`}
                   </p>
                 )}
@@ -208,10 +209,10 @@ const CartItem = ({
               onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) - 1)}
               disabled={isUpdating || parseInt(item.qty) <= 1}
             >
-              <Minus className="h-4 w-4" />
+              <FaMinus className="h-4 w-4" />
             </Button>
             <span className="w-8 text-center">
-              {isUpdating ? <Loader2 className="h-4 w-4 animate-spin" /> : item.qty}
+              {isUpdating ? <AiOutlineLoading3Quarters className="h-4 w-4 animate-spin" /> : item.qty}
             </span>
             <Button
               size="icon"
@@ -219,7 +220,7 @@ const CartItem = ({
               onClick={() => onUpdateQuantity(item.product._id, parseInt(item.qty) + 1)}
               disabled={isUpdating}
             >
-              <Plus className="h-4 w-4" />
+              <FaPlus className="h-4 w-4" />
             </Button>
           </div>
           <Button
@@ -228,7 +229,7 @@ const CartItem = ({
             onClick={() => onDelete(item.product._id)}
             disabled={isUpdating}
           >
-            <Trash2 className="h-4 w-4" />
+            <FaTrashAlt className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>
@@ -238,7 +239,7 @@ const CartItem = ({
 
 export default function CartPage() {
   const { user } = useUser();
-  const [cart, setCart] = useState<CartData['cart']>(null);
+  const [cart, setCart] = useState<CartData['cart']>(undefined);
   const [loading, setLoading] = useState(true);
   const [updatingItem, setUpdatingItem] = useState<string | null>(null);
 
@@ -303,7 +304,7 @@ export default function CartPage() {
   if (loading) {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <AiOutlineLoading3Quarters className="h-8 w-8 animate-spin" />
       </div>
     );
   }

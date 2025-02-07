@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 import ShirtMeasurementsForm from "../components/shirtMeasurement/ShirtMeasurementsForm";
 import BodyMeasurementsForm from "../components/bodyMeasurement/BodyMeasurementsForm";
 import {
@@ -13,8 +14,6 @@ import {
 import { createMeasurement } from "@/lib/database/actions/measurement.actions";
 import { updateShirtIds } from "@/lib/database/actions/admin/ShirtArea/Shirt/shirt.actions";
 import { addShirtToCart } from "@/lib/database/actions/cart.actions";
-import { toast } from "sonner";
-import { ToastContainer } from "react-toast";
 
 const Page = () => {
   const router = useRouter();
@@ -27,9 +26,6 @@ const Page = () => {
   >();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // useEffect(() => {
-  //   console.log("user:", user)
-  // }, [])
   const handleShirtMeasurementsChange = (measurements: ShirtMeasurements) => {
     setShirtMeasurements(measurements);
   };
@@ -38,48 +34,13 @@ const Page = () => {
     setBodyMeasurements(measurements);
   };
 
-  const addShirt = async () => {
-    if (!user) {
-      toast.error("User not logged in!");
-      return;
-    }
-    const shirtId = localStorage.getItem("shirtId");
-    const userId = user.id;
-    console.log(userId);
-    if (!shirtId) {
-      throw new Error("Shirt ID not found in localStorage!");
-    }
-    const cartResponse = await addShirtToCart(userId, shirtId);
-
-    if (!cartResponse.success) {
-      throw new Error(cartResponse.message);
-    }
-
-    useEffect(() => {
-      addShirt();
-    }, []);
-    // 4️⃣ Success: Notify and Redirect
-    toast.success("Measurements saved and shirt added to cart!");
-  };
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Get logged-in user
-
-    if (!user) {
-      toast.error("User not logged in!");
-      return;
-    }
-
-    // const userId = user.id;
-    // console.log(userId);;
-    const shirtId = localStorage.getItem("shirtId");
-
-    if (!shirtId) {
-      toast.error("Shirt ID not found in localStorage!");
-      return;
-    }
+    e.preventDefault();
+    if (isSubmitting || !user) return;
+    setIsSubmitting(true);
 
     try {
-      // 1️⃣ Create measurement
+      // 1. Create measurement
       const measurementResponse = await createMeasurement({
         shirt: shirtMeasurements,
         body: bodyMeasurements,
@@ -89,7 +50,11 @@ const Page = () => {
         throw new Error(measurementResponse.message);
       }
 
-      // 2️⃣ Update Shirt ID
+      // 2. Get shirtId from localStorage
+      const shirtId = localStorage.getItem("shirtId");
+      if (!shirtId) throw new Error("Shirt ID not found");
+
+      // 3. Update shirt with measurement ID
       const updateResponse = await updateShirtIds(
         shirtId,
         undefined,
@@ -100,15 +65,15 @@ const Page = () => {
         throw new Error(updateResponse.message);
       }
 
-      // 3️⃣ Add Shirt to Cart
-      // const cartResponse = await addShirtToCart(userId, shirtId);
+      // 4. Add shirt to cart
+      const cartResponse = await addShirtToCart(shirtId, user.id);
 
-      // if (!cartResponse.success) {
-      //   throw new Error(cartResponse.message);
-      // }
+      if (!cartResponse.success) {
+        throw new Error(cartResponse.message);
+      }
 
-      // // 4️⃣ Success: Notify and Redirect
-      // toast.success("Measurements saved and shirt added to cart!");
+      // 5. Success - clean up and redirect
+      toast.success("Measurements saved and shirt added to cart!");
       localStorage.removeItem("shirtId");
       router.push("/cart");
     } catch (error: any) {
@@ -128,7 +93,6 @@ const Page = () => {
 
   return (
     <form onSubmit={handleSubmit} className="pt-28 px-4 py-2 font-play">
-      <ToastContainer />
       <div>
         <ShirtMeasurementsForm onChange={handleShirtMeasurementsChange} />
       </div>
@@ -141,10 +105,9 @@ const Page = () => {
         <button
           type="submit"
           className="bg-[#c40600] px-4 py-2 text-white rounded-lg font-semibold"
-          // disabled={isSubmitting}
+          disabled={isSubmitting}
         >
-          submit
-          {/* {isSubmitting ? "Saving..." : "Save Measurements"} */}
+          {isSubmitting ? "Saving..." : "Save Measurements"}
         </button>
       </div>
     </form>

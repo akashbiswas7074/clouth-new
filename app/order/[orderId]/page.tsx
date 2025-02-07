@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/button";
-import { FaArrowLeft } from "react-icons/fa";
+import { FaArrowLeft, FaSpinner } from "react-icons/fa";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getOrderDetailsById } from "@/lib/database/actions/order.actions";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
 // Import downloadPDF from the checkout folder
 import { downloadPDF } from "../../checkout/down";
 
@@ -53,7 +52,7 @@ const OrderPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <FaSpinner className="h-8 w-8 animate-spin" />
       </div>
     );
   }

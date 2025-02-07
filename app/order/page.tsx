@@ -4,12 +4,11 @@ import { useEffect, useState } from "react";
 import { Button } from "@/app/components/ui/button";
 import { FaArrowLeft, FaMapPin, FaCreditCard } from "react-icons/fa";
 import { GiTicket } from "react-icons/gi";
-import { MdCheckCircle } from "react-icons/md";
+import { MdCheckCircle, MdAutorenew } from "react-icons/md"; // Updated import
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getOrderDetailsById } from "@/lib/database/actions/order.actions";
 import { format } from "date-fns";
-import { Loader2 } from "lucide-react";
 
 const formatDate = (dateString: string | number | Date) => {
   try {
@@ -53,7 +52,7 @@ const OrderPage = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <MdAutorenew className="h-8 w-8 animate-spin" /> {/* Updated component */}
       </div>
     );
   }

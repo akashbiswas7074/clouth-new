@@ -31,8 +31,11 @@ interface CartItem {
   };
 }
 
+let setCartMenuOpenGlobal: (open: boolean) => void;
+
 const CartDrawer = () => {
   const [cartMenuOpen, setCartMenuOpen] = useAtom(cartMenuState, { store: useStore() });
+  setCartMenuOpenGlobal = setCartMenuOpen; // Assign to global variable
   const { user, isLoaded } = useUser();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -230,6 +233,13 @@ const CartDrawer = () => {
       </Sheet>
     </div>
   );
+};
+
+// Export a function to open the cart drawer
+export const openCartDrawer = () => {
+  if (setCartMenuOpenGlobal) {
+    setCartMenuOpenGlobal(true);
+  }
 };
 
 export default CartDrawer;

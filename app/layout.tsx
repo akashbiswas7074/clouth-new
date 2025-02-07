@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner"
 <Toaster />
 import { ClerkProvider } from '@clerk/nextjs'
 import Footer from "./components/footer/Footer";
+import AccountPopUp from "./components/accountPopUp/AccountPopUp";
 
 const play = Play({
  
@@ -34,7 +35,7 @@ export default function RootLayout({
       <body
         className={`${play.variable} antialiased`} 
       >
-        
+        <AccountPopUp/>
         <Navbar />
         {children}
         <Toaster/>

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PayPalButton } from "@/app/components/PayPal/PayPalButton";
 import { useUser } from "@clerk/nextjs";
-import { Loader2 } from "lucide-react";
+import { FaSpinner } from "react-icons/fa";
 
 const PaypalPage = () => {
     const router = useRouter();
@@ -44,7 +44,7 @@ const PaypalPage = () => {
     if (cartLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="h-8 w-8 animate-spin" />
+                <FaSpinner className="h-8 w-8 animate-spin" />
             </div>
         );
     }

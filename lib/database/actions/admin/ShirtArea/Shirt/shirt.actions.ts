@@ -178,12 +178,14 @@ export const updateShirtIds = async (
 
 export const getShirtById = async (shirtId: string) => {
   try {
+
     if (!mongoose.Types.ObjectId.isValid(shirtId)) {
       return { message: "Invalid shirt ID.", success: false };
     }
 
+    const objectId = new mongoose.Types.ObjectId(shirtId);
     // Fetch the shirt and populate the necessary fields
-    const shirt = (await ShirtModel.findById(shirtId)
+    const shirt = (await ShirtModel.findById(objectId)
       .populate<{ colorId: Color | null }>("colorId")
       .populate<{ fabricId: Fabric | null }>("fabricId")
       .populate<{ monogramId: Monogram | null }>("monogramId")
@@ -195,10 +197,18 @@ export const getShirtById = async (shirtId: string) => {
     }
 
     // Fetch additional details only if the IDs exist
-    const color = shirt.colorId ? await getColorById(shirt.colorId.toString()) : null;
-    const fabric = shirt.fabricId ? await getFabricById(shirt.fabricId.toString()) : null;
-    const monogram = shirt.monogramId ? await getMonogramById(shirt.monogramId.toString()) : null;
-    const measurement = shirt.measurementId ? await getMeasurementById(shirt.measurementId.toString()) : null;
+    const color = shirt.colorId
+      ? await getColorById(shirt.colorId.toString())
+      : null;
+    const fabric = shirt.fabricId
+      ? await getFabricById(shirt.fabricId.toString())
+      : null;
+    const monogram = shirt.monogramId
+      ? await getMonogramById(shirt.monogramId.toString())
+      : null;
+    const measurement = shirt.measurementId
+      ? await getMeasurementById(shirt.measurementId.toString())
+      : null;
 
     // Formatting the response with structured data
     const formattedShirt = {
@@ -215,7 +225,7 @@ export const getShirtById = async (shirtId: string) => {
       placket: shirt.placket?.name || null,
       sleeves: shirt.sleeves?.name || null,
       fit: shirt.fit?.name || null,
-      color: color?.success ? color.color : null,  // Return full color details
+      color: color?.success ? color.color : null, // Return full color details
       fabric: fabric?.success ? fabric.fabric : null, // Return full fabric details
       monogram: monogram?.success ? monogram.monogram : null, // Return full monogram details
       measurement: measurement || null, // Return full measurement details
@@ -263,4 +273,3 @@ export const updateShirtPrice = async (shirtId: string, price: number) => {
     return { message: "Error updating shirt price.", success: false };
   }
 };
-

@@ -5,7 +5,8 @@ import { useUser } from "@clerk/nextjs";
 import { getUserOrders } from "@/lib/database/actions/order.actions";
 import { Card, CardContent } from "@/app/components/ui/card";
 import { Badge } from "@/components/ui/badge"
-import { Loader2, Package } from "lucide-react";
+// Replace lucide-react icons with react-icons
+import { FaSpinner, FaBoxOpen } from "react-icons/fa";
 import { format } from "date-fns";
 import Link from "next/link";
 
@@ -224,7 +225,7 @@ export default function OrderHistory() {
   if (!isLoaded || loading) {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <FaSpinner className="h-8 w-8 animate-spin" />
       </div>
     );
   }
@@ -241,7 +242,7 @@ export default function OrderHistory() {
     return (
       <div className="min-h-screen pt-16 flex items-center justify-center">
         <div className="text-center">
-          <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+          <FaBoxOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
           <p className="text-gray-500">No orders found</p>
         </div>
       </div>
