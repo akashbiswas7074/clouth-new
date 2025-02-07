@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { getMonogramsByColorAndFabric } from "@/lib/database/actions/admin/ShirtArea/Monogram/monogram.actions";
 import { useEffect, useState } from "react";
@@ -46,10 +46,37 @@ const useMonogramData = () => {
       if (fabricId && colorId) {
         setLoading(true);
         try {
-          const monograms = await getMonogramsByColorAndFabric(fabricId, colorId);
+          const monograms = await getMonogramsByColorAndFabric(
+            fabricId,
+            colorId
+          );
 
-          const monogramStyle = monograms?.map((monogram: Monogram) => monogram.style);
-          const monogramPosition = monograms?.map((monogram: Monogram) => monogram.position);
+          // const monogramStyle = monograms?.map(
+          //   (monogram: Monogram) => monogram.style
+          // );
+          // const collarHeight = collar
+          // ?.filter((collar: Collar) => collar.height?.name)
+          // .map((collar: Collar) => ({
+          //   ...collar.height,
+          //   _id: collar._id,
+          // }));
+          const monogramStyle = monograms
+            ?.filter((monogram: Monogram) => monogram.style)
+            .map((monogram: Monogram) => ({
+              ...monogram.style,
+              _id: monogram._id,
+            }));
+
+          // const monogramPosition = monograms?.map(
+          //   (monogram: Monogram) => monogram.position
+          // );
+
+          const monogramPosition = monograms
+            ?.filter((monogram: Monogram) => monogram.position)
+            .map((monogram: Monogram) => ({
+              ...monogram.position,
+              _id: monogram._id,
+            }));
 
           setData({
             monogramStyle,
